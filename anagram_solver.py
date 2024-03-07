@@ -36,16 +36,16 @@ class BananaPouch:
 
 # Currently useless, but aiming to find all/best anagrams using the hash
 # So far only finds if a base or base minus one char has anagrams
-def find_best_ana(base):
-    base_unique = ''.join(set(base))
-    ana_list = []
-    if base in word_dict.keys():
-        ana_list.append(base)
-    for i in base_unique:
-        base_cat = base.replace(i, '', 1)
-        if base_cat in word_dict.keys():
-            ana_list.append(base_cat)
-    return ana_list
+# def find_best_ana(base):
+#     base_unique = ''.join(set(base))
+#     ana_list = []
+#     if base in word_dict.keys():
+#         ana_list.append(base)
+#     for i in base_unique:
+#         base_cat = base.replace(i, '', 1)
+#         if base_cat in word_dict.keys():
+#             ana_list.append(base_cat)
+#     return ana_list
 
 # Loads the hash dictionary
 # with open("Dictionary/hash_dict.json", "r") as file:
