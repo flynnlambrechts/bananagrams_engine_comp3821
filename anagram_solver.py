@@ -13,9 +13,7 @@ class BananaPouch:
     # Uses starting_letters dict to make the list of letters in pouch
     def __init__(self):
         self.remaining = []
-        for char in starting_letters.keys():
-            for i in range(starting_letters[char]):
-                self.remaining.append(char)
+        self.reset()
 
     # Returns array of 21 letters
     def setup(self):
@@ -30,6 +28,11 @@ class BananaPouch:
             return self.remaining.pop(random.randint(0,len(self.remaining) - 1))
         else:
             return -1
+    def reset(self):
+        self.remaining = []
+        for char in starting_letters.keys():
+            for i in range(starting_letters[char]):
+                self.remaining.append(char)
 
 # Currently useless, but aiming to find all/best anagrams using the hash
 # So far only finds if a base or base minus one char has anagrams
@@ -45,19 +48,19 @@ def find_best_ana(base):
     return ana_list
 
 # Loads the hash dictionary
-with open("Dictionary/hash_dict.json", "r") as file:
-    word_dict = json.load(file)
+# with open("Dictionary/hash_dict.json", "r") as file:
+#     word_dict = json.load(file)
 
-trie = Trie()
-make_trie(trie, "Dictionary/word_dictionary.txt")
-print("trie created!")
-pouch = BananaPouch()
-starting_tiles = ''.join(sorted(pouch.setup()))
+# trie = Trie()
+# make_trie(trie, "Dictionary/word_dictionary.txt")
+# print("trie created!")
+# pouch = BananaPouch()
+# starting_tiles = ''.join(sorted(pouch.setup()))
 
-print(starting_tiles)
-all_anas = trie.all_subwords(starting_tiles)
-print(all_anas)
-print(len(all_anas))
+# print(starting_tiles)
+# all_anas = trie.all_subwords(starting_tiles)
+# print(all_anas)
+# print(len(all_anas))
 
 
 # # for each line, check for anagrams
