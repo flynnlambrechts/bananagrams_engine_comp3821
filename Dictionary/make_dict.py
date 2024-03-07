@@ -39,14 +39,14 @@ class Trie:
         subwords = []
         for char in self.root.children.keys():
             if char in base:
-                subwords.append(self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
+                subwords = subwords + self._recurse_subwords(self.root.children[char], base.replace(char, "", 1))
         return subwords
     
     def _recurse_subwords(self, node, subbase):
         subwords = node.anagrams
         for char in node.children.keys():
             if char in subbase:
-                subwords.append(self._recurse_subwords(node.children[char], subbase.replace(char, "", 1)))
+                subwords = subwords + self._recurse_subwords(node.children[char], subbase.replace(char, "", 1))
         return subwords
 
 
