@@ -1,11 +1,12 @@
 import json
-import pickle
 
 class TrieNode:
     def __init__(self):
         self.children = {}
         self.anagrams = []
 
+# Trie with standard operations plus a recursive search of 
+# all anagrams that use some of the given letters
 class Trie:
     def __init__(self):
         self.root = TrieNode()
@@ -49,8 +50,7 @@ class Trie:
                 subwords = subwords + self._recurse_subwords(node.children[char], subbase.replace(char, "", 1))
         return subwords
 
-
-
+# Adds words to the python dictionary, equivalent to a hash
 def add_word_hash(hash_dict, word):
     s_word = sort_word(word)
     if s_word in hash_dict.keys():
@@ -58,15 +58,18 @@ def add_word_hash(hash_dict, word):
     else:
         hash_dict[s_word] = [word]
 
+# Sorts and capitalises a string
 def sort_word(word):
     return ''.join(sorted(word.upper()))
 
+# Makes a trie out of a given file (line by line)
 def make_trie(trie, file_name):
     with open(file_name, "r") as file:
         lines = file.readlines()
         for line in lines:
             trie.insert(line.strip())
 
+# Makes a hash out of a given file (line by line)
 def make_hash(hash_dict, file_name):
     with open(file_name, "r") as file:
         lines = file.readlines()
@@ -75,6 +78,7 @@ def make_hash(hash_dict, file_name):
             add_word_hash(hash_dict, line.strip())
             # print(sort_word(line.strip()))
 
+# Saves the dictionary as a json file
 def save_hash(hash_dict, file_name):
     with open(file_name, "w") as file:
         json.dump(hash_dict, file)
@@ -83,6 +87,8 @@ def save_hash(hash_dict, file_name):
         #         print(f"{anagrams}: {anagram}")
         #     print()
 
+# Yet to find an easy way to save the trie. 
+# It's not so easy to convert to json
 # def save_trie(trie, file_name):
 #     with open(file_name, "w") as file:
 #         pickle.dump(trie, file)
