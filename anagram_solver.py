@@ -21,12 +21,15 @@ class BananaPouch:
     def setup(self):
         starting_chars = []
         for i in range(21):
-            starting_chars.append(self.peel)
+            starting_chars.append(self.peel())
         return starting_chars
     
     # Take a random letter from the list of remaining letters
     def peel(self):
-        return self.remaining.pop(random.randint(0,len(self.remaining)))
+        if len(self.remaining) > 0:
+            return self.remaining.pop(random.randint(0,len(self.remaining) - 1))
+        else:
+            return -1
 
 # Currently useless, but aiming to find all/best anagrams using the hash
 # So far only finds if a base or base minus one char has anagrams
@@ -50,6 +53,7 @@ make_trie(trie, "Dictionary/word_dictionary.txt")
 print("trie created!")
 pouch = BananaPouch()
 starting_tiles = ''.join(sorted(pouch.setup()))
+
 print(starting_tiles)
 all_anas = trie.all_subwords(starting_tiles)
 print(all_anas)
