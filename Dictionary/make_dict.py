@@ -1,4 +1,5 @@
 import json
+import pickle
 
 class TrieNode:
     def __init__(self):
@@ -24,7 +25,7 @@ class Trie:
             if char not in node.children:
                 return False
             node = node.children[char]
-        return node.is_end_word
+        return node.anagrams
 
     def starts_with(self, prefix):
         node = self.root
@@ -33,8 +34,6 @@ class Trie:
                 return False
             node = node.children[char]
         return True
-
-
 
     def all_subwords(self, base):
         subwords = []
@@ -47,37 +46,51 @@ class Trie:
         subwords = node.anagrams
         for char in node.children.keys():
             if char in subbase:
-                subwords.append(self._recurse_subwords(self.children[char], subbase.replace(char, "", 1)))
+                subwords.append(self._recurse_subwords(node.children[char], subbase.replace(char, "", 1)))
         return subwords
 
 
-word_dict = {}
-trie = Trie()
 
-def add_word_hash(word):
+def add_word_hash(hash_dict, word):
     s_word = sort_word(word)
-    if s_word in word_dict.keys():
-        word_dict[s_word].append(word)
-        key_list.append(s_word)
+    if s_word in hash_dict.keys():
+        hash_dict[s_word].append(word)
     else:
-        word_dict[s_word] = [word]
+        hash_dict[s_word] = [word]
 
 def sort_word(word):
     return ''.join(sorted(word.upper()))
 
+def make_trie(trie, file_name):
+    with open(file_name, "r") as file:
+        lines = file.readlines()
+        for line in lines:
+            trie.insert(line.strip())
 
-with open("word_dictionary.txt", "r") as file:
-    lines = file.readlines()
-    
-    for line in lines:
-        add_word_hash(line.strip())
-        trie.insert(line.strip())
-        # print(sort_word(line.strip()))
+def make_hash(hash_dict, file_name):
+    with open(file_name, "r") as file:
+        lines = file.readlines()
+        
+        for line in lines:
+            add_word_hash(hash_dict, line.strip())
+            # print(sort_word(line.strip()))
 
+def save_hash(hash_dict, file_name):
+    with open(file_name, "w") as file:
+        json.dump(hash_dict, file)
+        # for anagrams in word_dict:
+        #     for anagram in word_dict[anagrams]:
+        #         print(f"{anagrams}: {anagram}")
+        #     print()
 
-with open("hash_dict.json", "w") as file:
-    json.dump(word_dict, file)
-    # for anagrams in word_dict:
-    #     for anagram in word_dict[anagrams]:
-    #         print(f"{anagrams}: {anagram}")
-    #     print()
+# def save_trie(trie, file_name):
+#     with open(file_name, "w") as file:
+#         pickle.dump(trie, file)
+#         # for anagrams in word_dict:
+#         #     for anagram in word_dict[anagrams]:
+#         #         print(f"{anagrams}: {anagram}")
+#         #     print()
+
+# trie = Trie()
+# make_trie(trie, "Dictionary/word_dictionary.txt")
+# save_trie(trie, "trie_dict.json")
