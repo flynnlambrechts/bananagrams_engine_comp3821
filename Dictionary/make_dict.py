@@ -38,16 +38,22 @@ class Trie:
 
     def all_subwords(self, base):
         subwords = []
+        count = 0
         for char in self.root.children.keys():
             if char in base:
                 subwords.extend(self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
+                count += subwords.pop()
+        subwords.append(count)
         return subwords
     
     def _recurse_subwords(self, node, subbase):
         subwords = node.anagrams
+        count = 1
         for char in node.children.keys():
             if char in subbase:
                 subwords.extend(self._recurse_subwords(node.children[char], subbase.replace(char, "", 1)))
+                count += subwords.pop()
+        subwords.append(count)
         return subwords
 
 # Adds words to the python dictionary, equivalent to a hash
