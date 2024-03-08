@@ -47,7 +47,7 @@ class Trie:
         return subwords
     
     def _recurse_subwords(self, node, subbase):
-        subwords = node.anagrams
+        subwords = node.anagrams[:]
         count = 1
         for char in node.children.keys():
             if char in subbase:
