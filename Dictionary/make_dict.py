@@ -5,6 +5,23 @@ class TrieNode:
         self.children = {}
         self.anagrams = []
 
+class Word:
+    
+    def __init__(self, line):
+        line_split = line.split(' ')
+        self.word = line_split[0]
+        self.num_startswith = int(line_split[1])
+        self.num_endswith = int(line_split[2])
+    
+    def get_word(self):
+        return self.word
+    
+    def get_num_startswith(self):
+        return self.num_startswith
+    
+    def get_num_endswith(self):
+        return self.num_endswith
+
 # Trie with standard operations plus a recursive search of 
 # all anagrams that use some of the given letters
 class Trie:
@@ -12,7 +29,7 @@ class Trie:
         self.root = TrieNode()
 
     def insert(self, word):
-        s_word = sort_word(word)
+        s_word = sort_word(word.get_word())
         node = self.root
         for char in s_word:
             if char not in node.children:
@@ -22,7 +39,7 @@ class Trie:
 
     def search(self, word):
         node = self.root
-        for char in word:
+        for char in word.get_word:
             if char not in node.children:
                 return False
             node = node.children[char]
@@ -73,7 +90,7 @@ def make_trie(trie, file_name):
     with open(file_name, "r") as file:
         lines = file.readlines()
         for line in lines:
-            trie.insert(line.strip())
+            trie.insert(Word(line))
 
 # Makes a hash out of a given file (line by line)
 def make_hash(hash_dict, file_name):
