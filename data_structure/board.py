@@ -8,7 +8,7 @@ class Board:
         
     def add_tile(self, tile: str, row: int, col: int) -> None:
         if (row, col) in self.tiles:
-            raise ValueError(f'There is already a character at ({row}, {col})')
+            raise ValueError(f'There is already a tile at ({row}, {col})')
         
         adjacent = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
         
@@ -18,4 +18,10 @@ class Board:
             return
         
         self.tiles[(row, col)] = tile
+        
+    def remove_tile(self, row: int, col: int) -> str:
+        if (row, col) not in self.tiles:
+            raise ValueError(f'There is no tile at ({row}, {col})')
+        
+        return self.tiles.pop((row, col))
         
