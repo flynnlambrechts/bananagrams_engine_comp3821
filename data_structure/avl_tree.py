@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class Node:
     def __init__(self, key, value = None) -> None:
         self.key = key
@@ -33,7 +36,7 @@ def _rotate_right(node: Node) -> Node:
     left.height = _update_height(left)
     return left
 
-def insert(node: Node, key, value = None):
+def insert(node: Node, key, value = None) -> Node:
     if not node:
         return Node(key, value)
     
@@ -67,3 +70,8 @@ def insert(node: Node, key, value = None):
     
     return node
     
+def find(node: Node, key) -> Optional[any]:
+    if not node: return None
+    if key < node.key: return find(node.left, key)
+    if key > node.key: return find(node.right, key)
+    return node.value

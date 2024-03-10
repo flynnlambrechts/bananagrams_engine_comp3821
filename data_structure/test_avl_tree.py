@@ -1,4 +1,4 @@
-from avl_tree import insert
+from avl_tree import insert, find
 
 def test_balance():
     def height(node): return node.height if node else 0
@@ -36,4 +36,15 @@ def test_keys():
     assert all([key in correct for key in keys])
     
     
+def test_find():
+    tree = insert(None, 1020, 'a')
+    tree = insert(tree, 520, 'b')
+    tree = insert(tree, 720, 'c')
+    tree = insert(tree, 1320, 'd')
+    tree = insert(tree, 220, 'e')
+    tree = insert(tree, 9020, 'f')
+    
+    assert find(tree, 10) == None
+    assert find(tree, 520) == 'b'
+    assert find(tree, 9020) == 'f'
     
