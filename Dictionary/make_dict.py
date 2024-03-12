@@ -17,6 +17,7 @@ class Word:
         self.word = line_split[0]
         self.num_startswith = int(line_split[1])
         self.num_endswith = int(line_split[2])
+        self.letter_ranking = 0
     
     def get_word(self):
         return self.word
@@ -26,6 +27,12 @@ class Word:
     
     def get_num_endswith(self):
         return self.num_endswith
+    
+    def get_letter_rank(self):
+        return self.letter_ranking
+    
+    def set_letter_rank(self, rank):
+        self.letter_ranking = rank
 
 # Trie with standard operations plus a recursive search of 
 # all anagrams that use some of the given letters
@@ -36,10 +43,13 @@ class Trie:
     def insert(self, word):
         s_word = sort_word(word.get_word())
         node = self.root
+        word_val = 0
         for char in s_word:
+            word_val += letter_count[char]
             if char not in node.children:
                 node.children[char] = TrieNode()
             node = node.children[char]
+        word.set_letter_rank(word_val)
         node.anagrams.append(word)
 
     def search(self, word):
@@ -65,7 +75,7 @@ class Trie:
             if char in base:
                 subwords.extend(self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
                 count += subwords.pop()
-        subwords.append(count)
+        # subwords.append(count)
         return subwords
     
     def _recurse_subwords(self, node, subbase):
