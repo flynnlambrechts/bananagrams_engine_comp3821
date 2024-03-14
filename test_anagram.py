@@ -1,53 +1,37 @@
-from anagram_solver import *
-from Dictionary.make_dict import *
-import timeit
+from Dictionary.trie import Trie
+from bananapouch import BananaPouch
 import time
 trie = Trie()
-make_trie(trie, "Dictionary/word_dictionary.txt")
+trie.make_trie("Dictionary/word_dictionary.txt")
 pouch = BananaPouch()
 print("trie made!")
-with open("starting_letters_x100.txt", "w") as file:
-    for i in range (100):
-        pouch.reset()
-        starting_tiles = ''.join(sorted(pouch.setup()))
-        file.write(starting_tiles + '\n')
-
-
-def find_subwords_w_info(trie, base):
-    subwords = trie.all_subwords(base)
-    # words_found.append(len(subwords))
-
 
 with open("starting_letters_x100.txt", "r") as file:
-    times = []
+    durations = []
     words_found = []
-    nodes_checked = []
+    nodes_visited = []
     lines = file.readlines()
     j = 0
+
     for line in lines:
-        base = sort_word(line.strip())
-        print(base)
-        print(j)
-        # setup = f"from __main__ import find_subwords_w_info; trie = {trie}, base = {base}"
-        # stmt = "find_subwords_w_info(trie, base)"
-        # elapsed = timeit.timeit(stmt, setup=setup, number=3)
+        base = ''.join(sorted(line.strip().upper()))
         j += 1
-        # if j < 30:
-        #     continue
+        print(f"run {j}: {base}")
+
         start = time.time()
         word_count = trie.all_subwords(base)
         end = time.time()
-        times.append(end-start)
-        words_found.append(len(word_count) - 1)
-        nodes_checked.append(word_count.pop())
-        print(end - start)
 
-        print(f"nodes visited: {nodes_checked[len(nodes_checked) - 1]}")
-        print(f"words found: {words_found[len(words_found) - 1]}")
+        durations.append(end-start)
+        # Note that the nodes visited part of all_subwords is by default commented out
+        # Since it's not useful for actually doing stuff
+        # So it needs to be uncommented for that to work.
+        nodes_visited.append(word_count.pop())
+        words_found.append(len(word_count))
 
-        if j > 60: 
-            break
-    print(f"av. time: {sum(times)/len(times)}")
+        print(f"found {words_found[-1]} words in {end - start} seconds by looking at {nodes_visited[-1]} nodes!")
+
+    print(f"av. time: {sum(durations)/len(durations)}")
+    print(f"Total time: {sum(durations)}")
     print(f"av. words found: {sum(words_found)/len(words_found)}")
-    print(f"av. nodes visited: {sum(nodes_checked)/len(nodes_checked)}")
-    
+    print(f"av. nodes visited: {sum(nodes_visited)/len(nodes_visited)}")
