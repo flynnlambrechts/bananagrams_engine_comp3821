@@ -1,10 +1,32 @@
 from Classes.trie import Trie
 from Game_Structure.bananapouch import BananaPouch
 import time
-trie = Trie()
-trie.make_trie("Dictionary/word_dictionary.txt")
+s_trie = Trie()
+f_trie = Trie("forward")
+r_trie = Trie("reverse")
+s_trie.make_trie("Classes/word_dictionary.txt")
+f_trie.make_trie("Classes/word_dictionary.txt")
+r_trie.make_trie("Classes/word_dictionary.txt")
 pouch = BananaPouch()
-print("trie made!")
+
+print("tries made!")
+base = "IP"
+print(f"base: {base}")
+anchor=  "CRA"
+print(f"anchor: {anchor}")
+f_list = f_trie.all_subwords(base, anchor)
+print("forward:")
+for word in f_list:
+    print(word.word, end = ", ")
+r_list = r_trie.all_subwords(base, anchor)
+print("\n\nreverse:")
+for word in r_list:
+    print(word.word, end = ", ")
+s_list = s_trie.all_subwords(base, anchor)
+print("sorted:")
+for word in s_list:
+    print(word.word, end = ", ")
+
 
 with open("starting_letters_x100.txt", "r") as file:
     durations = []
@@ -19,7 +41,7 @@ with open("starting_letters_x100.txt", "r") as file:
         print(f"run {j}: {base}")
 
         start = time.time()
-        word_count = trie.all_subwords(base)
+        word_count = s_trie.all_subwords(base)
         end = time.time()
 
         durations.append(end-start)
