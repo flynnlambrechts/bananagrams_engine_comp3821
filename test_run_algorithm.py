@@ -1,10 +1,10 @@
-from Dictionary.make_dict import *
+from Dictionary.trie import *
 from run_algorithm import *
 
 with open("starting_letters_x100.txt", "r") as file:
     trie = Trie()
-    make_trie(trie, "Dictionary/word_dictionary.txt")
+    trie.make_trie("Dictionary/word_dictionary.txt")
 
     for line in file.readlines():
-        base = sort_word(line.strip())
+        base = ''.join(sorted(line.strip()))
         run_algorithm(base, trie)
