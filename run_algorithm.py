@@ -1,4 +1,4 @@
-from Dictionary.trie import *
+from Classes.trie import *
 
 def run_algorithm (base:str, trie:Trie):
     subwords = trie.all_subwords(base)

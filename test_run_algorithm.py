@@ -1,4 +1,4 @@
-from Dictionary.trie import *
+from Classes.trie import *
 from run_algorithm import *
 
 with open("starting_letters_x100.txt", "r") as file:

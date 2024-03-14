@@ -1,5 +1,5 @@
-from Dictionary.trie import Trie
-from bananapouch import BananaPouch
+from Classes.trie import Trie
+from Game_Structure.bananapouch import BananaPouch
 import time
 trie = Trie()
 trie.make_trie("Dictionary/word_dictionary.txt")

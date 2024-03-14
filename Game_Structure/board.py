@@ -4,6 +4,8 @@ class Board:
         
     # This allows us to use print(board)
     def __str__(self) -> str:
+        if not self.tiles:
+            return "Board is empty"
         col_delim = " "
 
         min_row = min([row for row, _ in self.tiles])
@@ -44,10 +46,11 @@ class Board:
             raise ValueError('Tile must be one character long')
         if (row, col) in self.tiles and self.tiles[(row, col)] != tile:
             raise ValueError(f'There is already a tile at ({row}, {col})')
-        
+        print(f"Adding {tile} to {row},{col}")
+        self.tiles[(row,col)] = tile
         # # Future nodes for caching sequences/words
         # adjacent = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
-        # 
+        
         # if all([coord not in self.tiles for coord in adjacent]):
         #     # No character tiles around it
         #     self.tiles[(row, col)] = tile
@@ -68,7 +71,7 @@ class Board:
         # direction of 0 means horizontal
         VERTICAL = 1
         HORIZONTAL = 0
-
+        print("adding word")
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
         if (reverse):
