@@ -12,3 +12,6 @@ words = trie.all_subwords(game.hand)
 print(f"word: {words[0].get_word()}")
 game.play_word(words[0].get_word(), 0, 0, 0, False)
 print(game)
+words = trie.find_two_letters("E")
+for word in words:
+    print(word.word)

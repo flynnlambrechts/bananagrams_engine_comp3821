@@ -45,13 +45,16 @@ class Trie:
 
     # Returns an array of every anagram that can be made using the letters in base.
     # Note that the last item in the array is the count of how many nodes it visited. 
-    def all_subwords(self, base):
+    def all_subwords(self, base, anchor = ''):
         subwords = []
         count = 0
-        for char in self.root.children.keys():
-            if char in base:
-                subwords.extend(self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
-                count += subwords.pop()
+        if not anchor:
+            for char in self.root.children.keys():
+                if char in base:
+                    subwords.extend(self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
+                    count += subwords.pop()
+        else:
+            subwords.extend(self._recurse_subwords(self.root.children[anchor], base))
         # subwords.append(count)
         return subwords
     
@@ -65,3 +68,10 @@ class Trie:
                 count += subwords.pop()
         subwords.append(count)
         return subwords
+    
+    def find_two_letters(self, char):
+        node = self.root.children[char]
+        words = []
+        for char in node.children.keys():
+            words.extend(node.children[char].anagrams)
+        return words
