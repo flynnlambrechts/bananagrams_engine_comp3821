@@ -15,11 +15,9 @@ reverse_words.make_trie("Classes/word_dictionary.txt")
 anchors = []
 start_word = long_start_word(all_words.all_subwords(game.hand))
 
-anchors.append(start_word[0])
-anchors.append(start_word[-1])
 game.play_word(start_word, 0, 0, 0, False)
-
-
+anchors.append(game.board.tiles[(0,0)])
+anchors.append(game.board.tiles[(0,len(start_word) - 1)])
 
 next_word = long_start_word(all_words.all_subwords(game.hand + anchors[0]))
 
@@ -40,6 +38,8 @@ Prioritisation for next word:
 - anything with the first/last letter as seed
 """
 
+
+
 def two_letter_find(anchor, hand, direction):
     twos = all_words.find_two_letters(anchor)
     pair_chars = []
@@ -51,10 +51,19 @@ def two_letter_find(anchor, hand, direction):
     if direction == "reverse":
         trie = reverse_words
     best_words = []
+    for char in pair_chars:
+        best_words.append(long_start_word(trie.all_subwords(hand.replace(char, '', 1), char)))
+    
+    best = min(best_words, key = lambda word: word.letter_ranking/len(word))
+    return best
+
+def corner_find(anchor, hand, direction):
+    trie = forward_words
+    if direction == "reverse":
+        trie = reverse_words
+    return long_start_word(trie.all_subwords(hand, anchor))
     # todo: rate words based on maximising the average score in the remaining hand
     # plus something for general length
     
     # future work: start monte carloing within a certain point????
-
-
 
