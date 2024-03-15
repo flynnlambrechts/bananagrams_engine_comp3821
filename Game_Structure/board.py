@@ -65,7 +65,6 @@ class Board:
         return self.tiles.pop((row, col))
         
 
-
     def add_word(self, word:str, row: int, col: int, direction: int, reverse=False) -> None:
         # direction of 1 means vertical
         # direction of 0 means horizontal

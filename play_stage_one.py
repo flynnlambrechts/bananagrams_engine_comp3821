@@ -5,16 +5,28 @@ from .run_algorithm import long_start_word
 game = Game()
 game.setup()
 
-trie = Trie()
-trie.make_trie("Classes/word_dictionary.txt")
+all_words = Trie("sort")
+forward_words = Trie("forward")
+reverse_words = Trie("reverse")
+all_words.make_trie("Classes/word_dictionary.txt")
+forward_words.make_trie("Classes/word_dictionary.txt")
+reverse_words.make_trie("Classes/word_dictionary.txt")
 
 anchors = []
-start_word = long_start_word(trie.all_subwords(game.hand))
+start_word = long_start_word(all_words.all_subwords(game.hand))
+
 anchors.append(start_word[0])
 anchors.append(start_word[-1])
 game.play_word(start_word, 0, 0, 0, False)
 
-next_word = long_start_word(trie.all_subwords(game.hand + anchors[0]))
+
+
+next_word = long_start_word(all_words.all_subwords(game.hand + anchors[0]))
+
+"""
+Given an anchor:
+Find its two letter words
+"""
 
 anchor_pos = next_word.find(anchors[0])
 
@@ -27,3 +39,22 @@ Prioritisation for next word:
 - common first/last letter
 - anything with the first/last letter as seed
 """
+
+def two_letter_find(anchor, hand, direction):
+    twos = all_words.find_two_letters(anchor)
+    pair_chars = []
+    for word in twos:
+        char = word.word.replace(anchor, '', 1)
+        if char in hand:
+            pair_chars.append(char)
+    trie = forward_words
+    if direction == "reverse":
+        trie = reverse_words
+    best_words = []
+    # todo: rate words based on maximising the average score in the remaining hand
+    # plus something for general length
+    
+    # future work: start monte carloing within a certain point????
+
+
+
