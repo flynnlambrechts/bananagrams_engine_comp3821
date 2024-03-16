@@ -1,51 +1,60 @@
 MAX_LIMIT = 50
 
 class Tile:
-    def __init__(self, board, row, col, char):
+    def __init__(self, board, row: int, col: int, char: str):
         self.coords = (row, col)
         self.char = char
-        self.lims = []
         self.board = board
-        print("max and min rows: ")
-        print(self.board.min_row(), self.board.max_row())
-        print("max and min cols: ")
-        print(self.board.min_col(), self.board.max_col())
-        self.lims.append(self.find_lims(1,0))
-        self.lims.append(self.find_lims(-1,0))
-        self.lims.append(self.find_lims(0,1))
-        self.lims.append(self.find_lims(0,-1))
+        self.lims = self.find_lims()
+        # dirs = [(1,0),(0,1),(-1,0),(0,-1)]
+        # e.g. the go anticlockwise from 6:00. 
+        # means that adding 2 to an index gets the opposite direction
+    def find_lims(self):
+        dirs = [(1,0),(0,1),(-1,0),(0,-1)]
+        lims = [MAX_LIMIT] * 4
+        tiles = self.board.tiles
+        for i in range(4):
+            count = 0
+            row = self.coords[0]
+            col = self.coords[1]
+            checked_tile = (row + dirs[i][0], col + dirs[i][1])
+            # checking the immediate neighbour in that direction
+            if checked_tile in tiles:
+                tiles[checked_tile].lims[i - 2] = 0
+                lims[i] = 0                
+            else:
+                # send a probe out checking until it goes off the edge or there's a collision
+                # if collision, suitably update the limits of both tiles
+                no_barriers = True
+                while no_barriers:
+                    row += dirs[i][0]
+                    col += dirs[i][1]
+                    if not self.probe_on_board(row, col):                 
+                        lims[i] = MAX_LIMIT
+                        no_barriers = False
+                    else:
+                        # there's 3 directions to check relative to the probe (everything but where the probe was previously)
+                        for j in range(3):
+                            checked_tile = (row + dirs[(i + 1 - j) % 4][0], col + dirs[(i + 1 - j) % 4][1])
+                            if checked_tile in tiles:
+                                tiles[checked_tile].lims[(i - j - 1)] = min(count, tiles[checked_tile].lims[(i - j - 1)]) # the lim direction to update in the other tile is the opposite of (i + 1 - j) = (i - 1 - j)
+                                no_barriers = False
+                                lims[i] = count
+                    count += 1
+        return lims    
 
-    def find_lims(self, dr, dc):
-        print(f"going in direction {dr}, {dc}")
-        count = -1
-        cur_row = self.coords[0]
-        cur_col = self.coords[1]
-        no_barriers = True
-        while(no_barriers):
-            count += 1
-            cur_row += dr
-            cur_col += dc
-            print(f"At ({cur_row}, {cur_col})")
-            check_tiles = [(cur_row + dr, cur_col + dc),
-                           (cur_row + dc, cur_col + dr),
-                           (cur_row - dc, cur_col - dr),
-                           (cur_row, cur_col)
-                        #    (cur_row + (dr + 1) % 2, cur_row + (dc + 1) % 2),
-                        #    (cur_row - ((dr + 1) % 2), cur_row - ((dc + 1) % 2))
-                        ]
-            print(f"check_tiles are {check_tiles}")
-            for tile in check_tiles:
-                if tile in self.board.tiles:
-                    print("collision!")
-                    no_barriers = False
-                    lims_pos = int((abs(dr) * (dr - 1) / -2) + (abs(dc) * ((dr - 1) / -2 + 2)))
-                    updateable = self.board.tiles[tile].lims
-                    updateable[lims_pos] = min(updateable[lims_pos], count)
-            if not ((self.board.min_row() <= cur_row <= self.board.max_row()) and (self.board.min_col() <= cur_col <= self.board.max_col())):
-                return MAX_LIMIT
-            
-        return count        
-
+    # note that self.board.min_row() etc don't take into account the tile just placed
+    # hence a function for if the probe is on the board is worthwhile
+    def probe_on_board(self, row, col):
+        min_r = min(self.board.min_row(), self.coords[0])
+        max_r = max(self.board.max_row(), self.coords[0])
+        min_c = min(self.board.min_col(), self.coords[1])
+        max_c = max(self.board.max_col(), self.coords[1])
+        if ((min_r <= row <= max_r) and 
+                (min_c <= col <= max_c)):
+            return True
+        else:
+            return False
         
 class Board:
     def __init__(self) -> None:
@@ -113,10 +122,10 @@ class Board:
         tile = tile.upper()
         if len(tile) != 1:
             raise ValueError('Tile must be one character long')
-        if (row, col) in self.tiles and self.tiles[(row, col)] != tile:
+        if (row, col) in self.tiles and self.tiles[(row, col)].char != tile:
             raise ValueError(f'There is already a tile at ({row}, {col})')
         print(f"Adding {tile} to {row},{col}")
-        self.tiles[(row,col)] = Tile(self, row, col, tile)
+        self.tiles[(row,col)] = Tile(board = self, row = row, col = col, char = tile)
         # # Future nodes for caching sequences/words
         # adjacent = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
         
@@ -139,14 +148,14 @@ class Board:
         # direction of 0 means horizontal
         VERTICAL = 1
         HORIZONTAL = 0
-        print("adding word")
+        print(f"adding word [{word}]")
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
         if (reverse):
             dr *= -1
             dc *= -1
             word = word[::-1]
-
+        # print(f"dr: {dr} dc: {dc}")
         for i, c in enumerate(word):
             self.add_tile(c, row + i * dr, col + i * dc)
 
