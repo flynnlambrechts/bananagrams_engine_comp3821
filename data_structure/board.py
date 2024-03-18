@@ -105,14 +105,13 @@ class Board:
         for (row, col), value in sorted(self.tiles.items(), key=lambda item: (item[0][0], item[0][1])):
             while cur_row < row:
                 cur_row += 1
-                cur_col = 0
+                cur_col = min_col
                 s += f"\n{cur_row:>4}"
             skipped = 0
             while cur_col < col:
                 cur_col += 1
                 skipped += 1
-            
-            s += 2*(skipped-1)*col_delim + value.char + col_delim
+            s += 2 * max(0, skipped) * col_delim + value + col_delim
             cur_col += 1
             
         return s
