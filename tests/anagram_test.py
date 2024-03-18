@@ -1,31 +1,33 @@
-from Classes.trie import Trie
-from Game_Structure.bananapouch import BananaPouch
 import time
+from src.Game.BananaPouch.BananaPouch import BananaPouch
+from src.Algorithm.Trie.Trie import Trie
+
+
 s_trie = Trie()
 f_trie = Trie("forward")
 r_trie = Trie("reverse")
-s_trie.make_trie("Classes/word_dictionary.txt")
-f_trie.make_trie("Classes/word_dictionary.txt")
-r_trie.make_trie("Classes/word_dictionary.txt")
+s_trie.make_trie("word_dictionary.txt")
+f_trie.make_trie("word_dictionary.txt")
+r_trie.make_trie("word_dictionary.txt")
 pouch = BananaPouch()
 
 print("tries made!")
 base = "IP"
 print(f"base: {base}")
-anchor=  "CRA"
+anchor = "CRA"
 print(f"anchor: {anchor}")
 f_list = f_trie.all_subwords(base, anchor)
 print("forward:")
 for word in f_list:
-    print(word.word, end = ", ")
+    print(word.word_string, end=", ")
 r_list = r_trie.all_subwords(base, anchor)
 print("\n\nreverse:")
 for word in r_list:
-    print(word.word, end = ", ")
+    print(word.word_string, end=", ")
 s_list = s_trie.all_subwords(base, anchor)
 print("sorted:")
 for word in s_list:
-    print(word.word, end = ", ")
+    print(word.word_string, end=", ")
 
 
 with open("starting_letters_x100.txt", "r") as file:
@@ -51,7 +53,9 @@ with open("starting_letters_x100.txt", "r") as file:
         nodes_visited.append(word_count.pop())
         words_found.append(len(word_count))
 
-        print(f"found {words_found[-1]} words in {end - start} seconds by looking at {nodes_visited[-1]} nodes!")
+        print(
+            f"found {words_found[-1]} words in {end - start} seconds by looking at \
+                {nodes_visited[-1].word_string} nodes!")
 
     print(f"av. time: {sum(durations)/len(durations)}")
     print(f"Total time: {sum(durations)}")

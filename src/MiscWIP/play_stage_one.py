@@ -1,6 +1,6 @@
-from Game_Structure.game import Game
-from Classes.trie import Trie
-from .run_algorithm import long_start_word
+from ..Game.Game import Game
+from ..Algorithm.Trie.Trie import Trie
+from ..Algorithm.algorithm_functions import long_start_word
 
 game = Game()
 game.setup()
@@ -16,17 +16,17 @@ anchors = []
 start_word = long_start_word(all_words.all_subwords(game.hand))
 
 game.play_word(start_word, 0, 0, 0, False)
-anchors.append(game.board.tiles[(0,0)])
-anchors.append(game.board.tiles[(0,len(start_word) - 1)])
+anchors.append(game.board.tiles[(0, 0)])
+anchors.append(game.board.tiles[(0, len(start_word.word) - 1)])
 
-next_word = long_start_word(all_words.all_subwords(game.hand + anchors[0]))
-
+next_word = long_start_word(all_words.all_subwords(game.hand, anchors[0].char))
+print(next_word.word)
 """
 Given an anchor:
 Find its two letter words
 """
 
-anchor_pos = next_word.find(anchors[0])
+anchor_pos = next_word.word.find(anchors[0].char)
 
 
 game.play_word(next_word, 0, 0, 1, False)
@@ -37,7 +37,6 @@ Prioritisation for next word:
 - common first/last letter
 - anything with the first/last letter as seed
 """
-
 
 
 def two_letter_find(anchor, hand, direction):
@@ -53,9 +52,10 @@ def two_letter_find(anchor, hand, direction):
     best_words = []
     for char in pair_chars:
         best_words.append(long_start_word(trie.all_subwords(hand.replace(char, '', 1), char)))
-    
-    best = min(best_words, key = lambda word: word.letter_ranking/len(word))
+
+    best = min(best_words, key=lambda word: word.letter_ranking/len(word))
     return best
+
 
 def corner_find(anchor, hand, direction):
     trie = forward_words
@@ -64,6 +64,5 @@ def corner_find(anchor, hand, direction):
     return long_start_word(trie.all_subwords(hand, anchor))
     # todo: rate words based on maximising the average score in the remaining hand
     # plus something for general length
-    
-    # future work: start monte carloing within a certain point????
 
+    # future work: start monte carloing within a certain point????

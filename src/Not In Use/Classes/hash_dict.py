@@ -1,6 +1,6 @@
 import json
 from trienode import TrieNode
-from trie import Trie
+from bananagrams_engine_comp3821.Classes.Trie import Trie
 
 # Adds words to the python dictionary, equivalent to a hash
 def add_word_hash(hash_dict, word):
