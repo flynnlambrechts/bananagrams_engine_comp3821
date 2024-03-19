@@ -1,5 +1,5 @@
-from src.Game.BananaPouch.BananaPouch import BananaPouch
-from src.Game.Board.Board import Board
+from .BananaPouch.BananaPouch import BananaPouch
+from .Board.Board import Board
 
 
 class Game:
