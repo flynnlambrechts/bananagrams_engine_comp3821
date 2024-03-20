@@ -8,7 +8,8 @@ def run_algorithm(base: str, trie: Trie):
 
 
 # Finds a long subword with the lowest letter_ranking
-# (Means that it uses letters that appear less in the dictionary), The heuristic can be changed to:
+# (Means that it uses letters that appear less in the dictionary),
+# The heuristic can be changed to:
 # use many letters that start/appear in short words or
 # use many letters that cannot easily make short words
 def long_start_word(subwords):
