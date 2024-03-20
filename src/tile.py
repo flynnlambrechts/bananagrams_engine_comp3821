@@ -1,4 +1,6 @@
-from .Lims import Lims
+from lims import Lims
+
+
 MAX_LIMIT = 50
 
 
@@ -8,11 +10,14 @@ class Tile:
         self.char = char
         self.board = board
         self.lims = self.find_lims()
-        # dirs = [(1,0),(0,1),(-1,0),(0,-1)]
-        # e.g. the go anticlockwise from 6:00.
-        # means that adding 2 to an index gets the opposite direction
+        '''
+        dirs = [(1,0),(0,1),(-1,0),(0,-1)]
+        e.g. the go anticlockwise from 6:00.
+        means that adding 2 to an index gets the opposite direction
 
-        # down, right, up, left
+        down, right, up, left
+        '''
+
     def find_lims(self) -> Lims:
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         lims = [MAX_LIMIT] * 4
@@ -55,15 +60,15 @@ class Tile:
                     count += 1
         return Lims(lims)
 
-    # note that self.board.min_row() etc don't take into account the tile just placed
-    # hence a function for if the probe is on the board is worthwhile
     def probe_on_board(self, row: int, col: int) -> bool:
+        '''
+        note that self.board.min_row() etc don't take into account the tile
+        just placed hence a function for if the probe is on the board is
+        worthwhile
+        '''
         min_r = min(self.board.min_row(), self.coords[0])
         max_r = max(self.board.max_row(), self.coords[0])
         min_c = min(self.board.min_col(), self.coords[1])
         max_c = max(self.board.max_col(), self.coords[1])
-        if ((min_r <= row <= max_r) and
-                (min_c <= col <= max_c)):
-            return True
-        else:
-            return False
+        
+        return (min_r <= row <= max_r) and (min_c <= col <= max_c)

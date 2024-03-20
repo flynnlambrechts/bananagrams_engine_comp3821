@@ -1,19 +1,15 @@
-from Algorithm.Trie.Word import Word
-from .Trie.Trie import Trie
+from word import Word
 
 
-def run_algorithm(base: str, trie: Trie):
-    subwords = trie.all_subwords(base)
-    start_word = long_with_lowest_rank(subwords)
-    print(str(start_word), start_word.letter_ranking)
-
-
-# Finds a long subword with the lowest letter_ranking
-# (Means that it uses letters that appear less in the dictionary),
-# The heuristic can be changed to:
-# use many letters that start/appear in short words or
-# use many letters that cannot easily make short words
 def long_with_lowest_rank(subwords):
+    '''
+    Finds a long subword with the lowest letter_ranking
+    (Means that it uses letters that appear less in the dictionary),
+    The heuristic can be changed to:
+    use many letters that start/appear in short words or
+    use many letters that cannot easily make short words
+    '''
+
     if len(subwords) == 0:
         raise ValueError('Argument "subwords" cannot be an empty list')
     longest: list[Word] = max(subwords, key=lambda word: len(word.string))

@@ -1,6 +1,4 @@
-from .Word import Word
-from .TrieNode import TrieNode
-import os
+from word import Word
 
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
                 'G': 71315, 'H': 63613, 'I': 229895, 'J': 4240, 'K': 23873, 'L': 133085,
@@ -9,16 +7,24 @@ letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, '
                 'Y': 41123, 'Z': 12279}
 
 
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.anagrams = []
+
+
 class Trie:
-    def __init__(self, mode="sort", src=None):
+    def __init__(self, mode="sort", dictionary_path=None):
         self._root = TrieNode()
         self._mode = mode  # forward, reverse or sort, default is sort
 
-        if src:
-            self.parse_file(src)
+        if dictionary_path:
+            self.parse_dictionary(dictionary_path)
 
-    # Inserts a word into the trie
     def insert(self, word: Word):
+        '''
+        Inserts a word into the trie
+        '''
         s_word = self._order_word(word.string)
 
         node = self._root
@@ -31,8 +37,10 @@ class Trie:
         word.letter_ranking = word_val
         node.anagrams.append(word)
 
-    # Returns true if a given word is in the Trie
     def search(self, word: Word):
+        '''
+        Returns true if a given word is in the Trie
+        '''
         # s_word = self._order_word(word)
         node = self._root
         for char in word.string:
@@ -41,24 +49,24 @@ class Trie:
             node = node.children[char]
         return node.anagrams
 
-    # Makes a trie out of a given text file (line by line)
-    def parse_file(self, file_name: str):
-        # print(os.getcwd())
-        # Currently dictionary must be located in ./Dictionaries, once we sort
-        # out the project structure with some kind of tests library then we can remove the
-        # requirement and get passed in other directories (There's not really any reason to store
-        # the dictionaries outside of ./Dictionaries anyway though)
-        with open(
-            os.path.dirname((os.path.relpath(__file__))) +
-            "/Dictionaries/" + file_name, "r"
-        ) as file:
+    def parse_dictionary(self, dictionary_path: str):
+        '''
+        Makes a trie out of a given text file (line by line). The
+        caller must provide the location of the dictionary file.
+        '''
+        with open(dictionary_path) as file:
             lines = file.readlines()
             for line in lines:
                 self.insert(Word(line))
 
-    # Returns an array of every anagram that can be made using the letters in base.
-    # Note that the last item in the array is the count of how many nodes it visited.
     def all_subwords(self, base: str, anchor: str = '') -> list[Word]:
+        '''
+        Returns an array of every anagram that can be made using the letters
+        in base.
+
+        Note: the last item in the array is the count of how many nodes 
+        it visited.
+        '''
         subwords: list[Word] = []
         count = 0
         node = self._root
@@ -89,8 +97,10 @@ class Trie:
         # subwords.append(count)
         return subwords
 
-    # The recursive part of all_subwords
     def _recurse_subwords(self, node: TrieNode, subbase: str, anchor: str = "") -> list[Word]:
+        '''
+        The recursive part of all_subwords
+        '''
         subwords: list[Word] = []
         if len(node.anagrams) > 0:
             if self._has_anchor(node.anagrams[0], anchor):

@@ -1,15 +1,18 @@
-from Game.Game import Game
-from Algorithm.Trie.Trie import Trie
-from Algorithm.algorithm_functions import long_with_lowest_rank
-from Algorithm.Trie.Word import Word
+from pathlib import Path
+from game import Game
+from trie import Trie
+from algorithms import long_with_lowest_rank
+from word import Word
 
-word_dictionary = 'word_dictionary.txt'
+this_directory = Path(__file__).parent.resolve()
+dictinoary = this_directory / '..' / 'assets' / 'word_dictionary.txt'
 
 # Initialize our objecs
+print('[Initializing]')
 game = Game()
-all_words = Trie(mode='sort', src=word_dictionary)
-forward_words = Trie('forward', src=word_dictionary)
-reverse_words = Trie('reverse', src=word_dictionary)
+all_words = Trie(mode='sort', dictionary_path=dictinoary)
+forward_words = Trie('forward', dictionary_path=dictinoary)
+reverse_words = Trie('reverse', dictionary_path=dictinoary)
 
 # List of tiles where new words can be added
 anchors: list[str] = []

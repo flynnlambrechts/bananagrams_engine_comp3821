@@ -1,11 +1,11 @@
-from .BananaPouch.BananaPouch import BananaPouch
-from .Board.Board import Board
+from pouch import Pouch
+from board import Board
 
 
 class Game:
     def __init__(self) -> None:
         self.board = Board()
-        self.pouch = BananaPouch()
+        self.pouch = Pouch()
         self.hand = ''.join(self.pouch.setup())  # Convert list[str] to str
 
     def play_word(self, word_string, row, col, direction, reverse=False):

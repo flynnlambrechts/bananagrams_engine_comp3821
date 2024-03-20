@@ -1,4 +1,4 @@
-from .Tile import Tile
+from tile import Tile
 
 
 class Board:
@@ -25,10 +25,13 @@ class Board:
             return 0
         return max([col for _, col in self.tiles])
 
-    # This allows us to use print(board)
     def __str__(self) -> str:
+        '''
+        This allows us to use print(board)
+        '''
         if not self.tiles:
             return ''
+
         col_delim = " "
 
         # min_row = min([row for row, _ in self.tiles])
@@ -85,20 +88,22 @@ class Board:
 
         return self.tiles.pop((row, col))
 
-    # Potentially should take in a Word object rather than a string for word and also store the
-    # Word in each tile that composes the words so it is accessable later
     def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> None:
-        # direction of 1 means vertical
-        # direction of 0 means horizontal
+        '''
+        Potentially should take in a Word object rather than a string for word
+        and also store the Word in each tile that composes the words so it is
+        accessable later
+        '''
+
         VERTICAL = 1
         HORIZONTAL = 0
-        # print(f"adding word [{word}]")
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
+
         if (reverse):
             dr *= -1
             dc *= -1
             word = word[::-1]
-        # print(f"dr: {dr} dc: {dc}")
+
         for i, c in enumerate(word):
             self.add_tile(c, row + i * dr, col + i * dc)

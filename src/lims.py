@@ -1,6 +1,4 @@
-
 class Lims:
-
     def __init__(self, lims: list[int]):
         self.down = lims[0]
         self.right = lims[1]
