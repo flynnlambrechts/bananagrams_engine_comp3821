@@ -3,8 +3,8 @@ from .Trie.Trie import Trie
 
 def run_algorithm(base: str, trie: Trie):
     subwords = trie.all_subwords(base)
-    start_word = long_start_word(subwords)
-    print(start_word.word_string, start_word.letter_ranking)
+    start_word = find_start_word(subwords)
+    print(str(start_word), start_word.letter_ranking)
 
 
 # Finds a long subword with the lowest letter_ranking
@@ -12,13 +12,13 @@ def run_algorithm(base: str, trie: Trie):
 # The heuristic can be changed to:
 # use many letters that start/appear in short words or
 # use many letters that cannot easily make short words
-def long_start_word(subwords):
+def find_start_word(subwords):
     # Word[]
-    longest = max(subwords, key=lambda word: len(word.word_string))
+    longest = max(subwords, key=lambda word: len(word.string))
 
     long_subwords = []
     for word in subwords:
-        if len(word.word_string) >= len(longest.word_string) - 3:
+        if len(str(word)) >= len(str(longest)) - 3:
             long_subwords.append(word)
 
     min_word = min(long_subwords, key=lambda word: word.letter_ranking)

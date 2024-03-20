@@ -16,30 +16,32 @@ class Game:
     # cannot remove the anchor
     # letter from hand so it returns invalid if used with an anchor letter
     def play_word(self, word_string, row, col, direction, reverse):
-        new_hand = self._valid_word(word_string)
-        if new_hand != self.hand:  # and so the word is valid
-            print("valid word!")
-            self.hand = new_hand
-            # TODO: check if the placement is legal
-            self.board.add_word(word_string, row, col, direction, reverse)
-            if self.hand == '':
-                print("PEEL!!!")
-                self.hand = self.pouch.peel()
-                # TODO: if self.hand now = -1, end the game
-        else:
-            print("invalid word!")
+        self._update_hand(word_string)  # Consider putting this in a try-except
 
-    # Needs better name
-    def _valid_word(self, word_string):
-        remaining_hand = self.hand[:]
+        self.board.add_word(word_string, row, col, direction, reverse)
+
+        # Peel if hand is empty
+        if len(self.hand) == 0:
+            # print('Peel!')
+            self.pouch.peel()
+            # TODO: If self.hand == -1, end the game
+
+    def _update_hand(self, word_string):
+        # Take a snapshot of our hand in case we need to revert it
+        original_hand = self.hand
+
         for char in word_string:
-            previous = remaining_hand[:]
-            remaining_hand = remaining_hand.replace(char, '', 1)
+            # If a character isn't in our hand
+            if char not in self.hand:
+                # Restore our hand and raise an Error
+                self.hand = original_hand
+                raise ValueError(f'Tried to remove {word_string} from ' +
+                                 'hand, but ran out of characters.')
 
-            if remaining_hand == previous:
-                return self.hand
-        return remaining_hand
+            # Remove the char from our hand
+            self.hand.replace(char, '', 1)
 
+    # Used to support print(Game) functionality
     def __str__(self) -> str:
         print(self.board)
         s = "\nHand: " + self.hand + '\n' + "No. of tiles in pouch:"

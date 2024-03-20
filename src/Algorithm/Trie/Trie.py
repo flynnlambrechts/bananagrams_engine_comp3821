@@ -10,13 +10,16 @@ letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, '
 
 
 class Trie:
-    def __init__(self, mode="sort"):
+    def __init__(self, mode="sort", src=None):
         self._root = TrieNode()
         self._mode = mode  # forward, reverse or sort, default is sort
-    # Inserts a word into the trie
 
+        if src:
+            self.parse_file(src)
+
+    # Inserts a word into the trie
     def insert(self, word: Word):
-        s_word = self._order_word(word.word_string)
+        s_word = self._order_word(word.string)
 
         node = self._root
         word_val = 0
@@ -32,21 +35,22 @@ class Trie:
     def search(self, word: Word):
         # s_word = self._order_word(word)
         node = self._root
-        for char in word.word_string:
+        for char in word.string:
             if char not in node.children:
                 return False
             node = node.children[char]
         return node.anagrams
 
     # Makes a trie out of a given text file (line by line)
-    def make_trie(self, file_name: str):
+    def parse_file(self, file_name: str):
         print(os.getcwd())
         # Currently dictionary must be located in ./Dictionaries, once we sort
         # out the project structure with some kind of tests library then we can remove the
         # requirement and get passed in other directories (There's not really any reason to store
         # the dictionaries outside of ./Dictionaries anyway though)
         with open(
-            os.path.dirname((os.path.relpath(__file__))) + "/Dictionaries/" + file_name, "r"
+            os.path.dirname((os.path.relpath(__file__))) +
+            "/Dictionaries/" + file_name, "r"
         ) as file:
             lines = file.readlines()
             for line in lines:
@@ -60,7 +64,8 @@ class Trie:
         node = self._root
         if self._mode == "sort":
             print("mode is sort")
-            subwords.extend(self._recurse_subwords(node, base + anchor, anchor))
+            subwords.extend(self._recurse_subwords(
+                node, base + anchor, anchor))
         else:
             if self._mode == "reverse":
                 anchor = anchor[::-1]  # reverse anchor for reverse
