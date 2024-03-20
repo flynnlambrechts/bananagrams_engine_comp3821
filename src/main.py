@@ -28,10 +28,14 @@ anchors += [game.board.tiles[(0, 0)],
 print(game)
 
 print('[Finding Word]')
-current_word = long_with_lowest_rank(all_words.all_subwords(
-    game.hand, ''.join([anchor.char for anchor in anchors])))
-print(f'[Playing] "{current_word}"')
+try:
+    current_word = long_with_lowest_rank(all_words.all_subwords(
+        game.hand, ''.join([anchor.char for anchor in anchors])))
+except ValueError:
+    print('[ERROR] Could not find any subwords')
+    exit()
 
+print(f'[Playing] "{current_word}"')
 # Find which anchor is being used and play the word there
 for tile in anchors:
     if tile.char not in str(current_word):
