@@ -1,6 +1,6 @@
 from ..Game.Game import Game
 from ..Algorithm.Trie.Trie import Trie
-from ..Algorithm.algorithm_functions import find_start_word
+from ..Algorithm.algorithm_functions import long_with_lowest_rank
 
 game = Game()
 game.setup()
@@ -13,13 +13,14 @@ forward_words.parse_file("Classes/word_dictionary.txt")
 reverse_words.parse_file("Classes/word_dictionary.txt")
 
 anchors = []
-start_word = find_start_word(all_words.all_subwords(game.hand))
+start_word = long_with_lowest_rank(all_words.all_subwords(game.hand))
 
 game.play_word(start_word, 0, 0, 0, False)
 anchors.append(game.board.tiles[(0, 0)])
 anchors.append(game.board.tiles[(0, len(start_word.word) - 1)])
 
-next_word = find_start_word(all_words.all_subwords(game.hand, anchors[0].char))
+next_word = long_with_lowest_rank(
+    all_words.all_subwords(game.hand, anchors[0].char))
 print(next_word.word)
 """
 Given an anchor:
@@ -51,7 +52,7 @@ def two_letter_find(anchor, hand, direction):
         trie = reverse_words
     best_words = []
     for char in pair_chars:
-        best_words.append(find_start_word(
+        best_words.append(long_with_lowest_rank(
             trie.all_subwords(hand.replace(char, '', 1), char)))
 
     best = min(best_words, key=lambda word: word.letter_ranking/len(word))
@@ -62,7 +63,7 @@ def corner_find(anchor, hand, direction):
     trie = forward_words
     if direction == "reverse":
         trie = reverse_words
-    return find_start_word(trie.all_subwords(hand, anchor))
+    return long_with_lowest_rank(trie.all_subwords(hand, anchor))
     # todo: rate words based on maximising the average score in the remaining hand
     # plus something for general length
 

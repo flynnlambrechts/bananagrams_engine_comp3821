@@ -4,7 +4,7 @@ from .Trie.Trie import Trie
 
 def run_algorithm(base: str, trie: Trie):
     subwords = trie.all_subwords(base)
-    start_word = find_start_word(subwords)
+    start_word = long_with_lowest_rank(subwords)
     print(str(start_word), start_word.letter_ranking)
 
 
@@ -13,7 +13,9 @@ def run_algorithm(base: str, trie: Trie):
 # The heuristic can be changed to:
 # use many letters that start/appear in short words or
 # use many letters that cannot easily make short words
-def find_start_word(subwords):
+def long_with_lowest_rank(subwords):
+    if len(subwords) == 0:
+        raise ValueError('Argument "subwords" cannot be an empty list')
     longest: list[Word] = max(subwords, key=lambda word: len(word.string))
 
     long_subwords = []
@@ -21,5 +23,7 @@ def find_start_word(subwords):
         if len(str(word)) >= len(str(longest)) - 3:
             long_subwords.append(word)
 
+    if len(long_subwords) == 0:
+        raise ValueError('Could not find a subword')
     min_word = min(long_subwords, key=lambda word: word.letter_ranking)
     return min_word

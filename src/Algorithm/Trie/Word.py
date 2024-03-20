@@ -9,13 +9,8 @@ class Word:
         self.letter_ranking = 0
 
     def has_anchor(self, anchor: str):
-        remaining = self.string[:]
-        for char in anchor:
-            previous = remaining[:]
-            remaining = remaining.replace(char, '', 1)
-            if remaining == previous:
-                return False
-        return True
+        return (len(anchor) == 0 or
+                any([char in self.string for char in anchor]))
 
     # Used to support str(word) functionality
     def __str__(self) -> str:

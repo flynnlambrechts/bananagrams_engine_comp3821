@@ -64,10 +64,10 @@ class Trie:
         node = self._root
         if self._mode == "sort":
             subwords.extend(self._recurse_subwords(
-                node, base + anchor, anchor))
+                node, base, anchor))
         else:
             if self._mode == "reverse":
-                anchor = anchor[::-1]  # reverse anchor for reverse
+                anchor = anchor[::-1]  # reverse anchor if reverse
                 # means that anchor "ING" gets all words ending with "ING"
             for char in anchor:
                 node = node.children[char]
