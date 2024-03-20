@@ -6,13 +6,14 @@ class Game:
     def __init__(self) -> None:
         self.board = Board()
         self.pouch = BananaPouch()
-        self.hand = ""
 
-    def setup(self):
-        self.hand = ''.join(self.pouch.setup())  # I believe this makes the list of chars a string
+        # I believe this makes the  list of chars a string
+        self.hand = ''.join(self.pouch.setup())
 
-    # Play word function self._valid_word tries to remove each letter of the word from hand
-    # if it's able to remove each letter, then it did work. Currently, cannot remove the anchor
+    # Play word function self._valid_word tries to remove each letter of the
+    # word from hand
+    # if it's able to remove each letter, then it did work. Currently,
+    # cannot remove the anchor
     # letter from hand so it returns invalid if used with an anchor letter
     def play_word(self, word_string, row, col, direction, reverse):
         new_hand = self._valid_word(word_string)
