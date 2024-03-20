@@ -3,6 +3,7 @@ from game import Game
 from trie import Trie
 from algorithms import long_with_lowest_rank
 from word import Word
+from tile import Tile
 
 this_directory = Path(__file__).parent.resolve()
 dictinoary = this_directory / '..' / 'assets' / 'word_dictionary.txt'
@@ -31,21 +32,32 @@ anchors += [game.board.tiles[(0, 0)],
 print(game)
 
 print('[Finding Word]')
-try:
-    current_word = long_with_lowest_rank(all_words.all_subwords(
-        game.hand, ''.join([anchor.char for anchor in anchors])))
-except ValueError:
-    print('[ERROR] Could not find any subwords')
+# Precompute string repesentation of anchors
+anchor_str = ''.join([anchor.char for anchor in anchors])
+# Words that can be formed using an anchor
+word_candidates: tuple[Word, Tile] = []
+for anchor in anchors:
+    # Looping over anchors to see if the hand+anchor can make a word
+    word = long_with_lowest_rank(
+        all_words.all_subwords(game.hand + anchor.char, anchor_str))
+
+    if word is not None:
+        word_candidates.append((word, anchor))
+
+if len(word_candidates) == 0:
+    print('[ERROR] Could not find next word')
     exit()
 
-print(f'[Playing] "{current_word}"')
-# Find which anchor is being used and play the word there
-for tile in anchors:
-    if tile.char not in str(current_word):
-        continue
-    i = str(current_word).index(tile.char)
-    game.play_word(str(current_word),
-                   row=tile.coords[0] - i, col=tile.coords[1], direction=1)
-    break
+# Very weird way of calculating the best next word and its
+# corresponding anchor
+word = long_with_lowest_rank([word for word, _ in word_candidates])
+anchor = next(anchor for w, anchor in word_candidates if w == word)
+
+print(f'[Playing] "{word}"')
+i = str(word).index(anchor.char)
+game.play_word(str(word),
+               row=anchor.coords[0] - i,
+               col=anchor.coords[1],
+               direction=1)
 
 print(game)

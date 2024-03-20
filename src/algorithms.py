@@ -11,7 +11,7 @@ def long_with_lowest_rank(subwords):
     '''
 
     if len(subwords) == 0:
-        raise ValueError('Argument "subwords" cannot be an empty list')
+        return None
     longest: list[Word] = max(subwords, key=lambda word: len(word.string))
 
     long_subwords = []
@@ -20,6 +20,6 @@ def long_with_lowest_rank(subwords):
             long_subwords.append(word)
 
     if len(long_subwords) == 0:
-        raise ValueError('Could not find a subword')
+        return None
     min_word = min(long_subwords, key=lambda word: word.letter_ranking)
     return min_word
