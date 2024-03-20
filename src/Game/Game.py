@@ -35,7 +35,7 @@ class Game:
             if char not in self.hand:
                 # Restore our hand and raise an Error
                 self.hand = original_hand
-                raise ValueError(f'Tried to remove {word_string} from ' +
+                raise ValueError(f'Tried to remove "{word_string}" from ' +
                                  'hand, but ran out of characters.')
 
             # Remove the char from our hand
@@ -43,7 +43,14 @@ class Game:
 
     # Used to support print(Game) functionality
     def __str__(self) -> str:
-        print(self.board)
-        s = "\nHand: " + self.hand + '\n' + "No. of tiles in pouch:"
-        s = s + str(len(self.pouch.remaining))
-        return s
+        game_str = (
+            '[Game Status]\n' +
+            f' - Hand: {self.hand}' +
+            f'\n - Tiles in pouch: {len(self.pouch.remaining)}'
+        )
+
+        board_str = str(self.board)
+        if board_str:
+            game_str += f'\n - Board:\n{board_str}'
+
+        return game_str

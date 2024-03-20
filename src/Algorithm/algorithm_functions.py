@@ -1,3 +1,4 @@
+from Algorithm.Trie.Word import Word
 from .Trie.Trie import Trie
 
 
@@ -13,8 +14,7 @@ def run_algorithm(base: str, trie: Trie):
 # use many letters that start/appear in short words or
 # use many letters that cannot easily make short words
 def find_start_word(subwords):
-    # Word[]
-    longest = max(subwords, key=lambda word: len(word.string))
+    longest: list[Word] = max(subwords, key=lambda word: len(word.string))
 
     long_subwords = []
     for word in subwords:

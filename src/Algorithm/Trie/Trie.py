@@ -43,7 +43,7 @@ class Trie:
 
     # Makes a trie out of a given text file (line by line)
     def parse_file(self, file_name: str):
-        print(os.getcwd())
+        # print(os.getcwd())
         # Currently dictionary must be located in ./Dictionaries, once we sort
         # out the project structure with some kind of tests library then we can remove the
         # requirement and get passed in other directories (There's not really any reason to store
@@ -63,7 +63,6 @@ class Trie:
         count = 0
         node = self._root
         if self._mode == "sort":
-            print("mode is sort")
             subwords.extend(self._recurse_subwords(
                 node, base + anchor, anchor))
         else:
@@ -73,7 +72,6 @@ class Trie:
             for char in anchor:
                 node = node.children[char]
                 count += 1
-            print("mode is not sort")
             subwords.extend(self._recurse_subwords(node, base))
 
         count += subwords.pop()

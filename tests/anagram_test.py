@@ -6,9 +6,9 @@ from src.Algorithm.Trie.Trie import Trie
 s_trie = Trie()
 f_trie = Trie("forward")
 r_trie = Trie("reverse")
-s_trie.make_trie("word_dictionary.txt")
-f_trie.make_trie("word_dictionary.txt")
-r_trie.make_trie("word_dictionary.txt")
+s_trie.parse_file("word_dictionary.txt")
+f_trie.parse_file("word_dictionary.txt")
+r_trie.parse_file("word_dictionary.txt")
 pouch = BananaPouch()
 
 print("tries made!")
@@ -19,15 +19,15 @@ print(f"anchor: {anchor}")
 f_list = f_trie.all_subwords(base, anchor)
 print("forward:")
 for word in f_list:
-    print(word.word_string, end=", ")
+    print(word.string, end=", ")
 r_list = r_trie.all_subwords(base, anchor)
 print("\n\nreverse:")
 for word in r_list:
-    print(word.word_string, end=", ")
+    print(word.string, end=", ")
 s_list = s_trie.all_subwords(base, anchor)
 print("sorted:")
 for word in s_list:
-    print(word.word_string, end=", ")
+    print(word.string, end=", ")
 
 
 with open("starting_letters_x100.txt", "r") as file:
