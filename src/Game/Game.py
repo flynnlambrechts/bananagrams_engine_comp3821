@@ -6,19 +6,18 @@ class Game:
     def __init__(self) -> None:
         self.board = Board()
         self.pouch = BananaPouch()
+        self.hand = ''.join(self.pouch.setup())  # Convert list[str] to str
 
-        # I believe this makes the  list of chars a string
-        self.hand = ''.join(self.pouch.setup())
-
-    # Play word function self._valid_word tries to remove each letter of the
-    # word from hand
-    # if it's able to remove each letter, then it did work. Currently,
-    # cannot remove the anchor
-    # letter from hand so it returns invalid if used with an anchor letter
     def play_word(self, word_string, row, col, direction, reverse=False):
-        # Consider putting this in a try-except
-        self._update_hand(word_string, row, col, direction)
+        '''
+        Play word function self._valid_word tries to remove each letter of the
+        word from hand
+        if it's able to remove each letter, then it did work. Currently,
+        cannot remove the anchor
+        letter from hand so it returns invalid if used with an anchor letter
+        '''
 
+        self._update_hand(word_string, row, col, direction)
         self.board.add_word(word_string, row, col, direction, reverse)
 
         # Peel if hand is empty
@@ -31,12 +30,15 @@ class Game:
         # Take a snapshot of our hand in case we need to revert it
         original_hand = self.hand
 
+        # Calculate change in row and col based on `direction`
         d_row = int(direction == 1)
         d_col = int(direction == 0)
+
         char_index = 0
         for char in word_string:
             tile_coords = (start_row + d_row * char_index,
                            start_col + d_col * char_index)
+
             # If a character isn't in our hand and won't
             # use a tile that's already on the board
             if char not in self.hand and tile_coords not in self.board.tiles:
@@ -48,9 +50,11 @@ class Game:
             # Remove the char from our hand
             self.hand = self.hand.replace(char, '', 1)
 
-    # Used to support print(Game) functionality
-
     def __str__(self) -> str:
+        '''
+        Used to support print(Game) functionality
+        '''
+
         game_str = (
             '[Game Status]\n' +
             f' - Hand: {self.hand}' +
