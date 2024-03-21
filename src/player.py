@@ -61,9 +61,9 @@ class Player:
         # to `anchors`
         start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand))
         self.speak("Playing", start_word)
-        self.play_word(str(start_word), row=0, col=0, direction=0)
+        self.play_word(str(start_word))
         self.show_board()
-        self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
+        # self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
 
     def play_turn(self):
         print("")
@@ -105,42 +105,9 @@ class Player:
 
         self.speak("Playing", f"{word} on anchor {anchor}")
         
-        i = str(word).index(anchor.char)
-        
-        # TODO this is a bug it assumes that the new word was
-        # placed vertically
-        row = anchor.coords[0] - i
-        col = anchor.coords[1]
-        played_direction = self.play_word(str(word),
-                    row=anchor.coords[0] - i,
-                    col=anchor.coords[1],
-               direction=1,
-               anchor=anchor)
+        self.play_word(str(word), anchor)
         self.show_board()
         
-
-
-        # If the new word doesnt start at the anchor at it's first tile as an anchor
-        if i != 0: self.anchors.append(self.board.tiles[(row, col)])
-        
-        end = word.len() - 1
-        
-        # TODO this logic can be improved i think there is a bug here
-        # add the end of the new word to anchor
-        if i != end:
-            if played_direction == VERTICAL:
-                self.anchors.append(self.board.tiles[(row + end, col)])
-            else:
-                self.anchors.append(self.board.tiles[(row, col + end)])
-                
-        # Update anchors
-        # remove the used anchor
-        # this also covers the case where the
-        # the used anchor overlaps the new word's
-        # start or end
-        self.anchors.remove(anchor)        
-                
-                
         print("New anchors: ", self.anchors)
             
         
@@ -152,7 +119,7 @@ class Player:
         # TODO
         raise NotImplementedError("Board restructuring not implemented yet")
     
-    def play_word(self, word_string, row, col, direction, reverse=False, anchor: Tile =None):
+    def play_word(self, word_string, anchor=None):
         '''
         Play word function self._valid_word tries to remove each letter of the
         word from hand
@@ -161,6 +128,9 @@ class Player:
         letter from hand so it returns invalid if used with an anchor letter
         '''
         if anchor != None:
+            print(anchor)
+            print(word_string)
+            i = word_string.index(anchor.char)
             lims = anchor.find_lims()
             if lims.up and lims.down:
                 direction=VERTICAL
@@ -168,9 +138,37 @@ class Player:
             elif lims.left and lims.right:
                 direction=HORIZONTAL
                 print("HORIZONTAL")
+            else:
+                print(anchor.find_lims())
+                raise Exception("No valid direction to play word")
+            
+            (row, col) = anchor.coords
+            if direction == VERTICAL:
+                row -= i
+            else:
+                col -= i
+                
+        else:
+            direction = HORIZONTAL
+            i = 0
+            row = 0
+            col = 0
 
         self._update_hand(word_string, row, col, direction)
-        self.board.add_word(word_string, row, col, direction, reverse)
+        self.board.add_word(word_string, row, col, direction)
+        self.anchors.append(self.board.tiles[(row, col)])
+        if direction == VERTICAL:
+            self.anchors.append(self.board.tiles[(row + len(word_string) - 1, col)])
+        else:
+            self.anchors.append(self.board.tiles[(row, col + len(word_string) - 1)])
+            
+        # Update anchors
+        # remove the used anchor
+        # this also covers the case where the
+        # the used anchor overlaps the new word's
+        # start or end
+        if anchor != None:
+            self.anchors.remove(anchor)     
         return direction
 
 
