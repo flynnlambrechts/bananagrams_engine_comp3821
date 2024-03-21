@@ -1,55 +1,42 @@
 from pouch import Pouch
-from board import Board
+from player import Player
+
 
 
 class Game:
+    '''
+    Game class is responsible for managing the players and the pouch of letters
+    '''
     def __init__(self) -> None:
-        self.board = Board()
+        '''
+        Initialise a game new players can be added each game
+        should have at least one player
+        '''
         self.pouch = Pouch()
-        self.hand = ''.join(self.pouch.setup())  # Convert list[str] to str
+        self.players: list[Player] = []
 
-    def play_word(self, word_string, row, col, direction, reverse=False):
+    def add_player(self):
         '''
-        Play word function self._valid_word tries to remove each letter of the
-        word from hand
-        if it's able to remove each letter, then it did work. Currently,
-        cannot remove the anchor
-        letter from hand so it returns invalid if used with an anchor letter
+        Method to add new players, only required in multiplayer
         '''
+        self.players.append(Player(self))
 
-        self._update_hand(word_string, row, col, direction)
-        self.board.add_word(word_string, row, col, direction, reverse)
+    def start(self):
+        for player in self.players:
+            # TODO: For multiplayer change number of starting tiles based
+            # on number of players
+            player.give_tiles(self.pouch.get_starting_tiles(21))
 
-        # Peel if hand is empty
-        if len(self.hand) == 0:
-            # print('Peel!')
-            self.pouch.peel()
-            # TODO: If self.hand == -1, end the game
+        # At the moment we only allow the first player to player
+        # in future it should be implemented in either a turn based
+        # or multithreaded format
+        self.players[0].play()
 
-    def _update_hand(self, word_string, start_row, start_col, direction):
-        # Take a snapshot of our hand in case we need to revert it
-        original_hand = self.hand
-
-        # Calculate change in row and col based on `direction`
-        d_row = int(direction == 1)
-        d_col = int(direction == 0)
-
-        char_index = 0
-        for char in word_string:
-            tile_coords = (start_row + d_row * char_index,
-                           start_col + d_col * char_index)
-
-            # If a character isn't in our hand and isn't
-            # on the board
-            if char not in self.hand and tile_coords not in self.board.tiles:
-                # Restore our hand and raise an Error
-                self.hand = original_hand
-                raise ValueError(f'Tried to remove "{word_string}" from ' +
-                                 'hand, but ran out of characters.')
-            char_index += 1
-            # Remove the char from our hand if it wasn't on the board
-            if tile_coords not in self.board.tiles:
-                self.hand = self.hand.replace(char, '', 1)
+    def peel(self):
+        # TODO: check there are enough tiles for each player
+        
+        for player in self.players:
+            player.give_tiles(self.pouch.peel())
 
     def __str__(self) -> str:
         '''
@@ -58,12 +45,11 @@ class Game:
 
         game_str = (
             '[Game Status]\n' +
-            f' - Hand: {self.hand}' +
             f'\n - Tiles in pouch: {len(self.pouch.remaining)}'
         )
 
-        board_str = str(self.board)
-        if board_str:
-            game_str += f'\n - Board:\n{board_str}'
+        for i, player in enumerate(self.players):
+            game_str += f"Player: {i}\n"
+            game_str += str(player) + "\n"
 
         return game_str

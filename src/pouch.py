@@ -22,9 +22,9 @@ class Pouch:
         self.remaining = []
         self.reset()
 
-    def setup(self) -> list[str]:
+    def get_starting_tiles(self, n=21) -> list[str]:
         '''
-        Returns array of 21 letters
+        Returns array of n letters
         '''
         starting_chars = []
         for i in range(21):

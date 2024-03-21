@@ -17,6 +17,8 @@ class Tile:
 
         down, right, up, left
         '''
+    def __repr__(self):
+        return f"Tile: coords={self.coords}, char={self.char}"
 
     def find_lims(self) -> Lims:
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]

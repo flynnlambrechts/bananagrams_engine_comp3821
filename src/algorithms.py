@@ -1,7 +1,7 @@
 from word import Word
 
 
-def long_with_lowest_rank(subwords):
+def long_with_lowest_rank(subwords) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
