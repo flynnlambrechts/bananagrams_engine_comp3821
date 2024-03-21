@@ -105,6 +105,9 @@ class Player:
         self.speak("Playing", f"{word} on anchor {anchor}")
         
         i = str(word).index(anchor.char)
+        
+        # TODO this is a bug it assumes that the new word was
+        # placed vertically
         row = anchor.coords[0] - i
         col = anchor.coords[1]
         played_direction = self.play_word(str(word),
@@ -114,9 +117,7 @@ class Player:
                anchor=anchor)
         self.show_board()
         
-        # Update anchors
-        # remove used anchor from possible
-        self.anchors.remove(anchor)
+
 
         # If the new word doesnt start at the anchor at it's first tile as an anchor
         if i != 0: self.anchors.append(self.board.tiles[(row, col)])
@@ -130,6 +131,14 @@ class Player:
                 self.anchors.append(self.board.tiles[(row + end, col)])
             else:
                 self.anchors.append(self.board.tiles[(row, col + end)])
+                
+        # Update anchors
+        # remove the used anchor
+        # this also covers the case where the
+        # the used anchor overlaps the new word's
+        # start or end
+        self.anchors.remove(anchor)        
+                
                 
         print("New anchors: ", self.anchors)
             
