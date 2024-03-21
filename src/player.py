@@ -107,7 +107,7 @@ class Player:
         i = str(word).index(anchor.char)
         row = anchor.coords[0] - i
         col = anchor.coords[1]
-        self.play_word(str(word),
+        played_direction = self.play_word(str(word),
                     row=anchor.coords[0] - i,
                     col=anchor.coords[1],
                direction=1,
@@ -121,8 +121,16 @@ class Player:
         # If the new word doesnt start at the anchor at it's first tile as an anchor
         if i != 0: self.anchors.append(self.board.tiles[(row, col)])
         
-        end_pos = word.len() - 1
-        if i != end_pos: self.anchors.append(self.board.tiles[(row + end_pos, col)])
+        end = word.len() - 1
+        
+        # TODO this logic can be improved i think there is a bug here
+        # add the end of the new word to anchor
+        if i != end:
+            if played_direction == 1:
+                self.anchors.append(self.board.tiles[(row + end, col)])
+            else:
+                self.anchors.append(self.board.tiles[(row, col + end)])
+                
         print("New anchors: ", self.anchors)
             
         
@@ -153,6 +161,7 @@ class Player:
 
         self._update_hand(word_string, row, col, direction)
         self.board.add_word(word_string, row, col, direction, reverse)
+        return direction
 
 
     def _update_hand(self, word_string, start_row, start_col, direction):
@@ -173,7 +182,7 @@ class Player:
             if char not in self.hand and tile_coords not in self.board.tiles:
                 # Restore our hand and raise an Error
                 self.hand = original_hand
-                raise ValueError(f'Tried to remove "{word_string}" from ' +
+                raise ValueError(f'Tried to remove \"{word_string}\" from ' +
                                  'hand, but ran out of characters.')
             char_index += 1
             # Remove the char from our hand if it wasn't on the board
