@@ -39,16 +39,17 @@ class Game:
             tile_coords = (start_row + d_row * char_index,
                            start_col + d_col * char_index)
 
-            # If a character isn't in our hand and won't
-            # use a tile that's already on the board
+            # If a character isn't in our hand and isn't
+            # on the board
             if char not in self.hand and tile_coords not in self.board.tiles:
                 # Restore our hand and raise an Error
                 self.hand = original_hand
                 raise ValueError(f'Tried to remove "{word_string}" from ' +
                                  'hand, but ran out of characters.')
             char_index += 1
-            # Remove the char from our hand
-            self.hand = self.hand.replace(char, '', 1)
+            # Remove the char from our hand if it wasn't on the board
+            if tile_coords not in self.board.tiles:
+                self.hand = self.hand.replace(char, '', 1)
 
     def __str__(self) -> str:
         '''
