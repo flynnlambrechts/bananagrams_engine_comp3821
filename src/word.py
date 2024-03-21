@@ -6,6 +6,12 @@ class Word:
         self.num_endswith = int(line_split[2])
         self.letter_ranking = 0
 
+    def len(self):
+        return len(self.string)
+
+    def get(self, index: int):
+        return self.string[index]
+
     def has_anchor(self, anchor: str):
         return (len(anchor) == 0 or
                 any([char in self.string for char in anchor]))
