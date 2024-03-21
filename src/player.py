@@ -4,6 +4,7 @@ from trie import Trie
 from algorithms import long_with_lowest_rank
 from word import Word
 from tile import Tile
+from constants import VERTICAL, HORIZONTAL
 
 class Player:
 
@@ -127,7 +128,7 @@ class Player:
         # TODO this logic can be improved i think there is a bug here
         # add the end of the new word to anchor
         if i != end:
-            if played_direction == 1:
+            if played_direction == VERTICAL:
                 self.anchors.append(self.board.tiles[(row + end, col)])
             else:
                 self.anchors.append(self.board.tiles[(row, col + end)])
@@ -162,10 +163,10 @@ class Player:
         if anchor != None:
             lims = anchor.find_lims()
             if lims.up and lims.down:
-                direction=1
+                direction=VERTICAL
                 print("VERTICAL")
             elif lims.left and lims.right:
-                direction=0
+                direction=HORIZONTAL
                 print("HORIZONTAL")
 
         self._update_hand(word_string, row, col, direction)
@@ -178,8 +179,8 @@ class Player:
         original_hand = self.hand
 
         # Calculate change in row and col based on `direction`
-        d_row = int(direction == 1)
-        d_col = int(direction == 0)
+        d_row = int(direction == VERTICAL)
+        d_col = int(direction == HORIZONTAL)
 
         char_index = 0
         for char in word_string:
