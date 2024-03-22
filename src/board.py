@@ -1,4 +1,5 @@
 from tile import Tile
+from constants import VERTICAL, HORIZONTAL
 
 
 class Board:
@@ -64,14 +65,16 @@ class Board:
 
         return s
 
-    def add_tile(self, tile: str, row: int, col: int) -> None:
+    def add_tile(self, tile: str, row: int, col: int) -> Tile:
+        '''Returns the Tile played as a Tile Object'''
         tile = tile.upper()
         if len(tile) != 1:
             raise ValueError('Tile must be one character long')
         if (row, col) in self.tiles and self.tiles[(row, col)].char != tile:
-            raise ValueError(f'There is already a tile at ({row}, {col})')
-        # print(f"Adding {tile} to {row},{col}")
-        self.tiles[(row, col)] = Tile(board=self, row=row, col=col, char=tile)
+            raise ValueError(f'There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}')
+        tile = Tile(board=self, row=row, col=col, char=tile)
+        self.tiles[(row, col)] = tile
+        return tile
         # # Future nodes for caching sequences/words
         # adjacent = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
 
@@ -88,15 +91,13 @@ class Board:
 
         return self.tiles.pop((row, col))
 
-    def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> None:
+    def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> Tile:
         '''
         Potentially should take in a Word object rather than a string for word
         and also store the Word in each tile that composes the words so it is
-        accessable later
+        accessable later.
+        Returns the last tile played
         '''
-
-        VERTICAL = 1
-        HORIZONTAL = 0
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
 
@@ -105,5 +106,7 @@ class Board:
             dc *= -1
             word = word[::-1]
 
+        last = None
         for i, c in enumerate(word):
-            self.add_tile(c, row + i * dr, col + i * dc)
+            last = self.add_tile(c, row + i * dr, col + i * dc)
+        return last

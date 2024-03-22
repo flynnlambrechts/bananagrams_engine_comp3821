@@ -127,17 +127,17 @@ class Player:
         cannot remove the anchor
         letter from hand so it returns invalid if used with an anchor letter
         '''
+        reverse = False
         if anchor != None:
             print(anchor)
             print(word_string)
             i = word_string.index(anchor.char)
             lims = anchor.find_lims()
-            if lims.up and lims.down:
+
+            if lims.down and lims.up:
                 direction=VERTICAL
-                print("VERTICAL")
-            elif lims.left and lims.right:
+            elif lims.right and lims.left:
                 direction=HORIZONTAL
-                print("HORIZONTAL")
             else:
                 print(anchor.find_lims())
                 raise Exception("No valid direction to play word")
@@ -150,17 +150,15 @@ class Player:
                 
         else:
             direction = HORIZONTAL
+            
             i = 0
             row = 0
             col = 0
 
         self._update_hand(word_string, row, col, direction)
-        self.board.add_word(word_string, row, col, direction)
+        end_tile = self.board.add_word(word_string, row, col, direction, reverse)
         self.anchors.append(self.board.tiles[(row, col)])
-        if direction == VERTICAL:
-            self.anchors.append(self.board.tiles[(row + len(word_string) - 1, col)])
-        else:
-            self.anchors.append(self.board.tiles[(row, col + len(word_string) - 1)])
+        self.anchors.append(end_tile)
             
         # Update anchors
         # remove the used anchor
@@ -168,7 +166,10 @@ class Player:
         # the used anchor overlaps the new word's
         # start or end
         if anchor != None:
-            self.anchors.remove(anchor)     
+            # print(f"Removing anchor {anchor}")
+            # print(self.anchors)
+            self.anchors = list(filter(lambda a: a.coords != anchor.coords, self.anchors))
+            # print(self.anchors)
         return direction
 
 
