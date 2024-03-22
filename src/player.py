@@ -90,9 +90,12 @@ class Player:
             word = long_with_lowest_rank(
                 self.all_words.all_subwords(self.hand + anchor.char, anchor_str))
 
-            if word is not None:
+            if word is not None and word.has_anchor(anchor.char):
                 word_candidates.append((word, anchor))
         self.speak("Found", f"{len(word_candidates)} word candidates")
+        
+
+        
         if len(word_candidates) == 0:
             print('[ERROR] Could not find next word')
             self.restructure_board()
