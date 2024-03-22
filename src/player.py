@@ -92,7 +92,7 @@ class Player:
 
             if word is not None:
                 word_candidates.append((word, anchor))
-
+        self.speak("Found", f"{len(word_candidates)} word candidates")
         if len(word_candidates) == 0:
             print('[ERROR] Could not find next word')
             self.restructure_board()
@@ -132,6 +132,7 @@ class Player:
             print(anchor)
             print(word_string)
             i = word_string.index(anchor.char)
+            last_index = len(word_string) - 1
             lims = anchor.find_lims()
 
             if lims.down and lims.up:
