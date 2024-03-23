@@ -66,6 +66,8 @@ class Trie:
 
         Note: the last item in the array is the count of how many nodes 
         it visited.
+
+        Don't include anchor in the base string.
         '''
         subwords: list[Word] = []
         count = 0
