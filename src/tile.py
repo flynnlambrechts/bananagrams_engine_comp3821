@@ -53,10 +53,13 @@ class Tile:
                             if checked_tile in tiles:
                                 # the lim direction to update in the other tile is the opposite of
                                 # (i + 1 - j) = (i - 1 - j)
-                                tiles[checked_tile].lims.lims[(i - j - 1)] = min(
-                                    count,
-                                    tiles[checked_tile].lims.lims[(i - j - 1)]
-                                )
+                                if j == 1 or count == 0:
+                                    tiles[checked_tile].lims.lims[(i - j - 1)] = min(
+                                        count,
+                                        tiles[checked_tile].lims.lims[(i - j - 1)]
+                                    )
+                                # else:
+                                #     #sdljsdflksdjfldsfj
                                 no_barriers = False
                                 lims[i] = count
                     count += 1
