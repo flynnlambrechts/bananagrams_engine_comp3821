@@ -1,4 +1,4 @@
-from .lims import Lims
+from lims import Lims
 
 
 MAX_LIMIT = 50
@@ -21,7 +21,6 @@ class Tile:
         return f"Tile: coords={self.coords}, char={self.char}"
 
     def find_lims(self) -> Lims:
-        print(f"\nrunning find lims for tile ({self.coords})")
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         lims = [MAX_LIMIT] * 4
         tiles = self.board.tiles
@@ -32,7 +31,6 @@ class Tile:
             checked_tile = (row + dirs[i][0], col + dirs[i][1])
             # checking the immediate neighbour in that direction
             if checked_tile in tiles:
-                print(f"neighbour at {checked_tile}")
                 tiles[checked_tile].lims.lims[i - 2] = 0
                 lims[i] = 0
             else:
@@ -53,25 +51,19 @@ class Tile:
                                 row + dirs[(i + 1 - j) % 4][0],
                                 col + dirs[(i + 1 - j) % 4][1])
                             if checked_tile in tiles:
-                                print(f"hit tile {checked_tile}, count = {count}, dir = {dirs[i]}, j = {j}")
                                 # for all hits: update tile that was hit 
                                 # in opposite direction to probe velocity
-                                print(f"checked tiles lims before: {tiles[checked_tile].lims.lims}")
                                 tiles[checked_tile].lims.lims[i - 2] = min(
                                     count, 
                                     tiles[checked_tile].lims.lims[i - 2]
                                 )
-                                print(f"checked tiles lims after: {tiles[checked_tile].lims.lims}")
                                 # if 'front on hit', also check diagonals, as they could also be impacted
                                 if j == 1:
 
                                     diags = self._get_probe_diags(dirs[i])
-                                    print(f"dir: {dirs[i]}, diags: {diags}")
                                     for diag in diags:
                                         checked_diag_tile = (checked_tile[0] + diag[0], checked_tile[1] + diag[1])
-                                        print("checked diag:", checked_diag_tile)
                                         if checked_diag_tile in tiles:
-                                            print(f"found diagonal at {checked_diag_tile}")
                                             tiles[checked_diag_tile].lims.lims[i - 2] = min(
                                                 count + 1, 
                                                 tiles[checked_diag_tile].lims.lims[i - 2]
