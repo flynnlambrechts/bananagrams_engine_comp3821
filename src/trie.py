@@ -1,3 +1,4 @@
+from lims import Lims
 from word import Word
 
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
@@ -59,7 +60,8 @@ class Trie:
             for line in lines:
                 self.insert(Word(line))
 
-    def all_subwords(self, base: str, anchor: str = '') -> list[Word]:
+    def all_subwords(
+            self, base: str, anchor: str = '', lims: Lims = Lims([50, 50, 50, 50])) -> list[Word]:
         '''
         Returns an array of every anagram that can be made using the letters
         in base.

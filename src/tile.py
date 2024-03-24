@@ -17,6 +17,7 @@ class Tile:
 
         down, right, up, left
         '''
+
     def __repr__(self):
         return f"Tile: coords={self.coords}, char={self.char}"
 
@@ -72,5 +73,5 @@ class Tile:
         max_r = max(self.board.max_row(), self.coords[0])
         min_c = min(self.board.min_col(), self.coords[1])
         max_c = max(self.board.max_col(), self.coords[1])
-        
+
         return (min_r <= row <= max_r) and (min_c <= col <= max_c)

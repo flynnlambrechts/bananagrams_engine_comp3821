@@ -2,11 +2,11 @@ from pouch import Pouch
 from player import Player
 
 
-
 class Game:
     '''
     Game class is responsible for managing the players and the pouch of letters
     '''
+
     def __init__(self) -> None:
         '''
         Initialise a game new players can be added each game
@@ -34,7 +34,7 @@ class Game:
 
     def peel(self):
         # TODO: check there are enough tiles for each player
-        
+
         for player in self.players:
             player.give_tiles(self.pouch.peel())
 
