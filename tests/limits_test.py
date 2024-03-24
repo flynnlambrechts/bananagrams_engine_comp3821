@@ -22,28 +22,63 @@ from src.Game.Game import Game
 # for word in words:
 #     print(word.word)
 
+def print_lims(board, coords: tuple):
+    tile_lims = board.tiles[coords].lims.lims
+    print(f"({coords[0]}, {coords[1]}): {tile_lims}")
+    
+def check_lims(board, coords: tuple, expected: list):
+    lims = board.tiles[coords].lims.lims
+    if lims == expected:
+        return
+    else:
+        print(f"Error for {coords}: expected {expected}, got {lims}")   
+
+def lims_test_1(print_more: bool = False):
+    board.reset_board()
+    if print_more: print(board)
+    board.add_word("EEEEE", 0, 0, 0)
+    board.add_word("EEE", 0, 0, 1)
+    board.add_word("EEE", 0, 4, 1)
+    if print_more: print(board)
+
+    tiles = [(0,0), (1,0), (2,0), (0,2)]
+    expected_lims = [[0,0,50,50],[0,0,0,50],[50,2,0,50],[50,0,50,0]]
+    for i in range(len(tiles)):
+        check_lims(board, tiles[i], expected_lims[i])
+
+def lims_test_2(print_more: bool = False):
+    board.reset_board()
+    board.add_word("EEEE", 0, 0, 0)
+    board.add_word("EEEE", 0, 3, 1)
+    board.add_word("EEEEE", 0, 0, 1, True)
+    board.add_word("EEE", -2, -1, 0)
+    board.add_word("EEEE", 3, 2, 0)
+    if print_more: print(board)
+
+    tiles = [(0,0), (0,2), (1,3), (-4,0)]
+    expected_lims = [[50,0,0,50],[0,0,1,0],[0,50,0,0],[0,50,50,50]]
+    for i in range(len(tiles)):
+        check_lims(board, tiles[i], expected_lims[i])
+
+def lims_test_3(print_more: bool = False):
+    board.reset_board()
+    board.add_tile("E", 0, 0)
+    board.add_tile("E", -2, -1)
+    board.add_tile("E", 1, 0)
+    board.add_tile("E", 1, 3)
+    if print_more: print(board)
+
+    tiles = [(0,0), (-2,-1), (1,0), (1,3)]
+    expected_lims = [[0,2,1,50],[1,50,50,50],[50,1,0,50],[50,50,50,1]]
+    for i in range(len(tiles)):
+        check_lims(board, tiles[i], expected_lims[i])
+
 game = Game()
-game.board.add_word("EEEEE", 0, 0, 0)
-game.board.add_word("EEE", 0, 0, 1)
-game.board.add_word("EEE", 0, 4, 1)
-print(game)
-print("0,0:\n", game.board.tiles[(0, 0)].lims)
-print("0,1:\n", game.board.tiles[(0, 1)].lims)
-print("0,2:\n", game.board.tiles[(0, 2)].lims)
-print("1,0:\n", game.board.tiles[(1, 0)].lims)
-print("2,0:\n", game.board.tiles[(2, 0)].lims)
-# print("3,3:", game.board.tiles[(3,3)].lims)
-
-
-# game.board.add_word("EE", 0, 0, 0)
-# game.board.add_word("EE", 0, 0, 1)
-# print(game)
-# print("0,0:", game.board.tiles[(0,0)].lims)
-# print("0,1:", game.board.tiles[(0,1)].lims)
-# print("1,0:", game.board.tiles[(1,0)].lims)
-
-# game.board.add_word("E", 0, 0, 0)
-# game.board.add_word("E", 0, 3, 0)
-# print(game)
-# print("0,0:", game.board.tiles[(0,0)].lims)
-# print("0,3:", game.board.tiles[(0,3)].lims)
+game.add_player()
+board = game.players[0].board
+# print("\nTest 1")
+# lims_test_1()
+# print("\nTest 2")
+# lims_test_2(True)
+print("\nTest 3")
+lims_test_3(True)

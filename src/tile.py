@@ -1,4 +1,4 @@
-from lims import Lims
+from .lims import Lims
 
 
 MAX_LIMIT = 50
@@ -21,6 +21,7 @@ class Tile:
         return f"Tile: coords={self.coords}, char={self.char}"
 
     def find_lims(self) -> Lims:
+        print(f"\nrunning find lims for tile ({self.coords})")
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         lims = [MAX_LIMIT] * 4
         tiles = self.board.tiles
@@ -31,6 +32,7 @@ class Tile:
             checked_tile = (row + dirs[i][0], col + dirs[i][1])
             # checking the immediate neighbour in that direction
             if checked_tile in tiles:
+                print(f"neighbour at {checked_tile}")
                 tiles[checked_tile].lims.lims[i - 2] = 0
                 lims[i] = 0
             else:
@@ -40,7 +42,7 @@ class Tile:
                 while no_barriers:
                     row += dirs[i][0]
                     col += dirs[i][1]
-                    if not self.probe_on_board(row, col):
+                    if not self._probe_on_board(row, col):
                         lims[i] = MAX_LIMIT
                         no_barriers = False
                     else:
@@ -51,13 +53,39 @@ class Tile:
                                 row + dirs[(i + 1 - j) % 4][0],
                                 col + dirs[(i + 1 - j) % 4][1])
                             if checked_tile in tiles:
-                                # the lim direction to update in the other tile is the opposite of
-                                # (i + 1 - j) = (i - 1 - j)
-                                if j == 1 or count == 0:
+                                print(f"hit tile {checked_tile}, count = {count}, dir = {dirs[i]}, j = {j}")
+                                # for all hits: update tile that was hit 
+                                # in opposite direction to probe velocity
+                                print(f"checked tiles lims before: {tiles[checked_tile].lims.lims}")
+                                tiles[checked_tile].lims.lims[i - 2] = min(
+                                    count, 
+                                    tiles[checked_tile].lims.lims[i - 2]
+                                )
+                                print(f"checked tiles lims after: {tiles[checked_tile].lims.lims}")
+                                # if 'front on hit', also check diagonals, as they could also be impacted
+                                if j == 1:
+
+                                    diags = self._get_probe_diags(dirs[i])
+                                    print(f"dir: {dirs[i]}, diags: {diags}")
+                                    for diag in diags:
+                                        checked_diag_tile = (checked_tile[0] + diag[0], checked_tile[1] + diag[1])
+                                        print("checked diag:", checked_diag_tile)
+                                        if checked_diag_tile in tiles:
+                                            print(f"found diagonal at {checked_diag_tile}")
+                                            tiles[checked_diag_tile].lims.lims[i - 2] = min(
+                                                count + 1, 
+                                                tiles[checked_diag_tile].lims.lims[i - 2]
+                                            )
+                                elif count == 0:
+                                    # if there's a diag immediately next to the tile, more than one direction is affected
                                     tiles[checked_tile].lims.lims[(i - j - 1)] = min(
                                         count,
                                         tiles[checked_tile].lims.lims[(i - j - 1)]
                                     )
+                                # the lim direction to update in the other tile is the opposite of
+                                # (i + 1 - j) = (i - 1 - j)
+                                # if j == 1 or count == 0:
+                                    
                                 # else:
                                 #     #sdljsdflksdjfldsfj
                                 no_barriers = False
@@ -65,7 +93,16 @@ class Tile:
                     count += 1
         return Lims(lims)
 
-    def probe_on_board(self, row: int, col: int) -> bool:
+    def _get_probe_diags(self, dir: tuple):
+        x = dir[0]
+        y = dir[1]
+
+        if x == 0:
+            return [(1, 0), (-1, 0)]
+        else:
+            return [(0, 1), (0, -1)]
+
+    def _probe_on_board(self, row: int, col: int) -> bool:
         '''
         note that self.board.min_row() etc don't take into account the tile
         just placed hence a function for if the probe is on the board is
