@@ -10,6 +10,7 @@ class Tile:
         self.char = char
         self.board = board
         self.lims = self._update_lims()
+        self.lims = self._update_lims()
         '''
         dirs = [(1,0),(0,1),(-1,0),(0,-1)]
         e.g. the go anticlockwise from 6:00.
@@ -22,6 +23,9 @@ class Tile:
         return f"Tile: coords={self.coords}, char={self.char}"
 
     def _update_lims(self) -> Lims:
+        '''
+        Updates the limits of every tile that is impacted by the new tile placement
+        '''
         dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
         lims = [MAX_LIMIT] * 4
         tiles = self.board.tiles
