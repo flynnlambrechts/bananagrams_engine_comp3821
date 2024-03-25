@@ -138,9 +138,9 @@ class Player:
             last_index = len(word_string) - 1
             lims = anchor.find_lims()
 
-            if lims.down and lims.up:
+            if lims.down() and lims.up():
                 direction=VERTICAL
-            elif lims.right and lims.left:
+            elif lims.right() and lims.left():
                 direction=HORIZONTAL
             else:
                 print(anchor.find_lims())
