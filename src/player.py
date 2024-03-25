@@ -23,9 +23,6 @@ class Player:
         # Player waits until game gives them their hand
         self.hand: str = ''
 
-        # List of tiles where new words can be added
-        self.anchors: list[Tile] = []
-
         # Initialize our objects
         this_directory = Path(__file__).parent.resolve()
         dictionary = this_directory / '..' / 'assets' / 'word_dictionary.txt'
@@ -84,10 +81,10 @@ class Player:
         self.speak('Finding Word', f"available letters {self.hand}")
 
         # Precompute string repesentation of anchors
-        anchor_str = ''.join([anchor.char for anchor in self.anchors])
+        anchor_str = ''.join([anchor.char for anchor in self.board.anchors])
         # Words that can be formed using an anchor
         word_candidates: tuple[Word, Tile] = []
-        for anchor in self.anchors:
+        for anchor in self.board.anchors:
             # Looping over anchors to see if the hand+anchor can make a word
             word = long_with_lowest_rank(self.all_words.all_subwords(
                 self.hand + anchor.char, anchor_str, anchor.lims), anchor)
@@ -111,7 +108,7 @@ class Player:
         self.play_word(str(word), anchor)
         self.show_board()
 
-        print("New anchors: ", self.anchors)
+        print("New anchors: ", self.board.anchors)
 
     def restructure_board(self):
         '''If we cannot continue without our current board formation
@@ -119,9 +116,6 @@ class Player:
         play a word again
         '''
         # TODO
-        for anchor in self.anchors:
-            print(anchor.char)
-            print(anchor.lims)
         raise NotImplementedError("Board restructuring not implemented yet")
 
     def play_word(self, word_string, anchor=None):
@@ -162,19 +156,17 @@ class Player:
             col = 0
 
         self._update_hand(word_string, row, col, direction)
-        end_tile = self.board.add_word(word_string, row, col, direction, reverse)
-        self.anchors.append(self.board.tiles[(row, col)])
-        self.anchors.append(end_tile)
+        tiles = self.board.add_word(word_string, row, col, direction, reverse)
 
         # Update anchors
         # remove the used anchor
         # this also covers the case where the
         # the used anchor overlaps the new word's
         # start or end
-        if anchor != None:
+        if anchor is not None:
+            self.board.remove_anchor(anchor)
             # print(f"Removing anchor {anchor}")
             # print(self.anchors)
-            self.anchors = list(filter(lambda a: a.coords != anchor.coords, self.anchors))
             # print(self.anchors)
         return direction
 

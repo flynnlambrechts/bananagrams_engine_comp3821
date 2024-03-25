@@ -5,6 +5,7 @@ from constants import VERTICAL, HORIZONTAL
 class Board:
     def __init__(self) -> None:
         self.tiles: dict[tuple[int, int]] = {}
+        self.anchors: list[Tile] = []
 
     def min_row(self) -> int:
         if len(self.tiles) == 0:
@@ -71,7 +72,8 @@ class Board:
         if len(tile) != 1:
             raise ValueError('Tile must be one character long')
         if (row, col) in self.tiles and self.tiles[(row, col)].char != tile:
-            raise ValueError(f'There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}')
+            raise ValueError(
+                f'There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}')
         tile = Tile(board=self, row=row, col=col, char=tile)
         self.tiles[(row, col)] = tile
         return tile
@@ -91,12 +93,15 @@ class Board:
 
         return self.tiles.pop((row, col))
 
-    def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> Tile:
+    def remove_anchor(self, anchor: Tile):
+        self.anchors = list(filter(lambda a: a.coords != anchor.coords, self.anchors))
+
+    def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> list[Tile]:
         '''
         Potentially should take in a Word object rather than a string for word
         and also store the Word in each tile that composes the words so it is
         accessable later.
-        Returns the last tile played
+        Returns the last tile played [EDIT] Now Returns a list of all the tiles played
         '''
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
@@ -106,7 +111,8 @@ class Board:
             dc *= -1
             word = word[::-1]
 
-        last = None
+        tiles = []
         for i, c in enumerate(word):
-            last = self.add_tile(c, row + i * dr, col + i * dc)
-        return last
+            tiles.append(self.add_tile(c, row + i * dr, col + i * dc))
+        self.anchors.extend(tiles)
+        return tiles

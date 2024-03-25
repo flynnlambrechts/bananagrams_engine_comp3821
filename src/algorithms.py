@@ -34,7 +34,7 @@ def long_with_lowest_rank(subwords, anchor: Tile = None) -> Word:
 
     long_words = []
     for word in words:
-        if len(word.string) >= len(longest.string) - 3:
+        if len(word.string) >= len(longest.string):
             long_words.append(word)
 
     if len(long_words) == 0:
