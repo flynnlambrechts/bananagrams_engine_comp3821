@@ -5,13 +5,21 @@ class Lims:
     '''
     I've done these as functions so that they update after init
     '''
-    def down(self) -> int:
+    def down(self, value = None) -> int:
+        if isinstance(value, int):
+            self.lims[0] = value
         return self.lims[0]
-    def right(self) -> int:
+    def right(self, value = None) -> int:
+        if isinstance(value, int):
+            self.lims[1] = value
         return self.lims[1]
-    def up(self) -> int:
+    def up(self, value = None) -> int:
+        if isinstance(value, int):
+            self.lims[2] = value
         return self.lims[2]
-    def left(self) -> int:
+    def left(self, value = None) -> int:
+        if isinstance(value, int):
+            self.lims[3] = value
         return self.lims[3]
 
     def __str__(self) -> str:
