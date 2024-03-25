@@ -5,25 +5,41 @@ class Lims:
     '''
     I've done these as functions so that they update after init
     '''
-    def down(self, value = None) -> int:
-        if isinstance(value, int):
-            self.lims[0] = value
+
+    @property
+    def down(self):
         return self.lims[0]
-    def right(self, value = None) -> int:
-        if isinstance(value, int):
-            self.lims[1] = value
+
+    @down.setter
+    def down(self, value):
+        self.lims[0] = value
+
+    @property
+    def right(self):
         return self.lims[1]
-    def up(self, value = None) -> int:
-        if isinstance(value, int):
-            self.lims[2] = value
+
+    @right.setter
+    def right(self, value):
+        self.lims[1] = value
+
+    @property
+    def up(self):
         return self.lims[2]
-    def left(self, value = None) -> int:
-        if isinstance(value, int):
-            self.lims[3] = value
+
+    @up.setter
+    def up(self, value):
+        self.lims[2] = value
+
+    @property
+    def left(self):
         return self.lims[3]
 
+    @left.setter
+    def left(self, value):
+        self.lims[3] = value
+
     def __str__(self) -> str:
-        return f"down: {str(self.down())}\n"\
-            f"right: {str(self.right())}\n"\
-            f"up: {str(self.up())}\n"\
-            f"left: {str(self.left())}\n"
+        return f"down: {str(self.down)}\n"\
+            f"right: {str(self.right)}\n"\
+            f"up: {str(self.up)}\n"\
+            f"left: {str(self.left)}\n"
