@@ -1,16 +1,21 @@
 from lims import Lims
-
-
-MAX_LIMIT = 50
+from parent_word import ParentWord
+from constants import *
 
 
 class Tile:
-    def __init__(self, board, row: int, col: int, char: str):
+    def __init__(self, board, row: int, col: int, char: str, parent_word: str = '', pos: int = 0, direction: int = 0):
         self.coords = (row, col)
         self.char = char
         self.board = board
         self.lims = self._update_lims()
-        self.lims = self._update_lims()
+        self.vert_parent: ParentWord|None = None
+        self.horo_parent: ParentWord|None = None
+
+        if direction == VERTICAL and len(parent_word) > 0:
+            self.vert_parent = ParentWord(parent_word, pos, direction)
+        elif direction == HORIZONTAL and len(parent_word) > 0:
+            self.horo_parent = ParentWord(parent_word, pos, direction)
         '''
         dirs = [(1,0),(0,1),(-1,0),(0,-1)]
         e.g. the go anticlockwise from 6:00.

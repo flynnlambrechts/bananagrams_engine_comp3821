@@ -1,4 +1,5 @@
 from tile import Tile
+from parent_word import ParentWord
 from constants import VERTICAL, HORIZONTAL
 
 
@@ -36,10 +37,6 @@ class Board:
 
         col_delim = " "
 
-        # min_row = min([row for row, _ in self.tiles])
-        # max_row = max([row for row, _ in self.tiles])
-        # min_col = min([col for _, col in self.tiles])
-        # max_col = max([col for _, col in self.tiles])
 
         header = 4*" " + col_delim.join(
             map(lambda x: x[-1],
@@ -66,17 +63,25 @@ class Board:
 
         return s
 
-    def add_tile(self, tile: str, row: int, col: int) -> Tile:
-        '''Returns the Tile played as a Tile Object'''
+    def add_tile(self, tile: str, row: int, col: int, parent_word: str = '', pos: int = 0, direction: int = 0) -> Tile:
+        '''
+        Returns the Tile played as a Tile Object
+        '''
         tile = tile.upper()
         if len(tile) != 1:
             raise ValueError('Tile must be one character long')
         if (row, col) in self.tiles and self.tiles[(row, col)].char != tile:
             raise ValueError(
                 f'There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}')
-        tile = Tile(board=self, row=row, col=col, char=tile)
-        self.tiles[(row, col)] = tile
-        return tile
+        elif (row, col) in self.tiles:
+            if direction == VERTICAL:
+                self.tiles[(row,col)].vert_parent = ParentWord(parent_word, pos, direction)
+            else:
+                self.tiles[(row,col)].horo_parent = ParentWord(parent_word, pos, direction)
+        else:
+            tile = Tile(board=self, row=row, col=col, char=tile, parent_word=parent_word, pos=pos, direction=direction)
+            self.tiles[(row, col)] = tile
+            return tile
         # # Future nodes for caching sequences/words
         # adjacent = [(row - 1, col), (row + 1, col), (row, col - 1), (row, col + 1)]
 
@@ -88,6 +93,7 @@ class Board:
         # self.tiles[(row, col)] = tile
 
     def remove_tile(self, row: int, col: int) -> str:
+        '''Note that this won't change the ParentWord info of surrounding tiles'''
         if (row, col) not in self.tiles:
             raise ValueError(f'There is no tile at ({row}, {col})')
 
@@ -105,14 +111,17 @@ class Board:
         '''
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
-
+        tile_str = word
         if (reverse):
             dr *= -1
             dc *= -1
-            word = word[::-1]
+            tile_str = word[::-1]
 
         tiles = []
-        for i, c in enumerate(word):
-            tiles.append(self.add_tile(c, row + i * dr, col + i * dc))
+        for i, c in enumerate(tile_str):
+            pos = i
+            if reverse:
+                pos = len(word) - i - 1
+            tiles.append(self.add_tile(c, row + i * dr, col + i * dc, word, pos, direction))
         self.anchors.extend(tiles)
         return tiles
