@@ -100,7 +100,7 @@ class Board:
         return self.tiles.pop((row, col))
 
     def remove_anchor(self, anchor: Tile):
-        self.anchors = list(filter(lambda a: a.coords != anchor.coords, self.anchors))
+        self.anchors = list(filter(lambda a: a != anchor, self.anchors))
 
     def add_word(self, word: str, row: int, col: int, direction: int, reverse=False) -> list[Tile]:
         '''
@@ -122,6 +122,8 @@ class Board:
             pos = i
             if reverse:
                 pos = len(word) - i - 1
-            tiles.append(self.add_tile(c, row + i * dr, col + i * dc, word, pos, direction))
+            new_tile = self.add_tile(c, row + i * dr, col + i * dc, word, pos, direction)
+            if new_tile is not None:
+                tiles.append(new_tile)
         self.anchors.extend(tiles)
         return tiles

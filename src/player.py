@@ -58,7 +58,7 @@ class Player:
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand))
+        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand), closeness_to_longest = 2)
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
         self.show_board()
@@ -87,7 +87,7 @@ class Player:
         for anchor in self.board.anchors:
             # Looping over anchors to see if the hand+anchor can make a word
             word = long_with_lowest_rank(self.all_words.all_subwords(
-                self.hand + anchor.char, anchor_str, anchor.lims), anchor)
+                self.hand, anchor.char, anchor.lims), anchor)
 
             if word is not None and word.has_anchor(anchor.char):
                 word_candidates.append((word, anchor))
@@ -95,8 +95,8 @@ class Player:
 
         if len(word_candidates) == 0:
             print('[ERROR] Could not find next word')
-            self.restructure_board()
-            return
+            return self.restructure_board()
+            
 
         # Very weird way of calculating the best next word and its
         # corresponding anchor
@@ -108,17 +108,19 @@ class Player:
         self.play_word(str(word), anchor)
         self.show_board()
 
-        print("New anchors: ", self.board.anchors)
 
     def restructure_board(self):
         '''If we cannot continue without our current board formation
         this function is called. It should made adjustments and try
         play a word again
         '''
+        print("attempted board restructure")
         # TODO
+        # return "Error"
         raise NotImplementedError("Board restructuring not implemented yet")
 
     def play_word(self, word_string, anchor=None):
+        # print("playing", word_string)
         '''
         Play word function self._valid_word tries to remove each letter of the
         word from hand
@@ -128,8 +130,6 @@ class Player:
         '''
         reverse = False
         if anchor is not None:
-            print(anchor)
-            print(word_string)
             i = word_string.index(anchor.char)
             last_index = len(word_string) - 1
             lims = anchor.lims
