@@ -1,10 +1,10 @@
 from board import Board
 from pathlib import Path
 from trie import Trie
-from algorithms import long_with_lowest_rank
+from algorithms import long_with_lowest_rank, where_to_play_word
 from word import Word
 from tile import Tile
-from constants import VERTICAL, HORIZONTAL
+from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
 
 
 class Player:
@@ -119,34 +119,40 @@ class Player:
         # return "Error"
         raise NotImplementedError("Board restructuring not implemented yet")
 
-    def play_word(self, word_string, anchor=None):
+    def play_word(self, word_string, anchor:Tile=None):
         # print("playing", word_string)
         '''
-        Play word function self._valid_word tries to remove each letter of the
-        word from hand
-        if it's able to remove each letter, then it did work. Currently,
-        cannot remove the anchor
-        letter from hand so it returns invalid if used with an anchor letter
+        Given a word string and an anchor tile, plays the word in the position as
+        Determined by where_to_play_word. 
+        Updates its hand. 
+        board.add_word updates the anchor list for it. 
         '''
         reverse = False
         if anchor is not None:
-            i = word_string.index(anchor.char)
-            last_index = len(word_string) - 1
-            lims = anchor.lims
-
-            if lims.down and lims.up:
-                direction = VERTICAL
-            elif lims.right and lims.left:
-                direction = HORIZONTAL
-            else:
-                print(anchor.find_IOI())
+            word_placement = where_to_play_word(word_string, anchor)
+            if word_placement == NO_SPACE_FOR_WORD:
                 raise Exception("No valid direction to play word")
-
-            (row, col) = anchor.coords
-            if direction == VERTICAL:
-                row -= i
             else:
-                col -= i
+                (i, direction) = word_placement
+                (row, col) = anchor.coords
+                if direction == VERTICAL:
+                    row -= i
+                else:
+                    col -= i
+            # i = word_string.index(anchor.char)
+            # last_index = len(word_string) - 1
+            # lims = anchor.lims
+
+            # if lims.down and lims.up:
+            #     direction = VERTICAL
+            # elif lims.right and lims.left:
+            #     direction = HORIZONTAL
+            # else:
+            #     print(anchor.find_IOI())
+            #     raise Exception("No valid direction to play word")
+
+            # (row, col) = anchor.coords
+            
 
         else:
             direction = HORIZONTAL
@@ -156,7 +162,7 @@ class Player:
             col = 0
 
         self._update_hand(word_string, row, col, direction)
-        tiles = self.board.add_word(word_string, row, col, direction, reverse)
+        new_tiles = self.board.add_word(word_string, row, col, direction, reverse)
 
         # Update anchors
         # remove the used anchor

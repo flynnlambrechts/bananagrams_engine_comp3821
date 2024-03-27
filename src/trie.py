@@ -76,7 +76,7 @@ class Trie:
         node = self._root
         if self._mode == "sort":
             subwords.extend(self._recurse_subwords(
-                node, base, anchor))
+                node, base + anchor, anchor))
         else:
             if self._mode == "reverse":
                 anchor = anchor[::-1]  # reverse anchor if reverse
@@ -88,17 +88,6 @@ class Trie:
 
         count += subwords.pop()
 
-        # if not anchor:
-        #     for char in self.root.children.keys():
-        #         if char in base:
-        #             subwords.extend(
-        # self._recurse_subwords(self.root.children[char], base.replace(char, "", 1)))
-        #             count += subwords.pop()
-        # else:
-        #     for char in anchor:
-        #         subwords.extend(self._recurse_subwords(self.root.children[anchor], base))
-
-        # subwords.append(count)
         return subwords
 
     def _recurse_subwords(self, node: TrieNode, subbase: str, anchor: str = "") -> list[Word]:
