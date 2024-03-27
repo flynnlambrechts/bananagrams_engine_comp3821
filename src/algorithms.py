@@ -69,6 +69,7 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 
     return min_word
 
 
+'''None of the below is actually being used'''
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
