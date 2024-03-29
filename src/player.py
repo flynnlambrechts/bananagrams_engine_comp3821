@@ -1,11 +1,15 @@
 from board import Board
 from pathlib import Path
 from trie import Trie
-from algorithms import long_with_lowest_rank, where_to_play_word
+from algorithms import long_with_best_rank, where_to_play_word, score_word_simple_stranding
 from word import Word
 from tile import Tile
-from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
+from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT
 
+is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058, 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
+is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586, 'M': 4620, 'N': 12003, 'O': 1887, 'P': 1547, 'Q': 10, 'R': 14784, 'S': 107294, 'T': 13933, 'U': 379, 'V': 45, 'W': 610, 'X': 583, 'Y': 19551, 'Z': 159}
+pair_start_count = {'A': 16, 'B': 5, 'C': 1, 'D': 4, 'E': 13, 'F': 3, 'G': 3, 'H': 5, 'I': 6, 'J': 2, 'K': 4, 'L': 3, 'M': 7, 'N': 5, 'O': 17, 'P': 4, 'Q': 1, 'R': 1, 'S': 4, 'T': 4, 'U': 8, 'V': 0, 'W': 2, 'X': 2, 'Y': 4, 'Z': 3}
+pair_end_count = {'A': 15, 'B': 2, 'C': 0, 'D': 4, 'E': 15, 'F': 3, 'G': 2, 'H': 6, 'I': 14, 'J': 0, 'K': 1, 'L': 2, 'M': 6, 'N': 5, 'O': 17, 'P': 2, 'Q': 0, 'R': 4, 'S': 5, 'T': 5, 'U': 6, 'V': 0, 'W': 3, 'X': 3, 'Y': 7, 'Z': 0}
 
 class Player:
 
@@ -58,7 +62,10 @@ class Player:
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand), closeness_to_longest = 2)
+        start_word: Word = long_with_best_rank(self.all_words.all_subwords(self.hand), 
+                                               rank_strategy = "strand",
+                                               closeness_to_longest = 2)
+        
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
         self.show_board()
@@ -80,14 +87,19 @@ class Player:
         # Otherwise generic implementation of play turn
         self.speak('Finding Word', f"available letters {self.hand}")
 
+        # strand_anchors = filter(, self.board.anchors)
+
+        # strand_candidate = 
+
+
         # Precompute string repesentation of anchors
         anchor_str = ''.join([anchor.char for anchor in self.board.anchors])
         # Words that can be formed using an anchor
         word_candidates: tuple[Word, Tile] = []
         for anchor in self.board.anchors:
             # Looping over anchors to see if the hand+anchor can make a word
-            word = long_with_lowest_rank(self.all_words.all_subwords(
-                self.hand, anchor.char, anchor.lims), anchor)
+            word = long_with_best_rank(self.all_words.all_subwords(
+                self.hand, anchor.char, anchor.lims), rank_strategy="old", anchor= anchor)
 
             if word is not None and word.has_anchor(anchor.char):
                 word_candidates.append((word, anchor))
@@ -100,7 +112,7 @@ class Player:
 
         # Very weird way of calculating the best next word and its
         # corresponding anchor
-        word = long_with_lowest_rank([word for word, _ in word_candidates])
+        word = long_with_best_rank([word for word, _ in word_candidates], rank_strategy="old")
         anchor = next(anchor for w, anchor in word_candidates if w == word)
 
         self.speak("Playing", f"{word} on anchor {anchor}")
@@ -200,3 +212,47 @@ class Player:
             # Remove the char from our hand if it wasn't on the board
             if tile_coords not in self.board.tiles:
                 self.hand = self.hand.replace(char, '', 1)
+
+    def find_strand_extending_anchors(self):
+        '''returns tiles that have infinite space in 1 direction and some space at 90 degrees'''
+        strand_extending_anchors = []
+        for tile in self.board.tiles.values():
+            if tile.vert_parent == None:
+                if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
+                    strand_extending_anchors.append(tile)
+            elif (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
+                strand_extending_anchors.append(tile)
+
+        return strand_extending_anchors
+    
+    '''TODO: deal with nothing coming up'''
+    def find_best_strand_extension(self, anchors: list[Tile]):
+        prefix_anchors = set() # prefix of the new word
+        suffix_anchors = set() # suffix of the new word
+
+        for anchor in anchors:
+            pair_list = self.all_words.find_two_letters(anchor.char)
+
+            bad_dir = anchor.lims.lims.index(min(anchor.lims.lims))
+            if bad_dir < 2:
+                # the anchor is the first letter of a word
+                # which means it's an anchor for a suffix of a new word
+                for pair in pair_list:
+                    if pair[pair.index(anchor.char) - 1] in self.hand:
+                        suffix_anchors.add(pair[pair.index(anchor.char) - 1])
+            else:
+                for pair in pair_list:
+                    if pair[pair.index(anchor.char) - 1] in self.hand:
+                        prefix_anchors.add(pair[pair.index(anchor.char) - 1])
+
+        for prefix in prefix_anchors:
+            words = self.forward_words.all_subwords(self.hand.replace(prefix,'',1), prefix)
+            longest: Word = max(words, key=lambda word: len(word.string))
+            best_prefix: Word = max(words, key=lambda word: score_word_simple_stranding(word.string, len(longest.string)))
+        for suffix in suffix_anchors:
+            words = self.reverse_words.all_subwords(self.hand.replace(suffix,'',1), suffix)
+            longest: Word = max(words, key=lambda word: len(word.string))
+            best_suffix: Word = max(words, key=lambda word: score_word_simple_stranding(word.string, len(longest.string)))
+        return max([best_prefix, best_suffix], 
+                   key = lambda word: score_word_simple_stranding(word.string, 
+                                                                  max(len(best_prefix.string), len(best_suffix.string))))
