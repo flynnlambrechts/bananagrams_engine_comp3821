@@ -113,10 +113,14 @@ class Trie:
     def _has_anchor(self, word: Word, anchor: str) -> bool:
         return word.has_anchor(anchor)
 
-    def find_two_letters(self, char: str):
+    def find_two_letters(self, char: str, base: str = ''):
         node = self._root.children[char]
         words = []
-        for char in node.children.keys():
+        if base == '':
+            node_list = node.children.keys()
+        else:
+            node_list = base
+        for char in node_list:
             words.extend(node.children[char].anagrams)
         return words
 
