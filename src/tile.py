@@ -1,6 +1,6 @@
-from lims import Lims
-from parent_word import ParentWord
-from constants import *
+from .lims import Lims
+from .parent_word import ParentWord
+from .constants import *
 
 
 class Tile:

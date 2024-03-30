@@ -1,11 +1,11 @@
-from tile import Tile
-from parent_word import ParentWord
-from constants import VERTICAL, HORIZONTAL
+from .tile import Tile
+from .parent_word import ParentWord
+from .constants import VERTICAL, HORIZONTAL
 
 
 class Board:
     def __init__(self) -> None:
-        self.tiles: dict[tuple[int, int]] = {}
+        self.tiles: dict[tuple[int, int], Tile] = {}
         self.anchors: list[Tile] = []
 
     def min_row(self) -> int:

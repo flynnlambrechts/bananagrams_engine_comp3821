@@ -1,5 +1,5 @@
-from pouch import Pouch
-from player import Player
+from .pouch import Pouch
+from .player import Player
 
 
 class Game:

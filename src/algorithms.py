@@ -1,6 +1,6 @@
-from word import Word
-from tile import Tile
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
+from .word import Word
+from .tile import Tile
+from .constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
         '''
@@ -41,7 +41,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
                     return (anchor_index, HORIZONTAL)
         return NO_SPACE_FOR_WORD
 
-def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 0) -> Word:
+def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 0, attempt = 0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
@@ -65,8 +65,13 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 
 
     if len(long_words) == 0:
         return None
-    min_word = min(long_words, key=lambda word: word.letter_ranking / len(word.string))
-    return min_word
+    long_words.sort(key=lambda word: word.letter_ranking / len(word.string))
+
+    # min_word = min(long_words, key=lambda word: word.letter_ranking / len(word.string))
+    if attempt >= len(long_words):
+        print(f"attempt: {attempt}, len(long_words): {len(long_words)}")
+        return None
+    return long_words[attempt]
 
 
 '''None of the below is actually being used'''
