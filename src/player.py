@@ -1,10 +1,10 @@
-from .board import Board
+from board import Board
 from pathlib import Path
-from .trie import Trie
-from .algorithms import long_with_lowest_rank, where_to_play_word
-from .word import Word
-from .tile import Tile
-from .constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
+from trie import Trie
+from algorithms import long_with_lowest_rank, where_to_play_word
+from word import Word
+from tile import Tile
+from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
 
 
 class Player:
@@ -59,11 +59,13 @@ class Player:
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
         print("playing first turn")
-        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand), closeness_to_longest = 2, attempt=self.board_attempt)
+        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(
+            self.hand), closeness_to_longest=2, attempt=self.board_attempt)
         if start_word == None:
-            start_word = long_with_lowest_rank(self.all_words.all_subwords(self.hand), closeness_to_longest = 3, attempt=self.board_attempt)
+            start_word = long_with_lowest_rank(self.all_words.all_subwords(
+                self.hand), closeness_to_longest=3, attempt=self.board_attempt)
         if start_word == None:
-            self.board_attempt = 21 # give up
+            self.board_attempt = 21  # give up
             return self.restructure_board()
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
@@ -102,7 +104,6 @@ class Player:
         if len(word_candidates) == 0:
             print('[ERROR] Could not find next word')
             return self.restructure_board()
-            
 
         # Very weird way of calculating the best next word and its
         # corresponding anchor
@@ -113,7 +114,6 @@ class Player:
 
         self.play_word(str(word), anchor)
         self.show_board()
-
 
     def restructure_board(self):
         '''If we cannot continue without our current board formation
@@ -134,7 +134,7 @@ class Player:
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
 
-    def play_word(self, word_string, anchor:Tile=None):
+    def play_word(self, word_string, anchor: Tile = None):
         # print("playing", word_string)
         '''
         Given a word string and an anchor tile, plays the word in the position as
@@ -167,7 +167,6 @@ class Player:
             #     raise Exception("No valid direction to play word")
 
             # (row, col) = anchor.coords
-            
 
         else:
             direction = HORIZONTAL
@@ -177,7 +176,8 @@ class Player:
             col = 0
 
         self._update_hand(word_string, row, col, direction)
-        new_tiles = self.board.add_word(word_string, row, col, direction, reverse)
+        new_tiles = self.board.add_word(
+            word_string, row, col, direction, reverse)
 
         # Update anchors
         # remove the used anchor

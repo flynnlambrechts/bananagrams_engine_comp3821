@@ -11,4 +11,5 @@ if sys.argv[1] == "-a":
         subprocess.run(["python", "-m", "tests." + name.split(".py")[0]])
 else:
     for i in range(len(sys.argv) - 1):
-        subprocess.run(["python", "-m", "tests." + sys.argv[i + 1].split(".py")[0]])
+        subprocess.run(["python", "-m", "tests." +
+                       sys.argv[i + 1].split(".py")[0]])

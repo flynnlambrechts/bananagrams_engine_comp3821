@@ -1,47 +1,49 @@
-from .word import Word
-from .tile import Tile
-from .constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
+from word import Word
+from tile import Tile
+from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
+
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
-        '''
-        Given an anchor and a word, determines if there's space to play it. 
-        If there is space to play it, it returns the index of the character in the word and direction as (index, direction),
-        Returning NO_SPACE_FOR_WORD (-1,-1) if there is no space to play it on the given anchor. 
-        '''
-        if anchor is None:
-            return (0, HORIZONTAL)
+    '''
+    Given an anchor and a word, determines if there's space to play it. 
+    If there is space to play it, it returns the index of the character in the word and direction as (index, direction),
+    Returning NO_SPACE_FOR_WORD (-1,-1) if there is no space to play it on the given anchor. 
+    '''
+    if anchor is None:
+        return (0, HORIZONTAL)
 
-        lims = anchor.lims
-        # step 1: find all instances of the anchor in word.
-        # for all in instances of anchor in word:
-        # 2: calculate forward and backward requirements
-        # 3: true if there's a 50/50 instance
-        # 4: true if it fits within an instance
-        # 5: true if it can go in one direction and it's not extending a word
-        # if (lims.down == MAX_LIMIT and lims.up == MAX_LIMIT) or (lims.left == MAX_LIMIT and lims.right == MAX_LIMIT):
-        #     return True
-        anchor_indexes = [i for i, t in enumerate(word_str) if t == anchor.char]
-        for anchor_index in anchor_indexes:
-            tiles_before = anchor_index
-            tiles_after = len(word_str) - anchor_index - 1
-            if lims.left and lims.right and lims.left >= tiles_before and lims.right >= tiles_after:
-                return (anchor_index, HORIZONTAL)
-            if lims.up and lims.down and lims.up >= tiles_before and lims.down >= tiles_after:
+    lims = anchor.lims
+    # step 1: find all instances of the anchor in word.
+    # for all in instances of anchor in word:
+    # 2: calculate forward and backward requirements
+    # 3: true if there's a 50/50 instance
+    # 4: true if it fits within an instance
+    # 5: true if it can go in one direction and it's not extending a word
+    # if (lims.down == MAX_LIMIT and lims.up == MAX_LIMIT) or (lims.left == MAX_LIMIT and lims.right == MAX_LIMIT):
+    #     return True
+    anchor_indexes = [i for i, t in enumerate(word_str) if t == anchor.char]
+    for anchor_index in anchor_indexes:
+        tiles_before = anchor_index
+        tiles_after = len(word_str) - anchor_index - 1
+        if lims.left and lims.right and lims.left >= tiles_before and lims.right >= tiles_after:
+            return (anchor_index, HORIZONTAL)
+        if lims.up and lims.down and lims.up >= tiles_before and lims.down >= tiles_after:
+            return (anchor_index, VERTICAL)
+
+        if tiles_before == 0:
+            if lims.down >= tiles_after and anchor.vert_parent == None:
                 return (anchor_index, VERTICAL)
+            if lims.right >= tiles_after and anchor.horo_parent == None:
+                return (anchor_index, HORIZONTAL)
+        if tiles_after == 0:
+            if lims.up >= tiles_before and anchor.vert_parent == None:
+                return (anchor_index, VERTICAL)
+            if lims.left >= tiles_before and anchor.horo_parent == None:
+                return (anchor_index, HORIZONTAL)
+    return NO_SPACE_FOR_WORD
 
-            if tiles_before == 0:
-                if lims.down >= tiles_after and anchor.vert_parent == None:
-                    return (anchor_index, VERTICAL)
-                if lims.right >= tiles_after and anchor.horo_parent == None:
-                    return (anchor_index, HORIZONTAL)
-            if tiles_after == 0:
-                if lims.up >= tiles_before and anchor.vert_parent == None:
-                    return (anchor_index, VERTICAL)
-                if lims.left >= tiles_before and anchor.horo_parent == None:
-                    return (anchor_index, HORIZONTAL)
-        return NO_SPACE_FOR_WORD
 
-def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 0, attempt = 0) -> Word:
+def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
@@ -52,7 +54,8 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 
     closeness_to_longest determines the length of words relative to the longest word that can be considered
     '''
 
-    words = [word for word in subwords if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD]
+    words = [word for word in subwords if where_to_play_word(
+        word.string, anchor) != NO_SPACE_FOR_WORD]
 
     if len(words) == 0:
         return None
@@ -75,6 +78,8 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest = 
 
 
 '''None of the below is actually being used'''
+
+
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)

@@ -1,5 +1,5 @@
-from .lims import Lims
-from .word import Word
+from lims import Lims
+from word import Word
 
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
                 'G': 71315, 'H': 63613, 'I': 229895, 'J': 4240, 'K': 23873, 'L': 133085,

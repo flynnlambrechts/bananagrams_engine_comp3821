@@ -1,6 +1,6 @@
-from .tile import Tile
-from .parent_word import ParentWord
-from .constants import VERTICAL, HORIZONTAL
+from tile import Tile
+from parent_word import ParentWord
+from constants import VERTICAL, HORIZONTAL
 
 
 class Board:
@@ -36,7 +36,6 @@ class Board:
             return ''
 
         col_delim = " "
-
 
         header = 4*" " + col_delim.join(
             map(lambda x: x[-1],
@@ -75,11 +74,14 @@ class Board:
                 f'There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}')
         elif (row, col) in self.tiles:
             if direction == VERTICAL:
-                self.tiles[(row,col)].vert_parent = ParentWord(parent_word, pos, direction)
+                self.tiles[(row, col)].vert_parent = ParentWord(
+                    parent_word, pos, direction)
             else:
-                self.tiles[(row,col)].horo_parent = ParentWord(parent_word, pos, direction)
+                self.tiles[(row, col)].horo_parent = ParentWord(
+                    parent_word, pos, direction)
         else:
-            tile = Tile(board=self, row=row, col=col, char=tile, parent_word=parent_word, pos=pos, direction=direction)
+            tile = Tile(board=self, row=row, col=col, char=tile,
+                        parent_word=parent_word, pos=pos, direction=direction)
             self.tiles[(row, col)] = tile
             return tile
         # # Future nodes for caching sequences/words
@@ -122,7 +124,8 @@ class Board:
             pos = i
             if reverse:
                 pos = len(word) - i - 1
-            new_tile = self.add_tile(c, row + i * dr, col + i * dc, word, pos, direction)
+            new_tile = self.add_tile(
+                c, row + i * dr, col + i * dc, word, pos, direction)
             if new_tile is not None:
                 tiles.append(new_tile)
         self.anchors.extend(tiles)
