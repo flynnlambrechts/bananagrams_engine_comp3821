@@ -1,6 +1,6 @@
-from word import Word
-from tile import Tile
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
+from .word import Word
+from .tile import Tile
+from .constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
 
 is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058, 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
 is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586, 'M': 4620, 'N': 12003, 'O': 1887, 'P': 1547, 'Q': 10, 'R': 14784, 'S': 107294, 'T': 13933, 'U': 379, 'V': 45, 'W': 610, 'X': 583, 'Y': 19551, 'Z': 159}
@@ -47,7 +47,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
                     return (anchor_index, HORIZONTAL)
         return NO_SPACE_FOR_WORD
 
-def long_with_best_rank(subwords, rank_strategy = "strand",anchor: Tile = None, closeness_to_longest = 0) -> Word:
+def long_with_best_rank(words: list[Word], rank_strategy = "strand",anchor: Tile = None, closeness_to_longest = 0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
@@ -58,7 +58,7 @@ def long_with_best_rank(subwords, rank_strategy = "strand",anchor: Tile = None, 
     closeness_to_longest determines the length of words relative to the longest word that can be considered
     '''
 
-    words = [word for word in subwords if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD]
+    words = [word for word in words if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD]
 
     if len(words) == 0:
         return None
@@ -72,7 +72,7 @@ def long_with_best_rank(subwords, rank_strategy = "strand",anchor: Tile = None, 
     if len(long_words) == 0:
         return None
     if rank_strategy == "strand":
-        return max(long_words, key=score_word_simple_stranding)
+        return max(long_words, key=lambda word: score_word_simple_stranding(word.string))
     else:
         return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
 
@@ -95,11 +95,13 @@ def _eval_anchor_candidate(tile: Tile) -> int:
         score += 100
     return score
 
-# def best_next_strand(subwords, )
+# def best_next_strand(words, )
 
 '''so much room for more interesting stuff, but it's a start'''
 def score_word_simple_stranding(word_str, min_length = 0):
-    if len(word_str < min_length):
+    if word_str == None:
+        return -1000000
+    if len(word_str) < min_length:
         return -1000000
     # all_other_letters = self._all_other_letters(word_str)
     if len(word_str) > 2:

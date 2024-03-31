@@ -39,7 +39,8 @@ def play_stage_one(starting_hand = '', print_hand = False, print_end = False, pr
     if print_hand:
         print(player.hand)
     return (i, starting_hand, len(player.hand))
-
+# i = 0
+# play_stage_one("TEGRATCDPGWQRNDEWERGI")
 results = []
 ITERATIONS = 10000
 for i in range(ITERATIONS):
@@ -48,6 +49,12 @@ for i in range(ITERATIONS):
 failures = list(filter(lambda result: result[2] != 0, results))
 print(failures)
 print(f"{len(failures)} failures out of {ITERATIONS}")
+
+# problem hand for stranding:
+# EWESEIWEUHELITOQEELQI
+
+# TEGRATCDPGWQRNDEWERGI
+
 
 # below are some starting hands that failed. all the upper ones were from beforeword_has_space was turned into where_to_play_word. 
 

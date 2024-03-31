@@ -45,3 +45,13 @@ class Pouch:
         for char in starting_letters.keys():
             for i in range(starting_letters[char]):
                 self.remaining.append(char)
+
+    def dump(self, char: str) -> str:
+        if len(char) != 1:
+            raise ValueError("Expected one char, got 0 or multiple")
+        self.remaining.append(char)
+        newtiles = []
+        for i in range(3):
+            if len(self.remaining) > 0:
+                newtiles.append(self.peel())
+        return newtiles
