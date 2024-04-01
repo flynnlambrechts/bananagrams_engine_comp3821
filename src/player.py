@@ -257,7 +257,9 @@ class Player:
                 self.hand = self.hand.replace(char, '', 1)
 
     def find_strand_extending_anchors(self):
-        '''returns tiles that have infinite space in 1 direction and some space at 90 degrees'''
+        '''
+        used for the below find_strand_extension function. 
+        returns tiles that have infinite space in 1 direction and some space at 90 degrees'''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
             if tile.vert_parent == None:
@@ -276,6 +278,7 @@ class Player:
     It would be nicer to made GO or NO the stranding word rather than ON or OR
     '''
     def find_best_strand_extension(self, anchors: list[Tile]) -> Word|None:
+        '''Finds the best and longest word that can be attached via a two letter word.'''
         # print("looking for strand extension")
         prefix_anchors = dict() # prefix of the new word
         suffix_anchors = dict() # suffix of the new word
@@ -330,8 +333,12 @@ class Player:
         else:
             return (best_word, suffix_anchors[best_word.string[-1]], ANCHOR_IS_SUFFIX)
 
-    '''TODO: use actual anchors, rather than the whole board'''
+    
+    
     def find_right_angle_word(self):
+        '''Looks for words where either the first or last letter is already on the board'''
+        '''TODO: use actual anchors, rather than the whole board'''
+
         # print("looking for right angle word")
         prefix_anchors = dict()
         suffix_anchors = dict()
@@ -378,7 +385,9 @@ class Player:
 
 
     def play_junk(self, anchors: list[Tile]):
-        '''Go through the anchors, play as much as possible each time'''
+        '''
+        Go through the anchors, play as much as possible each time
+        Everything played here is labeled as junk and will be removed at the next rearrange'''
         # print("playing junk")
         # print("Board before playing junk:")
         # print(self.board)
@@ -406,6 +415,10 @@ class Player:
         # print(self.board)
         
     def remove_junk(self):
+        '''
+        Removes every tile where is_junk == True. 
+        equivalent to removing every tile that was placed during play_junk.
+        '''
         print("removing junk...")
         print("board before: ")
         print(self)
