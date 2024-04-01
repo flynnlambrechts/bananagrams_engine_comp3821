@@ -1,5 +1,6 @@
 from board import Board
 from pathlib import Path
+from pickle_manager import load_tries
 from trie import Trie
 from algorithms import long_with_lowest_rank, where_to_play_word
 from word import Word
@@ -27,9 +28,10 @@ class Player:
         this_directory = Path(__file__).parent.resolve()
         dictionary = this_directory / '..' / 'assets' / 'word_dictionary.txt'
         print(f'[Initializing]')
-        self.all_words = Trie(mode='sort', dictionary_path=dictionary)
-        self.forward_words = Trie('forward', dictionary_path=dictionary)
-        self.reverse_words = Trie('reverse', dictionary_path=dictionary)
+        # self.all_words = Trie(mode='sort', dictionary_path=dictionary)
+        # self.forward_words = Trie('forward', dictionary_path=dictionary)
+        # self.reverse_words = Trie('reverse', dictionary_path=dictionary)
+        self.all_words, self.forward_words, self.reverse_words = load_tries()
 
     def __str__(self):
         player_str = f' - Hand: {self.hand}'
@@ -58,7 +60,8 @@ class Player:
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(self.hand), closeness_to_longest = 2)
+        start_word: Word = long_with_lowest_rank(
+            self.all_words.all_subwords(self.hand), closeness_to_longest=2)
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
         self.show_board()
@@ -96,7 +99,6 @@ class Player:
         if len(word_candidates) == 0:
             print('[ERROR] Could not find next word')
             return self.restructure_board()
-            
 
         # Very weird way of calculating the best next word and its
         # corresponding anchor
@@ -108,7 +110,6 @@ class Player:
         self.play_word(str(word), anchor)
         self.show_board()
 
-
     def restructure_board(self):
         '''If we cannot continue without our current board formation
         this function is called. It should made adjustments and try
@@ -119,7 +120,7 @@ class Player:
         # return "Error"
         raise NotImplementedError("Board restructuring not implemented yet")
 
-    def play_word(self, word_string, anchor:Tile=None):
+    def play_word(self, word_string, anchor: Tile = None):
         # print("playing", word_string)
         '''
         Given a word string and an anchor tile, plays the word in the position as
@@ -152,7 +153,6 @@ class Player:
             #     raise Exception("No valid direction to play word")
 
             # (row, col) = anchor.coords
-            
 
         else:
             direction = HORIZONTAL
@@ -162,7 +162,8 @@ class Player:
             col = 0
 
         self._update_hand(word_string, row, col, direction)
-        new_tiles = self.board.add_word(word_string, row, col, direction, reverse)
+        new_tiles = self.board.add_word(
+            word_string, row, col, direction, reverse)
 
         # Update anchors
         # remove the used anchor
