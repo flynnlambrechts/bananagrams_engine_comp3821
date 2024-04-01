@@ -15,7 +15,7 @@ class Pouch:
     not enough tiles left Everything for single player.
     '''
 
-    def __init__(self, seed):
+    def __init__(self, seed = None):
         '''
         Uses starting_letters dict to make the list of letters in pouch
         '''

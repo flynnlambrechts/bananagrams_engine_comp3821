@@ -68,6 +68,7 @@ class Player:
         # self.speak(f"Got", tiles)
         self.hand += ''.join(tiles)
         # print("using give_tiles to say dump on failure false")
+        print("dump on failure false")
         self.dump_on_failure = False
 
 
@@ -204,6 +205,7 @@ class Player:
         old_hand = self.hand
         # print(self)
         if self.dump_on_failure:
+            print("dump on failure true at restructure")
             worst_letter_in_hand = min(self.hand, key = lambda char: letter_count[char]) # this could be more sophisticated
             # print(f"Dumping {worst_letter_in_hand}")
             self.game.dump(self, worst_letter_in_hand)
@@ -215,6 +217,8 @@ class Player:
                 raise NotImplementedError("Choked at the end")
         else:
             print("restructured without dumping")
+        
+        self.dump_on_failure = True
         # TODO
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
@@ -489,4 +493,3 @@ class Player:
         print("board after removing junk:")
         print(self)
         self.board.junk_on_board = False
-        self.dump_on_failure = True
