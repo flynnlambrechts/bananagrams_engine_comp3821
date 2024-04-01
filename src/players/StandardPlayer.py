@@ -1,20 +1,19 @@
 from players.player import Player
 from algorithms import long_with_lowest_rank
+from pickle_manager import load_tries
 from word import Word
 from tile import Tile
 from pathlib import Path
-from trie import Trie
 from board import Board
 
+
 class StandardPlayer(Player):
-        # Initialize our objects
+    # Initialize our objects
     this_directory = Path(__file__).parent.resolve()
     dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
-    print(f'[Initializing]')
-    all_words = Trie(mode='sort', dictionary_path=dictionary)
-    forward_words = Trie('forward', dictionary_path=dictionary)
-    reverse_words = Trie('reverse', dictionary_path=dictionary)
-    
+    print('[Initializing]')
+    all_words, forward_words, reverse_words = load_tries()
+
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
@@ -36,7 +35,7 @@ class StandardPlayer(Player):
         # Peel if hand is empty
         if len(self.hand) == 0:
             self.peel()
-    
+
         if not self.game_running:
             return
 
@@ -88,12 +87,9 @@ class StandardPlayer(Player):
         while len(self.board.tiles) > 0:
             self.hand += (self.board.tiles.popitem()[1].char)
         self.board = Board()
-        self.speak("Rebuild Attempt", f"attempt {self.board_attempt - 1} failed")
+        self.speak("Rebuild Attempt",
+                   f"attempt {self.board_attempt - 1} failed")
         self.play_turn()
         # TODO
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
-        
-    
-        
-    
