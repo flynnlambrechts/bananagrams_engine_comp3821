@@ -1,5 +1,6 @@
 from src.game import Game
 from src.board import Board
+from src.pouch import Pouch
 import sys
 import re
 
@@ -7,7 +8,7 @@ game = Game()
 game.add_player()
 player = game.players[0]
 
-def play_game(starting_hand = '', turn_by_turn = False):
+def play_game(seed = None, turn_by_turn = False):
     # reset the board and pouch
     player.board = Board()
     player.hand = ''
@@ -15,11 +16,12 @@ def play_game(starting_hand = '', turn_by_turn = False):
     game.game_is_active = True
     player.dump_on_failure =  True
     player.dump_count = 0
-    if len(starting_hand) > 0:
-        player.give_tiles(starting_hand)
+    if seed == None:
+        game.pouch = Pouch()
     else:
-        game.pouch.reset()
-        player.give_tiles(game.pouch.get_starting_tiles(21))
+        game.pouch = Pouch(seed)
+    print(f"Seed: {game.pouch.seed}")
+    player.give_tiles(game.pouch.get_starting_tiles(21))
     go = True
     starting_hand = player.hand
     print(f"Starting hand: {starting_hand}")
@@ -41,7 +43,7 @@ def play_game(starting_hand = '', turn_by_turn = False):
         print("success!")
     else:
         print("failure")
-    return (i, starting_hand, successful_game, player.dump_count)
+    return (i, game.pouch.seed, successful_game, player.dump_count)
 
 def take_input():
     print("Input: ")
@@ -89,6 +91,8 @@ for i in range(ITERATIONS):
 failures = list(filter(lambda result: result[2] == False, results))
 print(failures)
 print(f"{len(failures)} failures out of {ITERATIONS}")
+
+# HULDGCAUEKRMUIREOXWBN
 
 # EQUILIBRATEFNNDODDYJV
 

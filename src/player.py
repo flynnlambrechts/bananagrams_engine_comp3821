@@ -94,7 +94,7 @@ class Player:
         # print("")
         # Peel if hand is empty
         if len(self.hand) == 0:
-            # print('Peel!')
+            print('Peel!')
             self.game.peel()
         if self.game.game_is_active == False:
             return
@@ -138,8 +138,12 @@ class Player:
 
                 second_anchor = self.play_word(two_letter_word[0].string, first_anchor)[0]
             else: 
-                if len(two_letter_word) > 1 and where_to_play_word(two_letter_word[1].string, first_anchor) != NO_SPACE_FOR_WORD:
-                    second_anchor = self.play_word(two_letter_word[1].string, first_anchor)[0]
+                if len(two_letter_word) > 1:
+                    if where_to_play_word(two_letter_word[1].string, first_anchor) != NO_SPACE_FOR_WORD:
+                        second_anchor = self.play_word(two_letter_word[1].string, first_anchor)[0]
+                    else:
+                        print(self)
+                        raise Exception(f"can't play strand anchor. hopeful word: {new_word[0]}, at anchor {new_word[1]}, is_suffix: {new_word[2]}, hopeful connector: {two_letter_word[0].string}")
                 else:
                     print(self)
                     raise Exception(f"can't play strand anchor. hopeful word: {new_word[0]}, at anchor {new_word[1]}, is_suffix: {new_word[2]}, hopeful connector: {two_letter_word[0].string}")
@@ -209,6 +213,8 @@ class Player:
                 print("tried to dump at the end and choked")
                 return "Error"
                 raise NotImplementedError("Choked at the end")
+        else:
+            print("restructured without dumping")
         # TODO
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
@@ -466,7 +472,9 @@ class Player:
         # print(self.board)
         
     def remove_junk(self):
-        # print("removing junk...")
+        print("removing junk...")
+        print("board before: ")
+        print(self)
         bad_tiles = []
         for tile in self.board.tiles.values():
             if tile.is_junk:
@@ -475,7 +483,10 @@ class Player:
         # print(bad_tiles)
         removed_tiles = self.board.remove_junk_tiles(bad_tiles)
         for tile in removed_tiles:
+            # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles. 
             self.hand += tile.char
         # print("junk on board now false")
+        print("board after removing junk:")
+        print(self)
         self.board.junk_on_board = False
         self.dump_on_failure = True
