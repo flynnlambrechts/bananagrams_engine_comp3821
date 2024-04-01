@@ -22,25 +22,14 @@ class Player:
         self.playing: bool = False
         self.game = game
         self.dump_on_failure: bool = True
+        # the property defines whether you should dump if you can't play everything vs restructure. 
+        # if you've received new tiles while junk was on the board, don't dump. 
+        
         self.board: Board = Board()
         self.dump_count = 0
         # Player waits until game gives them their hand
         self.hand: str = ''
-        # the property defines whether you should dump if you can't play everything vs restructure. 
-        # if you've received new tiles while junk was on the board, don't dump. 
-        # @property
-        # def hand(self):
-        #     return self._hand
-        # @hand.setter
-        # def hand(self, value: str):
-        #     addition_to_hand = value
-        #     for char in self._hand:
-        #         addition_to_hand.replace(char, '', 1)
-        #     if len(addition_to_hand) > 0 and self.board.junk_on_board:
-        #         print("dump on failure is false")
-        #         self.dump_on_failure = False
-        #     self._hand = value        
-                
+        
 
 
         # Initialize our objects
@@ -68,7 +57,6 @@ class Player:
         # self.speak(f"Got", tiles)
         self.hand += ''.join(tiles)
         # print("using give_tiles to say dump on failure false")
-        print("dump on failure false")
         self.dump_on_failure = False
 
 
@@ -162,36 +150,6 @@ class Player:
             return
 
 
-
-        # # Precompute string repesentation of anchors
-        # anchor_str = ''.join([anchor.char for anchor in self.board.anchors])
-        # # Words that can be formed using an anchor
-        # word_candidates: tuple[Word, Tile] = []
-        # for anchor in self.board.anchors:
-        #     # Looping over anchors to see if the hand+anchor can make a word
-        #     word = long_with_best_rank(self.all_words.all_subwords(
-        #         self.hand, anchor.char, anchor.lims), rank_strategy="old", anchor= anchor)
-
-        #     if word is not None and word.has_anchor(anchor.char):
-        #         word_candidates.append((word, anchor))
-        # self.speak("Found", f"{len(word_candidates)} word candidates")
-
-        # if len(word_candidates) == 0:
-        #     # print('[ERROR] Could not find next word')
-        #     return self.restructure_board()
-            
-
-        # Very weird way of calculating the best next word and its
-        # corresponding anchor
-        # word = long_with_best_rank([word for word, _ in word_candidates], rank_strategy="old")
-        # anchor = next(anchor for w, anchor in word_candidates if w == word)
-
-        # self.speak("Playing", f"{word} on anchor {anchor}")
-
-        # self.play_word(str(word), anchor)
-        # self.show_board()
-
-
     def restructure_board(self):
         '''If we cannot continue without our current board formation
         this function is called. It should made adjustments and try
@@ -205,7 +163,6 @@ class Player:
         old_hand = self.hand
         # print(self)
         if self.dump_on_failure:
-            print("dump on failure true at restructure")
             worst_letter_in_hand = min(self.hand, key = lambda char: letter_count[char]) # this could be more sophisticated
             # print(f"Dumping {worst_letter_in_hand}")
             self.game.dump(self, worst_letter_in_hand)
@@ -246,19 +203,6 @@ class Player:
                     row -= i
                 else:
                     col -= i
-            # i = word_string.index(anchor.char)
-            # last_index = len(word_string) - 1
-            # lims = anchor.lims
-
-            # if lims.down and lims.up:
-            #     direction = VERTICAL
-            # elif lims.right and lims.left:
-            #     direction = HORIZONTAL
-            # else:
-            #     # print(anchor.find_IOI())
-            #     raise Exception("No valid direction to play word")
-
-            # (row, col) = anchor.coords
             
 
         else:
@@ -349,36 +293,22 @@ class Player:
                 dict_to_add_to = suffix_anchors
             else:
                 dict_to_add_to = prefix_anchors
-            if (parent.direction == VERTICAL and anchor.lims.left > 0) or (parent.direction == HORIZONTAL and anchor.lims.down > 0):
-                # when the first_anchor char is second, you're good
-                # when the first_anchor char is both, you're good
-    
-                for pair in pair_list:
-                    if pair.string[1] == anchor.char:
-                        dict_to_add_to[pair.string[0]] = anchor
-            if (parent.direction == VERTICAL and anchor.lims.right > 0) or (parent.direction == HORIZONTAL and anchor.lims.up > 0):
-                # when the first_anchor char is second, you're good
-                # when the first_anchor char is both, you're good
 
+            if (parent.direction == VERTICAL and anchor.lims.right > 0) or (parent.direction == HORIZONTAL and anchor.lims.down > 0):
+                # when the first_anchor char is first, you're good
+                # when the first_anchor char is both, you're good
+                # print(f"{anchor} can be the first letter in the 2 letter word")
                 for pair in pair_list:
                     if pair.string[0] == anchor.char:
                         dict_to_add_to[pair.string[1]] = anchor
-            
-            # bad_dir = anchor.lims.lims.index(min(anchor.lims.lims))
-            # if bad_dir < 2:
-            #     # the anchor is the first letter of a word
-            #     # which means it's an anchor for a suffix of a new word
-            #     for pair in pair_list:
-            #         suffix_anchors[pair.string[pair.string.index(anchor.char) - 1]] = anchor
-
-            # else:
-            #     for pair in pair_list:
-            #         prefix_anchors[pair.string[pair.string.index(anchor.char) - 1]] = anchor
+            if (parent.direction == VERTICAL and anchor.lims.left > 0) or (parent.direction == HORIZONTAL and anchor.lims.up > 0):
+                # when the first_anchor char is second, you're good
+                # when the first_anchor char is both, you're good
+                # print(f"{anchor} can be the first letter in the 2 letter word")
+                for pair in pair_list:
+                    if pair.string[1] == anchor.char:
+                        dict_to_add_to[pair.string[0]] = anchor
         
-        # print("prefix anchors:")
-        # print(prefix_anchors)
-        # print("suffix anchors:")
-        # print(suffix_anchors)
         all_words = dict()
 
         for prefix in prefix_anchors.keys():

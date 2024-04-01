@@ -53,7 +53,7 @@ def take_input():
             print("quitting")
             game.game_is_active = False
             return "End"
-        if input == 'c' or '\n':
+        if input == 'c':
             print("continuing")
             return "Continue"
         if input == 'p':
@@ -81,16 +81,17 @@ def take_input():
 
 
 
-# i = 0
-# play_game("EQUILIBRATEFNNDODDYJV", turn_by_turn=True)
-results = []
-ITERATIONS = 100
-for i in range(ITERATIONS):
-    print(f"\n\nRun {i}")
-    results.append(play_game())
-failures = list(filter(lambda result: result[2] == False, results))
-print(failures)
-print(f"{len(failures)} failures out of {ITERATIONS}")
+i = 0
+play_game(1711937923)
+
+# results = []
+# ITERATIONS = 100
+# for i in range(ITERATIONS):
+#     print(f"\n\nRun {i}")
+#     results.append(play_game())
+# failures = list(filter(lambda result: result[2] == False, results))
+# print(failures)
+# print(f"{len(failures)} failures out of {ITERATIONS}")
 
 # HULDGCAUEKRMUIREOXWBN
 
@@ -101,3 +102,5 @@ print(f"{len(failures)} failures out of {ITERATIONS}")
 
 # PHELETIFEMEOUADNMSNBO
 # LRYGPALEKEEIOHOPIRDUT
+
+# 1711937923
