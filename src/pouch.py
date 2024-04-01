@@ -1,4 +1,5 @@
 from random import randint
+from collections import Counter
 
 
 starting_letters = {"A": 13, "B": 3, "C": 3, "D": 6, "E": 18, "F": 3, "G": 4,
@@ -45,3 +46,9 @@ class Pouch:
         for char in starting_letters.keys():
             for i in range(starting_letters[char]):
                 self.remaining.append(char)
+
+    def n_remaining(self):
+        return len(self.remaining)
+    
+    def __str__(self):
+        return (str(dict(Counter(self.remaining))))
