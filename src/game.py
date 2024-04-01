@@ -50,9 +50,6 @@ class Game:
     def end_game(self):
         for player in self.players:
             player.game_over()
-            
-
-        
 
     def peel(self) -> bool:
         '''

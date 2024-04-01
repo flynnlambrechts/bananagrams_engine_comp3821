@@ -1,6 +1,6 @@
 from tile import Tile
 from parent_word import ParentWord
-from constants import VERTICAL, HORIZONTAL
+from constants import VERTICAL, HORIZONTAL, bcolors
 
 
 class Board:
@@ -57,10 +57,18 @@ class Board:
             while cur_col < col:
                 cur_col += 1
                 skipped += 1
-            s += 2 * max(0, skipped) * col_delim + value.char + col_delim
+                
+            tile_text = value.char
+            if self.is_junction(row, col):
+                tile_text = bcolors.WARNING + tile_text + bcolors.ENDC
+            s += 2 * max(0, skipped) * col_delim + tile_text + col_delim
+            
             cur_col += 1
 
         return s
+    
+    # def __repr__(self):
+    #     print(self.tiles)
 
     def add_tile(self, tile: str, row: int, col: int, parent_word: str = '', pos: int = 0, direction: int = 0) -> Tile:
         '''
@@ -130,3 +138,11 @@ class Board:
                 tiles.append(new_tile)
         self.anchors.extend(tiles)
         return tiles
+
+    def has_tile(self, row: int, col: int) -> bool:
+        return (row, col) in self.tiles
+    
+    def is_junction(self, row: int, col: int):
+        has_horizontal = self.has_tile(row + 1, col) or self.has_tile(row - 1, col)
+        has_vertical = self.has_tile(row, col + 1) or self.has_tile(row, col - 1)
+        return has_horizontal and has_vertical

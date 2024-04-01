@@ -1,6 +1,7 @@
 from word import Word
 from tile import Tile
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
+from board import Board
+from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, DIRECTIONS
 
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
@@ -97,3 +98,73 @@ def _eval_anchor_candidate(tile: Tile) -> int:
             tile.lims.up() > 8 and tile.lims.down() > 8):
         score += 100
     return score
+
+
+
+def get_dangling_tiles_in_dir(board, start: tuple[int, int], direction: tuple[int, int]):
+    dangling_tiles = []
+    (row, col) = start
+    other_directions = [dir for dir in DIRECTIONS if dir != direction]
+    while board.has_tile(row, col):
+        if board.is_junction(row, col):
+            # There was another junction in the direction we scanned
+            # so all previously found dangling tiles mustn't be dangling
+            dangling_tiles = []
+            for dir in other_directions:
+                dangling_tiles.extend(
+                    get_dangling_tiles_in_dir(board, (row, col), dir)
+                )        
+            return (True, dangling_tiles)
+        
+
+        dangling_tiles.append((row, col))
+        
+        row += direction[0]
+        col += direction[1]
+        
+    return (False, dangling_tiles)
+    
+        
+        
+
+def get_dangling_tiles(board):
+    for tile in board.tiles:
+        if board.is_junction(*tile):
+            junction = tile
+            break
+    else:
+        return
+    
+    dangling_tiles = []
+    (row, col) = junction
+    
+    # horizontal scan
+    right_scan = get_dangling_tiles_in_dir(board, (row, col + 1), (0, 1))
+    if right_scan[0]:
+        dangling_tiles.extend(right_scan[1])
+    left_scan = get_dangling_tiles_in_dir(board, (row, col - 1), (0, -1))
+    if left_scan[0]:
+        dangling_tiles.extend(left_scan[1])
+    
+    if not left_scan[0] and not right_scan[0]:
+        dangling_tiles.extend(left_scan[1])
+        dangling_tiles.extend(right_scan[1])
+        
+    # vertical scan
+    up_scan = get_dangling_tiles_in_dir(board, (row - 1, col), (-1, 0))
+    if up_scan[0]:
+        dangling_tiles.extend(up_scan[1])
+        
+    down_scan = get_dangling_tiles_in_dir(board, (row + 1, col), (1, 0))
+    if down_scan[0]:
+        dangling_tiles.extend(down_scan[1])
+    
+    if not up_scan[0] and not down_scan[0]:
+        dangling_tiles.extend(up_scan[1])
+        dangling_tiles.extend(down_scan[1])
+        
+    print(dangling_tiles)
+        
+    
+    
+        

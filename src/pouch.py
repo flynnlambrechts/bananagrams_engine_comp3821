@@ -1,4 +1,5 @@
-from random import randint
+import random
+import time
 from collections import Counter
 
 
@@ -16,13 +17,18 @@ class Pouch:
     not enough tiles left Everything for single player.
     '''
 
-    def __init__(self):
+    def __init__(self, seed = None):
         '''
         Uses starting_letters dict to make the list of letters in pouch
         '''
         self.remaining = []
         self.reset()
-
+        self.seed = seed
+        if self.seed == None:
+            self.seed = int(time.time())
+        random.seed(self.seed)
+        
+        
     def get_starting_tiles(self, n=21) -> list[str]:
         '''
         Returns array of n letters
@@ -37,7 +43,7 @@ class Pouch:
         Take a random letter from the list of remaining letters
         '''
         if len(self.remaining) > 0:
-            return self.remaining.pop(randint(0, len(self.remaining) - 1))
+            return self.remaining.pop(random.randint(0, len(self.remaining) - 1))
         else:
             return -1
 

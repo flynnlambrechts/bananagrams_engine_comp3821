@@ -23,8 +23,10 @@ class StandardPlayer(Player):
             start_word = long_with_lowest_rank(StandardPlayer.all_words.all_subwords(
                 self.hand), closeness_to_longest=3, attempt=self.board_attempt)
         if start_word == None:
-            self.board_attempt = 21  # give up
-            return self.restructure_board()
+            # give up
+            self.game_running = False
+            self.speak("GIVE UP", "Could not find starting word")
+            
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
         # self.show_board()
@@ -90,6 +92,3 @@ class StandardPlayer(Player):
         self.speak("Rebuild Attempt",
                    f"attempt {self.board_attempt - 1} failed")
         self.play_turn()
-        # TODO
-        # return "Error"
-        # raise NotImplementedError("Board restructuring not implemented yet")

@@ -1,6 +1,6 @@
 from board import Board
 
-from algorithms import where_to_play_word
+from algorithms import where_to_play_word, get_dangling_tiles
 
 from tile import Tile
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
@@ -50,8 +50,9 @@ class Player:
         if (self.hand == ""):
             self.speak("Peel")
             if not self.game.peel():
-                self.speak("WINNER", "I Won Here's My Board")
+                self.speak("Bananas", "I Won Here's My Board")
                 self.show_board()
+                get_dangling_tiles(self.board)
                 
         self.game.lock.release()
 
@@ -102,10 +103,7 @@ class Player:
         # start or end
         if anchor is not None:
             self.board.remove_anchor(anchor)
-            # print(f"Removing anchor {anchor}")
-            # print(self.anchors)
-            # print(self.anchors)
-        return direction
+                
 
     def _update_hand(self, word_string, start_row, start_col, direction):
         # Take a snapshot of our hand in case we need to revert it
