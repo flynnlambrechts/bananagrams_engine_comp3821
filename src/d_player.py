@@ -1,6 +1,5 @@
 from board import Board
 from pathlib import Path
-from pickle_manager import load_tries
 from trie import Trie
 from algorithms import long_with_lowest_rank, where_to_play_word
 from word import Word
@@ -18,7 +17,7 @@ class Player:
         self.name = "Player"
         self.playing = False
         self.game = game
-
+        self.board_attempt = 0
         self.board = Board()
 
         # Player waits until game gives them their hand
@@ -28,10 +27,9 @@ class Player:
         this_directory = Path(__file__).parent.resolve()
         dictionary = this_directory / '..' / 'assets' / 'word_dictionary.txt'
         print(f'[Initializing]')
-        # self.all_words = Trie(mode='sort', dictionary_path=dictionary)
-        # self.forward_words = Trie('forward', dictionary_path=dictionary)
-        # self.reverse_words = Trie('reverse', dictionary_path=dictionary)
-        self.all_words, self.forward_words, self.reverse_words = load_tries()
+        self.all_words = Trie(mode='sort', dictionary_path=dictionary)
+        self.forward_words = Trie('forward', dictionary_path=dictionary)
+        self.reverse_words = Trie('reverse', dictionary_path=dictionary)
 
     def __str__(self):
         player_str = f' - Hand: {self.hand}'
@@ -60,8 +58,15 @@ class Player:
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(
-            self.all_words.all_subwords(self.hand), closeness_to_longest=2)
+        print("playing first turn")
+        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(
+            self.hand), closeness_to_longest=2, attempt=self.board_attempt)
+        if start_word == None:
+            start_word = long_with_lowest_rank(self.all_words.all_subwords(
+                self.hand), closeness_to_longest=3, attempt=self.board_attempt)
+        if start_word == None:
+            self.board_attempt = 21  # give up
+            return self.restructure_board()
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
         self.show_board()
@@ -115,10 +120,19 @@ class Player:
         this function is called. It should made adjustments and try
         play a word again
         '''
+        if self.board_attempt > 20:
+            return "Error"
+        self.board_attempt += 1
+        self.playing = False
+        while len(self.board.tiles) > 0:
+            self.hand += (self.board.tiles.popitem()[1].char)
+        self.board = Board()
+        print(f"attempt {self.board_attempt - 1} failed")
+        self.play_turn()
         print("attempted board restructure")
         # TODO
         # return "Error"
-        raise NotImplementedError("Board restructuring not implemented yet")
+        # raise NotImplementedError("Board restructuring not implemented yet")
 
     def play_word(self, word_string, anchor: Tile = None):
         # print("playing", word_string)
@@ -180,7 +194,7 @@ class Player:
     def _update_hand(self, word_string, start_row, start_col, direction):
         # Take a snapshot of our hand in case we need to revert it
         original_hand = self.hand
-
+        print(f"updating hand... word: {word_string} hand: {self.hand}")
         # Calculate change in row and col based on `direction`
         d_row = int(direction == VERTICAL)
         d_col = int(direction == HORIZONTAL)

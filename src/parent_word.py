@@ -1,4 +1,5 @@
-from constants import VERTICAL, HORIZONTAL
+from constants import HORIZONTAL
+
 
 class ParentWord:
     def __init__(self, word: str, pos: int, direction: int) -> None:
@@ -6,8 +7,10 @@ class ParentWord:
         self.num_before = pos
         self.num_after = len(word) - pos - 1
         self.direction = direction
+
     def __str__(self) -> str:
-        string =  "[word: " + self.word + " nums: before: " + str(self.num_before) + " after: " + str(self.num_after) + " dir: "
+        string = "[word: " + self.word + " nums: before: " + \
+            str(self.num_before) + " after: " + str(self.num_after) + " dir: "
         if self.direction == HORIZONTAL:
             string += "horo]"
         else:

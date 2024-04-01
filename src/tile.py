@@ -1,6 +1,6 @@
 from lims import Lims
 from parent_word import ParentWord
-from constants import *
+from constants import VERTICAL, HORIZONTAL, MAX_LIMIT
 
 
 class Tile:
@@ -9,8 +9,8 @@ class Tile:
         self.char = char
         self.board = board
         self.lims = self._update_lims()
-        self.vert_parent: ParentWord|None = None
-        self.horo_parent: ParentWord|None = None
+        self.vert_parent: ParentWord | None = None
+        self.horo_parent: ParentWord | None = None
 
         if direction == VERTICAL and len(parent_word) > 0:
             self.vert_parent = ParentWord(parent_word, pos, direction)
@@ -84,7 +84,8 @@ class Tile:
                                     # if there's a diag immediately next to the tile, more than one direction is affected
                                     tiles[checked_tile].lims.lims[(i - j - 1)] = min(
                                         count,
-                                        tiles[checked_tile].lims.lims[(i - j - 1)]
+                                        tiles[checked_tile].lims.lims[(
+                                            i - j - 1)]
                                     )
                                 # the lim direction to update in the other tile is the opposite of
                                 # (i + 1 - j) = (i - 1 - j)
