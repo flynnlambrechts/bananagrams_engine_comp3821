@@ -1,6 +1,5 @@
 from board import Board
-from pathlib import Path
-from trie import Trie
+
 from algorithms import where_to_play_word
 
 from tile import Tile
@@ -13,6 +12,7 @@ class Player:
     '''
     counter = 0
 
+
     def __init__(self, game) -> None:
         Player.counter += 1
         self.name = f"{type(self).__name__} {Player.counter}"
@@ -24,13 +24,6 @@ class Player:
         # Player waits until game gives them their hand
         self.hand: str = ''
 
-        # Initialize our objects
-        this_directory = Path(__file__).parent.resolve()
-        dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
-        print(f'[Initializing]')
-        self.all_words = Trie(mode='sort', dictionary_path=dictionary)
-        self.forward_words = Trie('forward', dictionary_path=dictionary)
-        self.reverse_words = Trie('reverse', dictionary_path=dictionary)
 
     def __str__(self):
         player_str = f' - Hand: {self.hand}'
@@ -69,6 +62,7 @@ class Player:
 
     def game_over(self):
         self.game_running = False
+        self.speak("Finishing", f"Remaining tiles {self.hand}")
 
     def play_word(self, word_string, anchor: Tile = None):
         '''

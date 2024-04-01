@@ -2,16 +2,26 @@ from players.player import Player
 from algorithms import long_with_lowest_rank
 from word import Word
 from tile import Tile
+from pathlib import Path
+from trie import Trie
 from board import Board
 
 class StandardPlayer(Player):
+        # Initialize our objects
+    this_directory = Path(__file__).parent.resolve()
+    dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
+    print(f'[Initializing]')
+    all_words = Trie(mode='sort', dictionary_path=dictionary)
+    forward_words = Trie('forward', dictionary_path=dictionary)
+    reverse_words = Trie('reverse', dictionary_path=dictionary)
+    
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(self.all_words.all_subwords(
+        start_word: Word = long_with_lowest_rank(StandardPlayer.all_words.all_subwords(
             self.hand), closeness_to_longest=2, attempt=self.board_attempt)
         if start_word == None:
-            start_word = long_with_lowest_rank(self.all_words.all_subwords(
+            start_word = long_with_lowest_rank(StandardPlayer.all_words.all_subwords(
                 self.hand), closeness_to_longest=3, attempt=self.board_attempt)
         if start_word == None:
             self.board_attempt = 21  # give up
@@ -45,7 +55,7 @@ class StandardPlayer(Player):
         word_candidates: tuple[Word, Tile] = []
         for anchor in self.board.anchors:
             # Looping over anchors to see if the hand+anchor can make a word
-            word = long_with_lowest_rank(self.all_words.all_subwords(
+            word = long_with_lowest_rank(StandardPlayer.all_words.all_subwords(
                 self.hand, anchor.char, anchor.lims), anchor)
 
             if word is not None and word.has_anchor(anchor.char):
