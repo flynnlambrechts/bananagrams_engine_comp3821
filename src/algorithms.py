@@ -8,7 +8,7 @@ pair_start_count = {'A': 16, 'B': 5, 'C': 1, 'D': 4, 'E': 13, 'F': 3, 'G': 3, 'H
 pair_end_count = {'A': 15, 'B': 2, 'C': 0, 'D': 4, 'E': 15, 'F': 3, 'G': 2, 'H': 6, 'I': 14, 'J': 0, 'K': 1, 'L': 2, 'M': 6, 'N': 5, 'O': 17, 'P': 2, 'Q': 0, 'R': 4, 'S': 5, 'T': 5, 'U': 6, 'V': 0, 'W': 3, 'X': 3, 'Y': 7, 'Z': 0}
 
 
-def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
+def where_to_play_word(word_str: str, anchor, provided_anchor_index = None) -> tuple[int, int]:
         '''
         Given an anchor and a word, determines if there's space to play it. 
         If there is space to play it, it returns the index of the character in the word and direction as (index, direction),
@@ -18,6 +18,21 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
             return (0, HORIZONTAL)
 
         lims = anchor.lims
+        if provided_anchor_index is not None:
+            tiles_before = provided_anchor_index
+            tiles_after = len(word_str) - provided_anchor_index - 1
+            if anchor.vert_parent == None:
+                if lims.up >= tiles_before and lims.down >= tiles_after:
+                    return (provided_anchor_index, VERTICAL)
+                else:
+                    return NO_SPACE_FOR_WORD
+            if anchor.horo_parent == None:
+                if lims.left >= tiles_before and lims.right >= tiles_after:
+                    return (provided_anchor_index, HORIZONTAL)
+                else:
+                    return NO_SPACE_FOR_WORD
+        
+        
         # step 1: find all instances of the anchor in word.
         # for all in instances of anchor in word:
         # 2: calculate forward and backward requirements
@@ -82,7 +97,7 @@ def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
 
 
-def _eval_anchor_candidate(tile: Tile) -> int:
+def _eval_anchor_candidate(tile) -> int:
     '''
     Currently very simple way of giving a numeric score to a possible anchor.
     Total of the limits in every direction plus a bonus if there's space on opposite sides

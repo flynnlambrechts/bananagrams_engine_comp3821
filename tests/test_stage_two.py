@@ -78,29 +78,51 @@ def take_input():
                 else:
                     print(f"{input} not found on board")
 
+def get_dump_distribution(results: list):
+    success_dumps = []
+    fail_dumps = []
+    for result in results:
+        if result[2] == True: # if successful game
+            success_dumps.append(result[3])
+        else:
+            fail_dumps.append(result[3])
+    success_dumps_count = {}
+    fail_dumps_count = {}
+    for num_dumps in success_dumps:
+        if num_dumps in success_dumps_count.keys():
+            success_dumps_count[num_dumps] += 1
+        else:
+            success_dumps_count[num_dumps] = 1
+    for num_dumps in fail_dumps:
+        if num_dumps in fail_dumps_count.keys():
+            fail_dumps_count[num_dumps] += 1
+        else:
+            fail_dumps_count[num_dumps] = 1 
+    return (success_dumps_count, fail_dumps_count)
 
+# i = 0
+# play_game(1711937923)
 
+results = []
+ITERATIONS = 250
+for i in range(ITERATIONS):
+    print(f"\n\nRun {i}")
+    results.append(play_game())
+failures = list(filter(lambda result: result[2] == False, results))
+print(failures)
+print(f"{len(failures)} failures out of {ITERATIONS}")
 
-i = 0
-play_game(1711937923)
+(success_dumps_count, fail_dumps_count) = get_dump_distribution(results)
+print("dump distribution for successes")
+for num_dumps in sorted(list(success_dumps_count.keys())):
+    print(f"\t{num_dumps} dumps occured {success_dumps_count[num_dumps]} times")
+print("dump distribution for successes")
+for num_dumps in sorted(list(fail_dumps_count.keys())):
+    print(f"\t{num_dumps} dumps occured {fail_dumps_count[num_dumps]} times")
 
-# results = []
-# ITERATIONS = 100
-# for i in range(ITERATIONS):
-#     print(f"\n\nRun {i}")
-#     results.append(play_game())
-# failures = list(filter(lambda result: result[2] == False, results))
-# print(failures)
-# print(f"{len(failures)} failures out of {ITERATIONS}")
+# seeds of chokes:
+    # 1711941238
+    # 1711941244
 
-# HULDGCAUEKRMUIREOXWBN
-
-# EQUILIBRATEFNNDODDYJV
-
-# past failures
-# ETNNEEJIIFRWIWOIEAFRW
-
-# PHELETIFEMEOUADNMSNBO
-# LRYGPALEKEEIOHOPIRDUT
-
-# 1711937923
+# seeds of failures/bugs:
+    # 1711945605

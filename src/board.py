@@ -1,7 +1,7 @@
 from .tile import Tile
 from .parent_word import ParentWord
 from .constants import VERTICAL, HORIZONTAL
-
+from .lims_algos import send_probes
 
 class Board:
     def __init__(self) -> None:
@@ -103,7 +103,7 @@ class Board:
         '''send_probes finds all of the tiles potentially impacted by the removal of this tile
         then it runs update_lims on each of those tiles'''
         removed_tile = self.tiles.pop((row, col))
-        probe_hits_list = removed_tile.send_probes(self.tiles)
+        probe_hits_list = send_probes(removed_tile.coords, self)
         for probe in probe_hits_list:
             tile = self.tiles[probe[0]]
             tile.lims = tile._update_lims()

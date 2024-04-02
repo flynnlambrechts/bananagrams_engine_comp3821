@@ -5,7 +5,8 @@ from .algorithms import long_with_best_rank, where_to_play_word, score_word_simp
 from .word import Word
 from .tile import Tile
 from .constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR_IS_PREFIX, ANCHOR_IS_SUFFIX
-
+from .lims_algos import send_probes
+from .lims import Lims
 is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058, 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
 is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586, 'M': 4620, 'N': 12003, 'O': 1887, 'P': 1547, 'Q': 10, 'R': 14784, 'S': 107294, 'T': 13933, 'U': 379, 'V': 45, 'W': 610, 'X': 583, 'Y': 19551, 'Z': 159}
 pair_start_count = {'A': 16, 'B': 5, 'C': 1, 'D': 4, 'E': 13, 'F': 3, 'G': 3, 'H': 5, 'I': 6, 'J': 2, 'K': 4, 'L': 3, 'M': 7, 'N': 5, 'O': 17, 'P': 4, 'Q': 1, 'R': 1, 'S': 4, 'T': 4, 'U': 8, 'V': 0, 'W': 2, 'X': 2, 'Y': 4, 'Z': 3}
@@ -102,51 +103,23 @@ class Player:
         # print(strand_anchors)
         other_anchors = list(set(self.board.tiles.values()) - set(strand_anchors))
         if len(self.hand) < 5:
-            # print("hand is small. playing junk")
+            print("hand is small. playing junk")
             self.play_junk(list(self.board.tiles.values()))
             if len(self.hand) > 0:
                 return self.restructure_board()
             return
         # new word: tuple(word, anchor, anchor is suffix)
-        new_word = self.find_best_strand_extension(strand_anchors)
-        if new_word == None or new_word[0].len() < 3:
-            new_word = self.find_right_angle_word()
-        else:
-            first_anchor = new_word[1]
-
-            if new_word[2] == ANCHOR_IS_PREFIX:
-                two_letter_word = self.all_words.search(first_anchor.char + new_word[0].string[0])
-            else:
-                two_letter_word = self.all_words.search(first_anchor.char + new_word[0].string[-1])
-            if two_letter_word == False:
-                print(f"Attempted word: {new_word[0].string}, attempted first_anchor: {first_anchor}, attempted direction: {new_word[2]}")
-                raise Exception("letters in two letter word don't match up")
-
-            # need something here to make sure it plays the correct 2 letter word
-            if where_to_play_word(two_letter_word[0].string, first_anchor) != NO_SPACE_FOR_WORD:
-
-                second_anchor = self.play_word(two_letter_word[0].string, first_anchor)[0]
-            else: 
-                if len(two_letter_word) > 1:
-                    if where_to_play_word(two_letter_word[1].string, first_anchor) != NO_SPACE_FOR_WORD:
-                        second_anchor = self.play_word(two_letter_word[1].string, first_anchor)[0]
-                    else:
-                        print(self)
-                        raise Exception(f"can't play strand anchor. hopeful word: {new_word[0]}, at anchor {new_word[1]}, is_suffix: {new_word[2]}, hopeful connector: {two_letter_word[0].string}")
-                else:
-                    print(self)
-                    raise Exception(f"can't play strand anchor. hopeful word: {new_word[0]}, at anchor {new_word[1]}, is_suffix: {new_word[2]}, hopeful connector: {two_letter_word[0].string}")
-
-            self.play_word(new_word[0].string, second_anchor)
+        if self.play_best_strand_extension(strand_anchors):
+            print("playing strand extension")
             return
-        if new_word == None or new_word[0].len() < 3:
+        elif self.play_right_angle_word():
+            print("playing right angle")
+            return
+        else:
+            print("attempting to play junk because can't do anything else")
             self.play_junk(other_anchors)
             if len(self.hand) > 0:
                 return self.restructure_board()
-        else:
-            # print(f"word: {new_word[0].string} anchor: {new_word[1]}, suffix?: {new_word[2]}")
-            self.play_word(new_word[0].string, new_word[1])
-        
             return
 
 
@@ -180,7 +153,7 @@ class Player:
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
 
-    def play_word(self, word_string, anchor:Tile=None, is_junk = False):
+    def play_word(self, word_string, anchor:Tile=None, anchor_index = None, is_junk = False):
         # print("playing", word_string, "anchor:", anchor)
         '''
         Given a word string and an anchor tile, plays the word in the position as
@@ -190,7 +163,7 @@ class Player:
         '''
         reverse = False
         if anchor is not None:
-            word_placement = where_to_play_word(word_string, anchor)
+            word_placement = where_to_play_word(word_string, anchor, anchor_index)
             if word_placement == NO_SPACE_FOR_WORD:
                 print(self)
                 print(f"want to play {word_string} at {anchor}")
@@ -277,7 +250,7 @@ class Player:
          EMBARGO
     It would be nicer to made GO or NO the stranding word rather than ON or OR
     '''
-    def find_best_strand_extension(self, anchors: list[Tile]) -> Word|None:
+    def play_best_strand_extension(self, anchors: list[Tile]) -> Word|None:
         '''Finds the best and longest word that can be attached via a two letter word.'''
         # print("looking for strand extension")
         prefix_anchors = dict() # prefix of the new word
@@ -296,21 +269,24 @@ class Player:
                 dict_to_add_to = suffix_anchors
             else:
                 dict_to_add_to = prefix_anchors
-
-            if (parent.direction == VERTICAL and anchor.lims.right > 0) or (parent.direction == HORIZONTAL and anchor.lims.down > 0):
+            # if (parent.direction == VERTICAL and anchor.lims.right > 0) or (parent.direction == HORIZONTAL and anchor.lims.down > 0):
+            if self.first_anchor_can_be_nth_char(anchor, parent, 0):
                 # when the first_anchor char is first, you're good
                 # when the first_anchor char is both, you're good
                 # print(f"{anchor} can be the first letter in the 2 letter word")
+                # TODO!!!! use hypothetical lims here
                 for pair in pair_list:
                     if pair.string[0] == anchor.char:
-                        dict_to_add_to[pair.string[1]] = anchor
-            if (parent.direction == VERTICAL and anchor.lims.left > 0) or (parent.direction == HORIZONTAL and anchor.lims.up > 0):
+                        dict_to_add_to[pair.string[1]] = (anchor, pair.string, 0)
+            # if (parent.direction == VERTICAL and anchor.lims.left > 0) or (parent.direction == HORIZONTAL and anchor.lims.up > 0):
+            if self.first_anchor_can_be_nth_char(anchor, parent, 1):
                 # when the first_anchor char is second, you're good
                 # when the first_anchor char is both, you're good
                 # print(f"{anchor} can be the first letter in the 2 letter word")
+                # TODO!!!! use hypothetical lims here
                 for pair in pair_list:
                     if pair.string[1] == anchor.char:
-                        dict_to_add_to[pair.string[0]] = anchor
+                        dict_to_add_to[pair.string[0]] = (anchor, pair.string, 1)
         
         all_words = dict()
 
@@ -326,16 +302,24 @@ class Player:
                 all_words[local_best] = "suffix"
         best_word = long_with_best_rank(list(all_words.keys()))
         if best_word == None:
-            return None
+            return False
+        if len(best_word.string) < 3: 
+            return False
         # print(f"best: {best_word.string}")
         if all_words[best_word] == "prefix":
-            return (best_word, prefix_anchors[best_word.string[0]], ANCHOR_IS_PREFIX)
+            key_info = prefix_anchors[best_word.string[0]]
+            second_anchor_index = 0
         else:
-            return (best_word, suffix_anchors[best_word.string[-1]], ANCHOR_IS_SUFFIX)
-
+            key_info = suffix_anchors[best_word.string[-1]]
+            second_anchor_index = len(best_word.string) - 1
+        first_anchor = key_info[0]
+        two_letter_word = key_info[1]
+        first_anchor_index = key_info[2]
+        second_anchor = self.play_word(two_letter_word, first_anchor, first_anchor_index)[0]
+        self.play_word(best_word.string, second_anchor, second_anchor_index)
+        return True
     
-    
-    def find_right_angle_word(self):
+    def play_right_angle_word(self):
         '''Looks for words where either the first or last letter is already on the board'''
         '''TODO: use actual anchors, rather than the whole board'''
 
@@ -362,16 +346,25 @@ class Player:
         for prefix in prefix_anchors.keys():
             words = self.forward_words.all_subwords(self.hand.replace(prefix,'',1), prefix)
             for word in words:
-                all_words[word] = prefix_anchors[prefix]
+                all_words[word] = (prefix_anchors[prefix], ANCHOR_IS_PREFIX)
             # all_words = all_words | set(words)
         for suffix in suffix_anchors.keys():
             words = self.reverse_words.all_subwords(self.hand.replace(suffix,'',1), suffix)
             for word in words:
-                all_words[word] = suffix_anchors[suffix]
+                all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
             # all_words = all_words | set(words)
         best_word = long_with_best_rank(list(all_words.keys()))
         if best_word == None:
-            return None
+            return False
+        if len(best_word.string) < 3: return False
+        if all_words[best_word][1] == ANCHOR_IS_PREFIX:
+
+            anchor_index = 0
+        else:
+            anchor_index = len(best_word.string) - 1
+        self.play_word(best_word.string, all_words[best_word][0], anchor_index)
+        return True
+
         # print(f"best word: {best_word.string}, anchor: {all_words[best_word]}")
         if best_word.string.index(all_words[best_word].char) == 0:
             # then ANCHOR_IS_PREFIX
@@ -408,7 +401,7 @@ class Player:
             while change_anchors == False and i < len(words):
                 placement = where_to_play_word(words[i].string, anchor)
                 if placement != NO_SPACE_FOR_WORD:
-                    self.play_word(words[i].string, anchor, is_junk=True)
+                    self.play_word(words[i].string, anchor, anchor_index=placement[0], is_junk=True)
                     change_anchors = True
                 i += 1
         # print("Board after playing junk:")
@@ -436,3 +429,44 @@ class Player:
         print("board after removing junk:")
         print(self)
         self.board.junk_on_board = False
+
+    def hypothetical_lims(self, probe_coords):
+        '''Finds the lims for any place on the board without modifying the lims of other tiles'''
+        lims = [MAX_LIMIT] * 4
+        probe_hits = send_probes(probe_coords, self.board)
+        for probe in probe_hits:
+            direction_for_sender = probe[1]
+            dist = probe[3]
+    
+            lims[direction_for_sender] = min(lims[direction_for_sender], dist)
+        return Lims(lims)
+
+    def first_anchor_can_be_nth_char(self, anchor, parent, n):
+        if parent.num_before == 0:
+            is_suffix = 1 # the new char will be the suffix of the new word
+        else:
+            is_suffix = 0 # the new char will be the prefix of the new word
+        if parent.direction == VERTICAL:
+            hypothetical_lim_index = 0 + 2 * is_suffix # the strand will go down if prefix, up if suffix
+            if n == 0:
+                anchor_lim_index = 1 # right lim, as the new char will be to the right
+                hypothetical_lim_offset = (0,1) # the new letter will be played to the right of the anchor
+            else:
+                anchor_lim_index = 3 # left lim, as the new char will be to the left
+                hypothetical_lim_offset = (0,-1) # the new letter will be played to the left of the anchor
+
+        if parent.direction == HORIZONTAL:
+            hypothetical_lim_index = 1 + 2 * is_suffix # the strand will go to the right if prefix, left if suffix
+            if n == 0:
+                anchor_lim_index = 0 # down lim
+                hypothetical_lim_offset = (1,0) # the new letter will be played below the anchor
+            else:
+                anchor_lim_index = 2 # up lim
+                hypothetical_lim_offset = (-1,0) # the new letter will be played above the anchor
+        hypothetical_coords = (anchor.coords[0] + hypothetical_lim_offset[0], anchor.coords[1] + hypothetical_lim_offset[1])
+        # print(f"checking anchor can be index {n} char: anchor: {anchor} lim index: {anchor_lim_index}, hypothetical coords: {hypothetical_coords}")
+        # print(f"hypothetical coords: {hypothetical_coords}, direction: {hypothetical_lim_index}")
+        if anchor.lims.lims[anchor_lim_index] > 0 and self.hypothetical_lims(hypothetical_coords).lims[hypothetical_lim_index] == MAX_LIMIT:
+            return True
+        else: return False
+                    
