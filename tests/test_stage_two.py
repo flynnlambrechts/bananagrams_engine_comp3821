@@ -123,6 +123,14 @@ for num_dumps in sorted(list(fail_dumps_count.keys())):
 # seeds of chokes:
     # 1711941238
     # 1711941244
+# most recent chokes:
+    # 1712023566
+    # 1712023574
+    # 1712023704
+    # 1712023772
+    # 1712023826
+    # 1712023838
+    # 1712023885
 
 # seeds of failures/bugs:
     # 1711945605
