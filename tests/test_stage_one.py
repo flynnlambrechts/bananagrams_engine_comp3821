@@ -1,5 +1,5 @@
 from src.game import Game
-from src.board import Board
+from src.board.board import Board
 
 game = Game()
 game.add_player()
@@ -39,8 +39,9 @@ def play_stage_one(starting_hand = '', print_hand = False, print_end = False, pr
             print(player.hand)
     if print_hand:
         print(player.hand)
-    return (i, starting_hand, len(player.hand), player.board_attempt)
-
+    return (i, starting_hand, len(player.hand))
+# i = 0
+# play_stage_one("TEGRATCDPGWQRNDEWERGI")
 results = []
 ITERATIONS = 100000
 # hard_starts= [
@@ -63,13 +64,12 @@ failures = list(filter(lambda result: result[2] != 0, results))
 print(failures)
 print(f"{len(failures)} failures out of {ITERATIONS}")
 
-board_attempts = []
-for i in range(22):
-    board_attempts.append(0)
-for result in results:
-    board_attempts[result[3]] += 1
-for i in range(22):
-    print(f"{i} attempts: {board_attempts[i]}")
+# problem hand for stranding:
+# EWESEIWEUHELITOQEELQI
+
+# TEGRATCDPGWQRNDEWERGI
+
+
 # below are some starting hands that failed. all the upper ones were from beforeword_has_space was turned into where_to_play_word. 
 
 # [(0, 'HANBODAERENGVZFPQTXTA', 1), (14, 'NEEKNFCWUOONEJVTAAARN', 1), (21, 'QESWNGNECREGSIADARAED', 1), (27, 'RYEUSJAQGAVVIAELSDELY', 1), (42, 'XUSOILYQFNNNDHVMENOBT', 1), (49, 'RDUCNOQZWTAEMLVWPDLRO', 1)]

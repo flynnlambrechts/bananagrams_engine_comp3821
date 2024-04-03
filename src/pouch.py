@@ -52,3 +52,13 @@ class Pouch:
     
     def __str__(self):
         return (str(dict(Counter(self.remaining))))
+    
+    def dump(self, char: str) -> str:
+        if len(char) != 1:
+            raise ValueError("Expected one char, got 0 or multiple")
+        self.remaining.append(char)
+        newtiles = []
+        for i in range(3):
+            if len(self.remaining) > 0:
+                newtiles.append(self.peel())
+        return newtiles
