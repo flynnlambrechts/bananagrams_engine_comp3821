@@ -97,7 +97,7 @@ class StrandingPlayer(Player):
             self.dump_count += 1
             # print(f"new hand: {self.hand}")
             if len(old_hand) == len(self.hand):
-                print("tried to dump at the end and choked")
+                self.speak("ERROR", "tried to dump at the end and choked")
                 return "Error"
                 raise NotImplementedError("Choked at the end")
         else:
@@ -293,9 +293,9 @@ class StrandingPlayer(Player):
         Removes every tile where is_junk == True. 
         equivalent to removing every tile that was placed during play_junk.
         '''
-        print("removing junk...")
-        print("board before: ")
-        print(self)
+        self.speak("STRANDING", "removing junk...")
+        # print("board before: ")
+        # print(self)
         bad_tiles = []
         for tile in self.board.tiles.values():
             if tile.is_junk:
@@ -307,8 +307,9 @@ class StrandingPlayer(Player):
             # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles. 
             self.hand += tile.char
         # print("junk on board now false")
-        print("board after removing junk:")
-        print(self)
+        self.speak("STRANDING", "board after removing junk:")
+        self.show_board()
+        
         self.board.junk_on_board = False
 
     def hypothetical_lims(self, probe_coords):

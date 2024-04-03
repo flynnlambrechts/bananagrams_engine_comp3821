@@ -50,7 +50,7 @@ class Player:
         self.speak(f"Got", f"{tiles}, new hand: {self.hand}")
 
     def speak(self, subject, information=''):
-        print(f"{self.name}: [{subject}] {information}")
+        print(f"{self.name}: [{subject.upper()}] {information}")
 
     def peel(self):
         self.game.lock.acquire()
@@ -65,7 +65,6 @@ class Player:
     def play(self):
         while self.game.game_is_active:
             self.play_turn()
-
 
     def game_over(self):
         self.game_running = False

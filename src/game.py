@@ -8,12 +8,12 @@ class Game:
     Game class is responsible for managing the players and the pouch of letters
     '''
 
-    def __init__(self) -> None:
+    def __init__(self, seed=None) -> None:
         '''
         Initialise a game new players can be added each game
         should have at least one player
         '''
-        self.pouch = Pouch()
+        self.pouch = Pouch(seed=seed)
         self.players: list[Player] = []
         self.lock =  threading.Lock()
         self.player_threads = []
@@ -45,18 +45,13 @@ class Game:
             thread.start()
             
         for thread in self.player_threads:
-            # print(f"Joining {thread.name}")
             thread.join()
             
         print("Game Completed, All Players Done")
 
-
     def end_game(self):
         for player in self.players:
-            player.game_over()
-            
-
-        
+            player.game_over()        
 
     def peel(self) -> bool:
         '''
