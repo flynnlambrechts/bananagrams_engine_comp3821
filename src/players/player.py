@@ -1,6 +1,7 @@
 from board.board import Board
 
 from algorithms import where_to_play_word, get_dangling_tiles
+from utils import add_tuple_elems
 
 from board.tile import Tile
 from pathlib import Path
@@ -59,7 +60,7 @@ class Player:
             if not self.game.peel():
                 self.speak("Bananas", "I Won Here's My Board")
                 self.show_board()
-                get_dangling_tiles(self.board)
+                # get_dangling_tiles(self.board)
                 
         self.game.lock.release()
 
@@ -113,12 +114,8 @@ class Player:
         # start or end
         if anchor is not None:
             self.board.remove_anchor(anchor)
-<<<<<<< HEAD
-                
-=======
 
         return new_tiles
->>>>>>> main
 
     def _update_hand(self, word_string, start_row, start_col, direction):
         # Take a snapshot of our hand in case we need to revert it

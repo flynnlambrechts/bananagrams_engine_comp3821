@@ -6,7 +6,7 @@ from players.PseudoPlayer import PseudoPlayer
 game = Game()
 
 game.add_player(StandardPlayer(game))
-game.add_player(StandardPlayer(game))
-game.add_player(StandardPlayer(game))
+game.add_player(PseudoPlayer(game))
+game.add_player(PseudoPlayer(game))
 
 game.start()

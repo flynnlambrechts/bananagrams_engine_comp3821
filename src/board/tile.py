@@ -1,6 +1,7 @@
 from .lims import Lims
 from parent_word import ParentWord
 from constants import *
+from utils import add_tuple_elems
 
 
 class Tile:
@@ -70,12 +71,11 @@ class Tile:
 
     def send_probes(self, tiles):
         probe_hits = []
-        dirs = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-        for i in range(4):
+        
+        for i, dir in enumerate(DIRECTIONS):
             count = 0
-            row = self.coords[0]
-            col = self.coords[1]
-            checked_tile = (row + dirs[i][0], col + dirs[i][1])
+            (row, col) = self.coords
+            checked_tile = (row + dir[0], col + dir[1])
             # checking the immediate neighbour in that direction
             if checked_tile in tiles:
                 hit = (checked_tile, i, i - 2, count)
@@ -83,24 +83,19 @@ class Tile:
                 continue
             no_barriers = True
             while no_barriers:
-                row += dirs[i][0]
-                col += dirs[i][1]
+                (row, col) = add_tuple_elems((row, col), dir)
                 if not self._probe_on_board(row, col):
                     break
                 for j in range(3):
-                    checked_tile = (
-                        row + dirs[(i + 1 - j) % 4][0],
-                        col + dirs[(i + 1 - j) % 4][1])
+                    checked_tile = add_tuple_elems((row, col), DIRECTIONS[(i + 1 - j) % 4])
                     if checked_tile in tiles:
                         hit = (checked_tile, i, i - 2, count)
                         probe_hits.append(hit)
                         
                         if j == 1:
-                            diags = self._get_probe_diags(dirs[i])
+                            diags = self._get_probe_diags(dir)
                             for diag in diags:
-                                checked_diag_tile = (
-                                    checked_tile[0] + diag[0],
-                                    checked_tile[1] + diag[1])
+                                checked_diag_tile = add_tuple_elems(checked_tile, diag)
                                 if checked_diag_tile in tiles:
                                     hit = (checked_tile, i, i - 2, count)
                                     probe_hits.append(hit)
@@ -109,5 +104,15 @@ class Tile:
                             probe_hits.append(hit)
                 count += 1
         return probe_hits
+    
+    def get_adjacent(self, direction: tuple[int, int]):
+        (row, col) = self.coords
+        return self.board,get_tile(row + direction[0], col + direction[1])
+    
+    def is_junction(self):
+        (row, col) = self.coords
+        has_horizontal = self.board.has_tile(row + 1, col) or self.board.has_tile(row - 1, col)
+        has_vertical = self.board.has_tile(row, col + 1) or self.board.has_tile(row, col - 1)
+        return has_horizontal and has_vertical
 
     # function that sends probes, returns all required info for update_tile, but also all required info for after deleting a tile
