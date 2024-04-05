@@ -1,5 +1,5 @@
 from src.game import Game
-from src.board import Board
+from src.board.board import Board
 import sys
 import re
 

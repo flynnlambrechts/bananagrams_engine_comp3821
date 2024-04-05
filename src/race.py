@@ -42,8 +42,8 @@ def race(n_tests) -> tuple[int, int]:
     t2_runs = 0
     
     for seed in range(n_tests):
-        seed *= 5
         print(f"GAME STARTING {seed}")
+        seed *= 5
         game1_ins = game1(seed)
         game2_ins = game2(seed)
         

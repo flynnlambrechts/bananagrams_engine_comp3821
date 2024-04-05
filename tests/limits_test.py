@@ -1,5 +1,5 @@
 from src.game import Game
-from src.board import Board
+from src.board.board import Board
 # from bananagrams_engine_comp3821.Classes.Trie import Trie
 # from bananagrams_engine_comp3821.algorithm_functions import long_start_word
 
