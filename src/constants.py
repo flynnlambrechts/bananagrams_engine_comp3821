@@ -14,3 +14,7 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+    
+NO_SPACE_FOR_WORD = (-1,-1)
+ANCHOR_IS_PREFIX = 0
+ANCHOR_IS_SUFFIX = 1

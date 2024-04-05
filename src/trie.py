@@ -1,4 +1,4 @@
-from lims import Lims
+from board.lims import Lims
 from word import Word
 
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
@@ -38,13 +38,15 @@ class Trie:
         word.letter_ranking = word_val
         node.anagrams.append(word)
 
-    def search(self, word: Word):
+    def search(self, word_str):
         '''
         Returns true if a given word is in the Trie
         '''
-        # s_word = self._order_word(word)
+        s_word = self._order_word(word_str)
+
+        # this is unused but looks broken
         node = self._root
-        for char in word.string:
+        for char in s_word:
             if char not in node.children:
                 return False
             node = node.children[char]
@@ -113,11 +115,25 @@ class Trie:
     def _has_anchor(self, word: Word, anchor: str) -> bool:
         return word.has_anchor(anchor)
 
-    def find_two_letters(self, char: str):
-        node = self._root.children[char]
+    def find_two_letters(self, char: str, base: str = ''):
         words = []
-        for char in node.children.keys():
-            words.extend(node.children[char].anagrams)
+        if self._mode == "sort":
+            if base == '':
+                base = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            for base_char in base:
+                word_key = ''.join(sorted(base_char + char))
+                if word_key[0] in self._root.children.keys():
+                    node = self._root.children[word_key[0]]
+                    if word_key[1] in node.children.keys():
+                        words.extend(node.children[word_key[1]].anagrams)
+        else:
+            node = self._root.children[char]
+            if base == '':
+                node_list = node.children.keys()
+            else:
+                node_list = base
+            for char in node_list:
+                words.extend(node.children[char].anagrams)
         return words
 
     def _order_word(self, word_string: str):

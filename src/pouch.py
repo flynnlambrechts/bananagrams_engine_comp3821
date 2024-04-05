@@ -28,13 +28,15 @@ class Pouch:
             self.seed = int(time.time())
         random.seed(self.seed)
         
-        
+    def n_remaining(self):
+        return len(self.remaining)
+    
     def get_starting_tiles(self, n=21) -> list[str]:
         '''
         Returns array of n letters
         '''
         starting_chars = []
-        for i in range(21):
+        for i in range(n):
             starting_chars.append(self.peel())
         return starting_chars
 
@@ -44,17 +46,24 @@ class Pouch:
         '''
         if len(self.remaining) > 0:
             return self.remaining.pop(random.randint(0, len(self.remaining) - 1))
-        else:
-            return -1
-
+        raise ValueError("Not Enough tiles for peel")
+    
     def reset(self):
         self.remaining = []
         for char in starting_letters.keys():
             for i in range(starting_letters[char]):
                 self.remaining.append(char)
 
-    def n_remaining(self):
-        return len(self.remaining)
+    def dump(self, char: str) -> str:
+        if len(char) != 1:
+            raise ValueError("Expected one char, got 0 or multiple")
+        
+        self.remaining.append(char)
+        newtiles = []
+        for i in range(3):
+            if len(self.remaining) > 0:
+                newtiles.append(self.peel())
+        return newtiles
     
     def __str__(self):
-        return (str(dict(Counter(self.remaining))))
+        return str(Counter(self.remaining))

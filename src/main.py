@@ -1,5 +1,7 @@
 from game import Game
 from players.StandardPlayer import StandardPlayer
+from players.StrandingPlayer import StrandingPlayer
+from players.PseudoPlayer import PseudoPlayer
 
 game = Game()
 
