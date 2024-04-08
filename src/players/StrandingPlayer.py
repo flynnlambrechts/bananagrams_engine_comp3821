@@ -20,6 +20,8 @@ class StrandingPlayer(Player):
         # the property defines whether you should dump if you can't play everything vs restructure. 
         # if you've received new tiles while junk was on the board, don't dump. 
         self.dump_count = 0
+        
+        self.junk_tiles = []  # Which tiles on the board are junk
 
     def give_tiles(self, tiles: list[str]):
         self.dump_on_failure = False
@@ -282,7 +284,9 @@ class StrandingPlayer(Player):
             while change_anchors == False and i < len(words):
                 placement = where_to_play_word(words[i].string, anchor)
                 if placement != NO_SPACE_FOR_WORD:
-                    self.play_word(words[i].string, anchor, anchor_index=placement[0], is_junk=True)
+                    new_tiles = self.play_word(words[i].string, anchor, anchor_index=placement[0], is_junk=True)
+                    self.junk_tiles += new_tiles
+                        
                     change_anchors = True
                 i += 1
         # print("Board after playing junk:")
@@ -294,15 +298,10 @@ class StrandingPlayer(Player):
         equivalent to removing every tile that was placed during play_junk.
         '''
         self.speak("STRANDING", "removing junk...")
-        # print("board before: ")
-        # print(self)
-        bad_tiles = []
-        for tile in self.board.tiles.values():
-            if tile.is_junk:
-                bad_tiles.append(tile)
-        # print("bad_tiles: ")
-        # print(bad_tiles)
-        removed_tiles = self.board.remove_junk_tiles(bad_tiles)
+
+        removed_tiles = self.board.remove_junk_tiles(self.junk_tiles)
+        self.junk_tiles = []
+        
         for tile in removed_tiles:
             # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles. 
             self.hand += tile.char
