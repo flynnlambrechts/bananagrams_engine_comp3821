@@ -46,8 +46,8 @@ if j in two_letter_peers[a]
 
 
 In other words, this dict, given a junk and then an anchor letter, returns the
-proportion of two-letter words formable with the anchor letter formed using
-the junk letter.
+proportion of two-letter words formed with the anchor letter which are formed
+using the junk letter as well.
 
 The higher the value, more desirable it is to match that junk letter to that
 anchor.
