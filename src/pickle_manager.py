@@ -58,5 +58,5 @@ def load_tries():
 
 
 if __name__ == '__main__':
-    # compile_tries()
-    load_tries()
+    compile_tries()
+    # load_tries()
