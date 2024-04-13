@@ -12,6 +12,7 @@ class TrieNode:
     def __init__(self):
         self.children = {}
         self.anagrams = []
+        self.is_end = False
 
 
 class Trie:
@@ -35,6 +36,7 @@ class Trie:
             if char not in node.children:
                 node.children[char] = TrieNode()
             node = node.children[char]
+        node.is_end = True
         word.letter_ranking = word_val
         node.anagrams.append(word)
 
@@ -51,6 +53,16 @@ class Trie:
                 return False
             node = node.children[char]
         return node.anagrams
+    
+    def is_word(self, word_str):
+        s_word = self._order_word(word_str)
+        
+        node = self._root
+        for char in s_word:
+            if char not in node.children:
+                return False
+            node = node.children[char]
+        return node.is_end
 
     def parse_dictionary(self, dictionary_path: str):
         '''
