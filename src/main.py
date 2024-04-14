@@ -12,13 +12,17 @@ from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
 
-player_map = {
-    's': StandardPlayer,
-    'r': StrandingPlayer,
-    'p': PseudoPlayer,
-    't': TwoLetterJunkStrandingPlayer,
-}
 
-game = Game(players=[player_map[p] for p in argv[1]])
+def parse_players(players: str):
+    player_map = {
+        's': StandardPlayer,
+        'r': StrandingPlayer,
+        'p': PseudoPlayer,
+        't': TwoLetterJunkStrandingPlayer,
+    }
+    return [player_map[p] for p in players]
+
+
+game = Game(players=parse_players(argv[1]))
 
 game.start()
