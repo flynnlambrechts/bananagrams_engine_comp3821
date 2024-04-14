@@ -20,11 +20,9 @@ class StandardPlayer(Player):
             return self.restructure_board()
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
-        # self.show_board()
-        # self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
 
     def play_turn(self):
-        print("")
+        print()
         # Peel if hand is empty
         if len(self.hand) == 0:
             self.peel()
@@ -41,8 +39,6 @@ class StandardPlayer(Player):
         # Otherwise generic implementation of play turn
         self.speak('Finding Word', f"available letters {self.hand}")
 
-        # Precompute string repesentation of anchors
-        anchor_str = ''.join([anchor.char for anchor in self.board.anchors])
         # Words that can be formed using an anchor
         word_candidates: tuple[Word, Tile] = []
         for anchor in self.board.anchors:
@@ -52,8 +48,8 @@ class StandardPlayer(Player):
 
             if word is not None and word.has_anchor(anchor.char):
                 word_candidates.append((word, anchor))
+                
         self.speak("Found", f"{len(word_candidates)} word candidates")
-
         if len(word_candidates) == 0:
             self.speak("ERROR", "Could not find next word")
             return self.restructure_board()
@@ -64,17 +60,17 @@ class StandardPlayer(Player):
         anchor = next(anchor for w, anchor in word_candidates if w == word)
 
         self.speak("Playing", f"{word} on anchor {anchor}")
-
         self.play_word(str(word), anchor)
-        # self.show_board()
 
     def restructure_board(self):
-        '''If we cannot continue without our current board formation
+        '''
+        If we cannot continue without our current board formation
         this function is called. It should made adjustments and try
         play a word again
         '''
         if self.board_attempt > 20:
             return "Error"
+        
         self.board_attempt += 1
         self.playing = False
         while len(self.board.tiles) > 0:

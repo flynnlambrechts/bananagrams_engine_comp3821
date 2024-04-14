@@ -1,41 +1,27 @@
 from board.board import Board
-
 from algorithms import where_to_play_word
-
 from board.tile import Tile
 from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
-from pickle_manager import load_tries
 
 
 class Player:
     '''
     Player class manages a board and a hand
     '''
-    counter = 0
+    
+    total_player_count = 0
 
     def __init__(self, game) -> None:
-        Player.counter += 1
-        self.name = f"{type(self).__name__} {Player.counter}"
+        Player.total_player_count += 1
+        self.name = f"{type(self).__name__} {Player.total_player_count}"
         self.playing = False
         self.game = game
         self.board_attempt = 0
         self.board = Board()
         
-        this_directory = Path(__file__).parent.resolve()
-        self.dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
-
         # Player waits until game gives them their hand
         self.hand: str = ''
-
-
-    def __str__(self):
-        player_str = f' - Hand: {self.hand}'
-        board_str = str(self.board)
-        if board_str:
-            player_str += f'\n - Board:\n{board_str}'
-
-        return player_str
 
     def show_board(self):
         self.speak("Board")
@@ -51,7 +37,7 @@ class Player:
 
     def peel(self):
         self.game.lock.acquire()
-        if (self.hand == ""):
+        if len(self.hand) == 0:
             self.speak("Peel")
             if not self.game.peel():
                 self.speak("WINNER", "I Won Here's My Board")
@@ -78,23 +64,21 @@ class Player:
         reverse = False
         if anchor is not None:
             word_placement = where_to_play_word(word_string, anchor)
+            
             if word_placement == NO_SPACE_FOR_WORD:
                 print(self)
                 print(f"want to play {word_string} at {anchor}")
                 print(anchor.lims)
                 raise Exception("No valid direction to play word")
-            else:
-                (i, direction) = word_placement
-                (row, col) = anchor.coords
-                if direction == VERTICAL:
-                    row -= i
-                else:
-                    col -= i
             
-
+            (i, direction) = word_placement
+            (row, col) = anchor.coords
+            if direction == VERTICAL:
+                row -= i
+            else:
+                col -= i
         else:
             direction = HORIZONTAL
-
             i = 0
             row = 0
             col = 0
@@ -136,3 +120,11 @@ class Player:
             # Remove the char from our hand if it wasn't on the board
             if tile_coords not in self.board.tiles:
                 self.hand = self.hand.replace(char, '', 1)
+    
+    def __str__(self):
+        player_str = f' - Hand: {self.hand}'
+        board_str = str(self.board)
+        if board_str:
+            player_str += f'\n - Board:\n{board_str}'
+
+        return player_str

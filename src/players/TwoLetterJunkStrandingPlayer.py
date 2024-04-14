@@ -36,28 +36,23 @@ class TwoLetterJunkStrandingPlayer(Player):
                                                rank_strategy = "strand",
                                                closeness_to_longest = 2)
         
-        # self.speak("Playing", start_word)
         self.play_word(str(start_word))
         self.show_board()
-        # self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
 
     def play_turn(self):
-        # print("")
-        # Peel if hand is empty
         if len(self.hand) == 0:
+            # Peel if hand is empty
             self.peel()
         if not self.game.game_is_active:
-                return
-
-        # If this is the first turn the player acts differently
+            return
         if not self.playing:
+            # If this is the first turn the player acts differently
             self.playing = True
             self.play_first_turn()
             return
 
         # Otherwise generic implementation of play turn
         # self.speak('Finding Word', f"available letters {self.hand}")
-
         strand_anchors = self.find_strand_extending_anchors()
         other_anchors = list(set(self.board.tiles.values()) - set(strand_anchors))
         
@@ -66,44 +61,37 @@ class TwoLetterJunkStrandingPlayer(Player):
             self.play_junk(list(self.board.tiles.values()))
             if len(self.hand) > 0:
                 return self.restructure_board()
-            return
-        # new word: tuple(word, anchor, anchor is suffix)
-        if self.play_best_strand_extension(strand_anchors):
+        elif self.play_best_strand_extension(strand_anchors):
+            # new word: tuple(word, anchor, anchor is suffix)
             self.speak("STRANDING", "playing strand extension")
-            return
         elif self.play_right_angle_word():
             self.speak("STRANDING", "playing right angle")
-            return
         else:
             print("attempting to play junk because can't do anything else")
             self.play_junk(other_anchors)
             if len(self.hand) > 0:
                 return self.restructure_board()
-            return
-
 
     def restructure_board(self):
-        '''If we cannot continue without our current board formation
+        '''
+        If we cannot continue without our current board formation
         this function is called. It should made adjustments and try
         play a word again
-        '''
 
-        '''Current implementation removes all 'junk tiles' (stuff that isn't contributing to stranding)
-        and dumps if it's stuck. Then play resumes.'''
-        # print("attempted board restructure")
+        Current implementation removes all 'junk tiles' (stuff that isn't contributing to stranding)
+        and dumps if it's stuck. Then play resumes.
+        '''
         self.remove_junk()
         old_hand = self.hand
-        # print(self)
         if self.dump_on_failure:
-            worst_letter_in_hand = min(self.hand, key = lambda char: letter_count[char]) # this could be more sophisticated
-            # print(f"Dumping {worst_letter_in_hand}")
+            worst_letter_in_hand = min(self.hand, key = lambda char: letter_count[char])
+
             self.game.dump(self, worst_letter_in_hand)
             self.dump_count += 1
-            # print(f"new hand: {self.hand}")
+
             if len(old_hand) == len(self.hand):
                 self.speak("ERROR", "tried to dump at the end and choked")
                 exit(1)
-                return "Error"
         else:
             print("restructured without dumping")
         
@@ -117,7 +105,8 @@ class TwoLetterJunkStrandingPlayer(Player):
     def find_strand_extending_anchors(self):
         '''
         used for the below find_strand_extension function. 
-        returns tiles that have infinite space in 1 direction and some space at 90 degrees'''
+        returns tiles that have infinite space in 1 direction and some space at 90 degrees
+        '''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
             if tile.vert_parent == None:
@@ -130,7 +119,8 @@ class TwoLetterJunkStrandingPlayer(Player):
         return strand_extending_anchors
 
     
-    '''TODO: think about preferred side to strand e.g.
+    '''
+    TODO: think about preferred side to strand e.g.
     FOLLOW
          EMBARGO
     It would be nicer to made GO or NO the stranding word rather than ON or OR
@@ -190,7 +180,7 @@ class TwoLetterJunkStrandingPlayer(Player):
             return False
         if len(best_word.string) < 3: 
             return False
-        # print(f"best: {best_word.string}")
+
         if all_words[best_word] == "prefix":
             key_info = prefix_anchors[best_word.string[0]]
             second_anchor_index = 0
@@ -205,10 +195,10 @@ class TwoLetterJunkStrandingPlayer(Player):
         return True
     
     def play_right_angle_word(self):
-        '''Looks for words where either the first or last letter is already on the board'''
-        '''TODO: use actual anchors, rather than the whole board'''
-
-        # print("looking for right angle word")
+        '''
+        Looks for words where either the first or last letter is already on the board
+        TODO: use actual anchors, rather than the whole board
+        '''
         prefix_anchors = dict()
         suffix_anchors = dict()
         for anchor in self.board.tiles.values():
@@ -223,10 +213,7 @@ class TwoLetterJunkStrandingPlayer(Player):
                         suffix_anchors[anchor.char] = anchor
                     if anchor.lims.down == MAX_LIMIT:
                         prefix_anchors[anchor.char] = anchor
-        # print("prefix anchors")
-        # print(prefix_anchors)
-        # print("suffix anchors")
-        # print(suffix_anchors)
+
         all_words = dict()
         for prefix in prefix_anchors.keys():
             words = forward_trie.all_subwords(self.hand.replace(prefix,'',1), prefix)
@@ -243,24 +230,11 @@ class TwoLetterJunkStrandingPlayer(Player):
             return False
         if len(best_word.string) < 3: return False
         if all_words[best_word][1] == ANCHOR_IS_PREFIX:
-
             anchor_index = 0
         else:
             anchor_index = len(best_word.string) - 1
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
         return True
-
-        # print(f"best word: {best_word.string}, anchor: {all_words[best_word]}")
-        if best_word.string.index(all_words[best_word].char) == 0:
-            # then ANCHOR_IS_PREFIX
-            return (best_word, all_words[best_word], ANCHOR_IS_PREFIX)
-        else:
-            return (best_word, all_words[best_word], ANCHOR_IS_SUFFIX)
-        # if best_word.string[0] in prefix_anchors.keys():
-        #     return (best_word, prefix_anchors[best_word.string[0]], ANCHOR_IS_PREFIX)
-        # else:
-        #     return (best_word, suffix_anchors[best_word.string[-1]], ANCHOR_IS_SUFFIX)
-
 
     def play_junk(self, anchors: list[Tile]):
         '''
@@ -305,22 +279,19 @@ class TwoLetterJunkStrandingPlayer(Player):
         equivalent to removing every tile that was placed during play_junk.
         '''
         self.speak("STRANDING", "removing junk...")
-        # print("board before: ")
-        # print(self)
+
         bad_tiles = []
         for tile in self.board.tiles.values():
             if tile.is_junk:
                 bad_tiles.append(tile)
-        # print("bad_tiles: ")
-        # print(bad_tiles)
+
         removed_tiles = self.board.remove_junk_tiles(bad_tiles)
         for tile in removed_tiles:
             # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles. 
             self.hand += tile.char
-        # print("junk on board now false")
+
         self.speak("STRANDING", "board after removing junk:")
         self.show_board()
-        
         self.board.junk_on_board = False
 
     def hypothetical_lims(self, probe_coords):
@@ -357,9 +328,6 @@ class TwoLetterJunkStrandingPlayer(Player):
                 anchor_lim_index = 2 # up lim
                 hypothetical_lim_offset = (-1,0) # the new letter will be played above the anchor
         hypothetical_coords = (anchor.coords[0] + hypothetical_lim_offset[0], anchor.coords[1] + hypothetical_lim_offset[1])
-        # print(f"checking anchor can be index {n} char: anchor: {anchor} lim index: {anchor_lim_index}, hypothetical coords: {hypothetical_coords}")
-        # print(f"hypothetical coords: {hypothetical_coords}, direction: {hypothetical_lim_index}")
-        if anchor.lims.lims[anchor_lim_index] > 0 and self.hypothetical_lims(hypothetical_coords).lims[hypothetical_lim_index] == MAX_LIMIT:
-            return True
-        else: return False
+
+        return anchor.lims.lims[anchor_lim_index] > 0 and self.hypothetical_lims(hypothetical_coords).lims[hypothetical_lim_index] == MAX_LIMIT
                     
