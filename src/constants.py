@@ -5,12 +5,14 @@ NO_SPACE_FOR_WORD = (-1, -1)
 ANCHOR_IS_PREFIX = 0
 ANCHOR_IS_SUFFIX = 1
 
+# Total letter count across the whole dictionary
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
                 'G': 71315, 'H': 63613, 'I': 229895, 'J': 4240, 'K': 23873, 'L': 133085,
                 'M': 73708, 'N': 170300, 'O': 168711, 'P': 76371, 'Q': 4301, 'R': 177701,
                 'S': 245015, 'T': 165990, 'U': 84212, 'V': 23418, 'W': 19567, 'X': 7216,
                 'Y': 41123, 'Z': 12279}
 
+# Letter count of the pouch
 letter_distribution = {"A": 13, "B": 3, "C": 3, "D": 6, "E": 18, "F": 3, "G": 4,
                        "H": 3, "I": 12, "J": 2, "K": 2, "L": 5, "M": 3, "N": 8,
                        "O": 11, "P": 3, "Q": 2, "R": 9, "S": 6, "T": 9, "U": 6,
