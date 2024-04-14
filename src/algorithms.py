@@ -1,7 +1,7 @@
 from word import Word
 from board.tile import Tile
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL
-
+from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, TOTAL_TILE_COUNT
+from pouch import letter_distribution
 is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058, 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
 is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586, 'M': 4620, 'N': 12003, 'O': 1887, 'P': 1547, 'Q': 10, 'R': 14784, 'S': 107294, 'T': 13933, 'U': 379, 'V': 45, 'W': 610, 'X': 583, 'Y': 19551, 'Z': 159}
 pair_start_count = {'A': 16, 'B': 5, 'C': 1, 'D': 4, 'E': 13, 'F': 3, 'G': 3, 'H': 5, 'I': 6, 'J': 2, 'K': 4, 'L': 3, 'M': 7, 'N': 5, 'O': 17, 'P': 4, 'Q': 1, 'R': 1, 'S': 4, 'T': 4, 'U': 8, 'V': 0, 'W': 2, 'X': 2, 'Y': 4, 'Z': 3}
@@ -163,3 +163,22 @@ def _all_other_letters(self, word_str):
         all_other_letters.replace('',char,1)
     all_other_letters += ''.join([tile.string for tile in self.board.tiles.values()])
     return all_other_letters
+
+def score_word_hand_balance(word_str: str, hand: str, anchor: str, min_length: int = 0):
+    hand_after_playing = hand
+    played_tiles = word_str.replace(anchor, '', 1)
+    for char in played_tiles:
+        hand_after_playing.replace(char, '', 1)
+    
+    hand_len = len(hand)
+    hand_after_playing_len = len(hand_after_playing)
+    initial_unbalance = 0
+    for char in set(hand):
+        initial_unbalance += abs(hand.count(char)/hand_len - letter_distribution[char]/144)
+    post_unbalance = 0
+    for char in set(hand_after_playing):
+        post_unbalance += abs(hand.count(char)/hand_after_playing_len - letter_distribution[char]/144)
+    
+    return initial_unbalance - post_unbalance
+     
+    
