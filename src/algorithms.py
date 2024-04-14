@@ -13,7 +13,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
         return (0, HORIZONTAL)
 
     lims = anchor.lims
-    
+
     '''
     step 1: find all instances of the anchor in word.
     for all in instances of anchor in word:
@@ -24,7 +24,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     if (lims.down == MAX_LIMIT and lims.up == MAX_LIMIT) or (lims.left == MAX_LIMIT and lims.right == MAX_LIMIT):
         return True
     '''
-    
+
     anchor_indexes = [i for i, t in enumerate(word_str) if t == anchor.char]
     for anchor_index in anchor_indexes:
         tiles_before = anchor_index
@@ -47,7 +47,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     return NO_SPACE_FOR_WORD
 
 
-def long_with_best_rank(words: list[Word], rank_strategy = "strand",anchor: Tile = None, closeness_to_longest = 0) -> Word:
+def long_with_best_rank(words: list[Word], rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
@@ -58,19 +58,22 @@ def long_with_best_rank(words: list[Word], rank_strategy = "strand",anchor: Tile
     closeness_to_longest determines the length of words relative to the longest word that can be considered
     '''
 
-    words = [word for word in words if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD]
+    words = [word for word in words if where_to_play_word(
+        word.string, anchor) != NO_SPACE_FOR_WORD]
 
     if len(words) == 0:
         return None
     longest: Word = max(words, key=lambda word: len(word.string))
 
-    long_words = [word for word in words if len(word.string) >= len(longest.string) - closeness_to_longest]
+    long_words = [word for word in words if len(
+        word.string) >= len(longest.string) - closeness_to_longest]
     if len(long_words) == 0:
         return None
     if rank_strategy == "strand":
         return max(long_words, key=lambda word: score_word_simple_stranding(word.string))
     else:
         return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
+
 
 def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
     '''
@@ -90,16 +93,17 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0,
         return None
     longest: Word = max(words, key=lambda word: len(word.string))
 
-    long_words = [word for word in words if len(word.string) >= len(longest.string) - closeness_to_longest]
+    long_words = [word for word in words if len(
+        word.string) >= len(longest.string) - closeness_to_longest]
     if len(long_words) == 0:
         return None
-    
+
     long_words.sort(key=lambda word: word.letter_ranking / len(word.string))
 
     if attempt >= len(long_words):
         print(f"attempt: {attempt}, len(long_words): {len(long_words)}")
         return None
-    
+
     return long_words[attempt]
 
 
@@ -111,6 +115,8 @@ None of the below is actually being used
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
+
+
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
@@ -131,8 +137,11 @@ def _eval_anchor_candidate(tile: Tile) -> int:
 
 # def best_next_strand(words, )
 
+
 '''so much room for more interesting stuff, but it's a start'''
-def score_word_simple_stranding(word_str, min_length = 0):
+
+
+def score_word_simple_stranding(word_str, min_length=0):
     if word_str == None:
         return -1000000
     if len(word_str) < min_length:
@@ -140,21 +149,23 @@ def score_word_simple_stranding(word_str, min_length = 0):
     # all_other_letters = self._all_other_letters(word_str)
     if len(word_str) > 2:
         word_middle = word_str[1:-1]
-        middle_score = sum(pair_end_count[char] + pair_start_count[char] for char in word_middle) / (len(word_str) - 2)
+        middle_score = sum(pair_end_count[char] + pair_start_count[char]
+                           for char in word_middle) / (len(word_str) - 2)
     else:
         middle_score = 0
-    
-    edge_score = (is_prefix_of[word_str[0]] + is_suffix_of[word_str[0]] + 
-                  is_prefix_of[word_str[-1]] + is_suffix_of[word_str[-1]] + 
+
+    edge_score = (is_prefix_of[word_str[0]] + is_suffix_of[word_str[0]] +
+                  is_prefix_of[word_str[-1]] + is_suffix_of[word_str[-1]] +
                   (pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
                   pair_end_count[word_str[-1]] + pair_start_count[word_str[-1]]) * 1000)
-    
-    
+
     return edge_score - 1000 * middle_score
+
 
 def _all_other_letters(self, word_str):
     all_other_letters = self.hand
     for char in word_str:
-        all_other_letters.replace('',char,1)
-    all_other_letters += ''.join([tile.string for tile in self.board.tiles.values()])
+        all_other_letters.replace('', char, 1)
+    all_other_letters += ''.join(
+        [tile.string for tile in self.board.tiles.values()])
     return all_other_letters

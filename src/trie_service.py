@@ -1,6 +1,6 @@
 
 from pickle_manager import load_tries
-    
+
 '''
 Runs when this file is first imported.
 

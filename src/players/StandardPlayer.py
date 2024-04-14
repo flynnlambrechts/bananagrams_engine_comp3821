@@ -48,7 +48,7 @@ class StandardPlayer(Player):
 
             if word is not None and word.has_anchor(anchor.char):
                 word_candidates.append((word, anchor))
-                
+
         self.speak("Found", f"{len(word_candidates)} word candidates")
         if len(word_candidates) == 0:
             self.speak("ERROR", "Could not find next word")
@@ -70,7 +70,7 @@ class StandardPlayer(Player):
         '''
         if self.board_attempt > 20:
             return "Error"
-        
+
         self.board_attempt += 1
         self.playing = False
         while len(self.board.tiles) > 0:

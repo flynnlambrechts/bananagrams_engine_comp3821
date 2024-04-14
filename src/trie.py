@@ -48,10 +48,10 @@ class Trie:
                 return False
             node = node.children[char]
         return node.anagrams
-    
+
     def is_word(self, word_str):
         s_word = self._order_word(word_str)
-        
+
         node = self._root
         for char in s_word:
             if char not in node.children:

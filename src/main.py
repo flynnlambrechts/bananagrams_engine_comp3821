@@ -1,10 +1,10 @@
-from sys import argv 
+from sys import argv
 
 if len(argv) == 1:
     print('Usage: pypy3 main.py <player> <player> ...')
     exit(1)
 
-import trie_service # Initialize trie service
+import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
