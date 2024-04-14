@@ -1,6 +1,6 @@
 from players.player import Player
 from algorithms import long_with_lowest_rank
-from pickle_manager import load_tries
+from trie_service import all_words_trie
 from word import Word
 from board.tile import Tile
 from board.board import Board
@@ -10,10 +10,10 @@ class StandardPlayer(Player):
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_lowest_rank(Player.all_words.all_subwords(
+        start_word: Word = long_with_lowest_rank(all_words_trie.all_subwords(
             self.hand), closeness_to_longest=2, attempt=self.board_attempt)
         if start_word == None:
-            start_word = long_with_lowest_rank(Player.all_words.all_subwords(
+            start_word = long_with_lowest_rank(all_words_trie.all_subwords(
                 self.hand), closeness_to_longest=3, attempt=self.board_attempt)
         if start_word == None:
             self.board_attempt = 21  # give up
@@ -47,7 +47,7 @@ class StandardPlayer(Player):
         word_candidates: tuple[Word, Tile] = []
         for anchor in self.board.anchors:
             # Looping over anchors to see if the hand+anchor can make a word
-            word = long_with_lowest_rank(Player.all_words.all_subwords(
+            word = long_with_lowest_rank(all_words_trie.all_subwords(
                 self.hand, anchor.char, anchor.lims), anchor)
 
             if word is not None and word.has_anchor(anchor.char):

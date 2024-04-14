@@ -13,12 +13,6 @@ class Player:
     Player class manages a board and a hand
     '''
     counter = 0
-    
-    # Initialize our objects
-    this_directory = Path(__file__).parent.resolve()
-    dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
-    print('[Initializing]')
-    all_words, forward_words, reverse_words = load_tries()
 
     def __init__(self, game) -> None:
         Player.counter += 1
@@ -27,6 +21,9 @@ class Player:
         self.game = game
         self.board_attempt = 0
         self.board = Board()
+        
+        this_directory = Path(__file__).parent.resolve()
+        self.dictionary = this_directory / '..' / '..' / 'assets' / 'word_dictionary.txt'
 
         # Player waits until game gives them their hand
         self.hand: str = ''

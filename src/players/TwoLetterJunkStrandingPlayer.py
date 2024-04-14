@@ -10,6 +10,8 @@ from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR
 from lims_algos import send_probes
 from board.lims import Lims
 from players.player import Player
+from trie_service import all_words_trie, forward_trie, reverse_trie
+
 is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058, 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
 is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586, 'M': 4620, 'N': 12003, 'O': 1887, 'P': 1547, 'Q': 10, 'R': 14784, 'S': 107294, 'T': 13933, 'U': 379, 'V': 45, 'W': 610, 'X': 583, 'Y': 19551, 'Z': 159}
 pair_start_count = {'A': 16, 'B': 5, 'C': 1, 'D': 4, 'E': 13, 'F': 3, 'G': 3, 'H': 5, 'I': 6, 'J': 2, 'K': 4, 'L': 3, 'M': 7, 'N': 5, 'O': 17, 'P': 4, 'Q': 1, 'R': 1, 'S': 4, 'T': 4, 'U': 8, 'V': 0, 'W': 2, 'X': 2, 'Y': 4, 'Z': 3}
@@ -34,7 +36,7 @@ class TwoLetterJunkStrandingPlayer(Player):
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_best_rank(self.all_words.all_subwords(self.hand), 
+        start_word: Word = long_with_best_rank(all_words_trie.all_subwords(self.hand), 
                                                rank_strategy = "strand",
                                                closeness_to_longest = 2)
         
@@ -144,7 +146,7 @@ class TwoLetterJunkStrandingPlayer(Player):
         suffix_anchors = dict() # suffix of the new word
 
         for anchor in anchors:
-            pair_list = self.all_words.find_two_letters(anchor.char, self.hand)
+            pair_list = all_words_trie.find_two_letters(anchor.char, self.hand)
 
             if anchor.vert_parent == None:
                 parent = anchor.horo_parent
@@ -178,12 +180,12 @@ class TwoLetterJunkStrandingPlayer(Player):
         all_words = dict()
 
         for prefix in prefix_anchors.keys():
-            words = self.forward_words.all_subwords(self.hand.replace(prefix,'',1), prefix)
+            words = forward_trie.all_subwords(self.hand.replace(prefix,'',1), prefix)
             if len(words) > 0:
                 local_best = long_with_best_rank(words)
                 all_words[local_best] = "prefix"
         for suffix in suffix_anchors.keys():
-            words = self.reverse_words.all_subwords(self.hand.replace(suffix,'',1), suffix)
+            words = reverse_trie.all_subwords(self.hand.replace(suffix,'',1), suffix)
             if len(words) > 0:
                 local_best = long_with_best_rank(words)
                 all_words[local_best] = "suffix"
@@ -231,12 +233,12 @@ class TwoLetterJunkStrandingPlayer(Player):
         # print(suffix_anchors)
         all_words = dict()
         for prefix in prefix_anchors.keys():
-            words = self.forward_words.all_subwords(self.hand.replace(prefix,'',1), prefix)
+            words = forward_trie.all_subwords(self.hand.replace(prefix,'',1), prefix)
             for word in words:
                 all_words[word] = (prefix_anchors[prefix], ANCHOR_IS_PREFIX)
             # all_words = all_words | set(words)
         for suffix in suffix_anchors.keys():
-            words = self.reverse_words.all_subwords(self.hand.replace(suffix,'',1), suffix)
+            words = reverse_trie.all_subwords(self.hand.replace(suffix,'',1), suffix)
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
             # all_words = all_words | set(words)
@@ -287,11 +289,11 @@ class TwoLetterJunkStrandingPlayer(Player):
                 word = letter + anchor.char
                 placement = where_to_play_word(word, anchor)
                 
-                if placement == NO_SPACE_FOR_WORD or not self.forward_words.is_word(word):
+                if placement == NO_SPACE_FOR_WORD or not forward_trie.is_word(word):
                     word = anchor.char + letter
                     placement = where_to_play_word(word, anchor)
                 
-                if placement == NO_SPACE_FOR_WORD or not self.forward_words.is_word(word): 
+                if placement == NO_SPACE_FOR_WORD or not forward_trie.is_word(word): 
                     # Can't find an anchor 
                     continue
                 
