@@ -13,14 +13,18 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
         return (0, HORIZONTAL)
 
     lims = anchor.lims
-    # step 1: find all instances of the anchor in word.
-    # for all in instances of anchor in word:
-    # 2: calculate forward and backward requirements
-    # 3: true if there's a 50/50 instance
-    # 4: true if it fits within an instance
-    # 5: true if it can go in one direction and it's not extending a word
-    # if (lims.down == MAX_LIMIT and lims.up == MAX_LIMIT) or (lims.left == MAX_LIMIT and lims.right == MAX_LIMIT):
-    #     return True
+    
+    '''
+    step 1: find all instances of the anchor in word.
+    for all in instances of anchor in word:
+    2: calculate forward and backward requirements
+    3: true if there's a 50/50 instance
+    4: true if it fits within an instance
+    5: true if it can go in one direction and it's not extending a word
+    if (lims.down == MAX_LIMIT and lims.up == MAX_LIMIT) or (lims.left == MAX_LIMIT and lims.right == MAX_LIMIT):
+        return True
+    '''
+    
     anchor_indexes = [i for i, t in enumerate(word_str) if t == anchor.char]
     for anchor_index in anchor_indexes:
         tiles_before = anchor_index
@@ -60,11 +64,7 @@ def long_with_best_rank(words: list[Word], rank_strategy = "strand",anchor: Tile
         return None
     longest: Word = max(words, key=lambda word: len(word.string))
 
-    long_words = []
-    for word in words:
-        if len(word.string) >= len(longest.string) - closeness_to_longest:
-            long_words.append(word)
-
+    long_words = [word for word in words if len(word.string) >= len(longest.string) - closeness_to_longest]
     if len(long_words) == 0:
         return None
     if rank_strategy == "strand":
@@ -90,23 +90,24 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0,
         return None
     longest: Word = max(words, key=lambda word: len(word.string))
 
-    long_words = []
-    for word in words:
-        if len(word.string) >= len(longest.string) - closeness_to_longest:
-            long_words.append(word)
-
+    long_words = [word for word in words if len(word.string) >= len(longest.string) - closeness_to_longest]
     if len(long_words) == 0:
         return None
+    
     long_words.sort(key=lambda word: word.letter_ranking / len(word.string))
 
-    # min_word = min(long_words, key=lambda word: word.letter_ranking / len(word.string))
     if attempt >= len(long_words):
         print(f"attempt: {attempt}, len(long_words): {len(long_words)}")
         return None
+    
     return long_words[attempt]
 
 
-'''None of the below is actually being used'''
+'''
+None of the below is actually being used
+'''
+
+
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
