@@ -11,13 +11,13 @@ from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
 
-game = Game()
 player_map = {
     's': StandardPlayer,
     'r': StrandingPlayer,
     'p': PseudoPlayer,
     't': TwoLetterJunkStrandingPlayer,
 }
-for p in argv[1:]:
-    game.add_player(player_map[p](game))
+
+game = Game(players=[player_map[p] for p in argv[1:]])
+
 game.start()

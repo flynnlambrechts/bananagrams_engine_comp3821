@@ -1,5 +1,6 @@
 from pouch import Pouch
 from players.player import Player
+from typing import Type
 import threading
 
 
@@ -8,17 +9,18 @@ class Game:
     Game class is responsible for managing the players and the pouch of letters
     '''
 
-    def __init__(self, seed=None) -> None:
+    def __init__(self, players=list[Type[Player]], seed=None) -> None:
         '''
         Initialise a game new players can be added each game
         should have at least one player
         '''
         self.pouch = Pouch(seed=seed)
-        self.players: list[Player] = []
-        self.lock =  threading.Lock()
+        self.players: list[Player] = [player(self) for player in players]
+        self.lock = threading.Lock()
         self.player_threads = []
         self.game_is_active = False
-        
+       
+    @DeprecationWarning
     def add_player(self, player: Player):
         '''
         Method to add new players, only required in multiplayer
@@ -28,10 +30,14 @@ class Game:
 
     def _calculate_starting_tiles(self):
         n_players = len(self.players)
-        if n_players == 0: raise ValueError("No players in game")
-        if n_players <= 4: return 21
-        if n_players <= 6: return 15
-        if n_players <= 8: return 11
+        if n_players == 0: 
+            raise ValueError("No players in game")
+        if n_players <= 4: 
+            return 21
+        if n_players <= 6: 
+            return 15
+        if n_players <= 8: 
+            return 11
         raise ValueError(f"Too many players in game, maximum 8, found {n_players}")
 
     def start(self):
@@ -48,10 +54,6 @@ class Game:
             thread.join()
             
         print("Game Completed, All Players Done")
-
-    def end_game(self):
-        for player in self.players:
-            player.game_over()        
 
     def peel(self) -> bool:
         '''
