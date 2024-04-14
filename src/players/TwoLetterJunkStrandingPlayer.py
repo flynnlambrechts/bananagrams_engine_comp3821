@@ -24,6 +24,7 @@ class TwoLetterJunkStrandingPlayer(Player):
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
         self.dump_count = 0
+        self.junk_tiles = []  # Which tiles on the board are junk
 
     def give_tiles(self, tiles: list[str]):
         self.dump_on_failure = False
@@ -249,7 +250,7 @@ class TwoLetterJunkStrandingPlayer(Player):
         Go through the anchors, play as much as possible each time
         Everything played here is labeled as junk and will be removed at the next rearrange
         '''
-        _verbose = True
+        _verbose = False
         if _verbose:
             print('[!] Before Junk Hand:', self.hand)
 
@@ -280,8 +281,9 @@ class TwoLetterJunkStrandingPlayer(Player):
                 if _verbose:
                     print(
                         f'[!] Playing letter + anchor ({letter}+{anchor.char}) = {word}')
-                self.play_word(
+                new_tiles = self.play_word(
                     word, anchor, anchor_index=placement[0], is_junk=True)
+                self.junk_tiles += new_tiles
                 break
 
         if _verbose:
@@ -294,12 +296,9 @@ class TwoLetterJunkStrandingPlayer(Player):
         '''
         self.speak("STRANDING", "removing junk...")
 
-        bad_tiles = []
-        for tile in self.board.tiles.values():
-            if tile.is_junk:
-                bad_tiles.append(tile)
+        removed_tiles = self.board.remove_junk_tiles(self.junk_tiles)
+        self.junk_tiles = []
 
-        removed_tiles = self.board.remove_junk_tiles(bad_tiles)
         for tile in removed_tiles:
             # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles.
             self.hand += tile.char
