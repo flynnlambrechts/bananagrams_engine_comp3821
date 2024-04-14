@@ -165,6 +165,10 @@ def _all_other_letters(self, word_str):
     return all_other_letters
 
 def score_word_hand_balance(word_str: str, hand: str, anchor: str, min_length: int = 0):
+
+    '''Notes to consider: if hand is close to perfectly balanced, nothing will look very good, and rare letters will be the last to be played. So maybe this algorithm should only run if the hand is at a particular level of unbalance. Or, use this algo to pick between the top words selected through some other means'''
+    if len(word_str) < min_length:
+        return 0
     hand_after_playing = hand
     played_tiles = word_str.replace(anchor, '', 1)
     for char in played_tiles:
