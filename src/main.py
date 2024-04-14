@@ -1,7 +1,8 @@
 from sys import argv
 
 if len(argv) == 1:
-    print('Usage: pypy3 main.py <player> <player> ...')
+    print('Usage: pypy3 main.py <players>')
+    print('Example: pypy3 main.py rspp')
     exit(1)
 
 import trie_service  # Initialize trie service
@@ -18,6 +19,6 @@ player_map = {
     't': TwoLetterJunkStrandingPlayer,
 }
 
-game = Game(players=[player_map[p] for p in argv[1:]])
+game = Game(players=[player_map[p] for p in argv[1]])
 
 game.start()
