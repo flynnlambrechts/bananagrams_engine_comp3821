@@ -3,18 +3,24 @@ from algorithms import where_to_play_word
 from board.tile import Tile
 from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
+import multiprocessing
 
 
 class Player:
     '''
     Player class manages a board and a hand
     '''
+    manager = multiprocessing.Manager()
+    total_player_count = manager.Value('i', 0)
 
-    total_player_count = 0
-
-    def __init__(self, game) -> None:
-        Player.total_player_count += 1
-        self.name = f"{type(self).__name__} {Player.total_player_count}"
+    def __init__(self, game, lock=None) -> None:
+        if lock is not None:
+            with lock:
+                Player.total_player_count.value += 1
+                self.name = f"{type(self).__name__} {Player.total_player_count.value}"
+        else:
+            Player.total_player_count.value += 1
+            self.name = f"{type(self).__name__} {Player.total_player_count.value}"
         self.playing = False
         self.game = game
         self.board_attempt = 0

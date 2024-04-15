@@ -12,8 +12,8 @@ from trie_service import all_words_trie, forward_trie, reverse_trie
 
 
 class StrandingPlayer(Player):
-    def __init__(self, game) -> None:
-        super().__init__(game)
+    def __init__(self, game, process_lock) -> None:
+        super().__init__(game, process_lock)
         self.dump_on_failure: bool = True
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
@@ -247,7 +247,8 @@ class StrandingPlayer(Player):
         '''
         # sort anchors by usefulness
         anchors.sort(
-            key=lambda anchor: pair_start_count[anchor.char] + pair_end_count[anchor.char], reverse=True)
+            key=lambda anchor: pair_start_count[anchor.char] + pair_end_count[anchor.char],
+            reverse=True)
         for anchor in anchors:
             # we don't want anything built on junk, as it makes reconstuction a nightmare
             if anchor.is_junk:
@@ -333,6 +334,7 @@ class StrandingPlayer(Player):
                 # the new letter will be played above the anchor
                 hypothetical_lim_offset = (-1, 0)
         hypothetical_coords = (
-            anchor.coords[0] + hypothetical_lim_offset[0], anchor.coords[1] + hypothetical_lim_offset[1])
+            anchor.coords[0] + hypothetical_lim_offset[0],
+            anchor.coords[1] + hypothetical_lim_offset[1])
 
         return anchor.lims.lims[anchor_lim_index] > 0 and self.hypothetical_lims(hypothetical_coords).lims[hypothetical_lim_index] == MAX_LIMIT
