@@ -18,8 +18,8 @@ class TwoLetterJunkStrandingPlayer(Player):
     Everything is the same except for play_junk
     '''
 
-    def __init__(self, game, process_lock) -> None:
-        super().__init__(game, process_lock)
+    def __init__(self, game, id: int) -> None:
+        super().__init__(game, id)
         self.dump_on_failure: bool = True
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
@@ -256,7 +256,8 @@ class TwoLetterJunkStrandingPlayer(Player):
 
         # sort anchors by usefulness
         anchors.sort(
-            key=lambda anchor: pair_start_count[anchor.char] + pair_end_count[anchor.char],
+            key=lambda anchor: pair_start_count[anchor.char] +
+            pair_end_count[anchor.char],
             reverse=True)
 
         # Remove anchors that are junk

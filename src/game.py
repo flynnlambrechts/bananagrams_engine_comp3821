@@ -9,15 +9,15 @@ class Game:
     Game class is responsible for managing the players and the pouch of letters
     '''
 
-    def __init__(self, players=list[Type[Player]], process_lock=None, seed=None) -> None:
+    def __init__(self, players: list[Type[Player]], seed=None) -> None:
         '''
         Initialise a game new players can be added each game
         should have at least one player
         '''
         self.pouch = Pouch(seed=seed)
-        self.players: list[Player] = [
-            player(self, process_lock) for player in players]
         self.lock = threading.Lock()
+        self.players: list[Player] = [
+            player(self, i) for i, player in enumerate(players)]
         self.player_threads = []
         self.game_is_active = False
 

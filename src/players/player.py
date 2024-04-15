@@ -10,17 +10,9 @@ class Player:
     '''
     Player class manages a board and a hand
     '''
-    manager = multiprocessing.Manager()
-    total_player_count = manager.Value('i', 0)
 
-    def __init__(self, game, lock=None) -> None:
-        if lock is not None:
-            with lock:
-                Player.total_player_count.value += 1
-                self.name = f"{type(self).__name__} {Player.total_player_count.value}"
-        else:
-            Player.total_player_count.value += 1
-            self.name = f"{type(self).__name__} {Player.total_player_count.value}"
+    def __init__(self, game, id: int) -> None:
+        self.name = f'{type(self).__name__} {id}'
         self.playing = False
         self.game = game
         self.board_attempt = 0
