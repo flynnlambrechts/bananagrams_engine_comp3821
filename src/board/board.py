@@ -103,6 +103,7 @@ class Board:
             raise ValueError(f"There is no tile at ({row}, {col})")
 
         removed_tile = self.tiles.pop((row, col))
+        self.remove_anchor(removed_tile)
         probe_hits_list = removed_tile.send_probes(self.tiles)
         for probe in probe_hits_list:
             tile = self.tiles[probe[0]]
@@ -213,5 +214,4 @@ class Board:
         dangling = []
         for word in dangling_words:
             dangling.extend(word.remove_from_board())
-        self.anchors = list(filter(lambda tile: tile not in dangling, self.anchors))
         return dangling

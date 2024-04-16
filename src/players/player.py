@@ -67,7 +67,7 @@ class Player:
 
             if word_placement == NO_SPACE_FOR_WORD:
                 print(self)
-                print(f"want to play {word_string} at {anchor}")
+                print(f"want to play {word_string} at {repr(anchor)}")
                 print(anchor.lims)
                 raise Exception("No valid direction to play word")
 

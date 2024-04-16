@@ -106,10 +106,10 @@ class StrandingPlayer(Player):
         '''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
-            if not tile.has_parent(HORIZONTAL):
+            if tile.has_parent(HORIZONTAL):
                 if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
                     strand_extending_anchors.append(tile)
-            elif not tile.has_parent(HORIZONTAL):
+            elif tile.has_parent(VERTICAL):
                 if (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
                     strand_extending_anchors.append(tile)
 
