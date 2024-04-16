@@ -8,6 +8,7 @@ from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR
 from lims_algos import send_probes
 from board.lims import Lims
 from players.player import Player
+import time
 is_prefix_of = {'A': 16194, 'B': 15218, 'C': 25015, 'D': 16619, 'E': 11330, 'F': 10633, 'G': 9351, 'H': 10524, 'I': 9604, 'J': 2311, 'K': 3361, 'L': 8058,
                 'M': 15811, 'N': 6564, 'O': 8895, 'P': 24327, 'Q': 1411, 'R': 15014, 'S': 31986, 'T': 14563, 'U': 9522, 'V': 4590, 'W': 5921, 'X': 309, 'Y': 1036, 'Z': 1159}
 is_suffix_of = {'A': 5560, 'B': 371, 'C': 6121, 'D': 25039, 'E': 28261, 'F': 534, 'G': 20216, 'H': 3293, 'I': 1601, 'J': 12, 'K': 2327, 'L': 8586,
@@ -31,6 +32,8 @@ class NewStrandingPlayer(Player):
         self.dump_count = 0
 
         self.junk_tiles = []  # Which tiles on the board are junk
+        self.strand_metric = []
+        self.right_angle_metric = []
 
     def give_tiles(self, tiles: list[str]):
         self.dump_on_failure = False
@@ -129,10 +132,10 @@ class NewStrandingPlayer(Player):
         returns tiles that have infinite space in 1 direction and some space at 90 degrees'''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
-            if tile.vert_parent == None:
+            if tile.vert_parent is None:
                 if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
                     strand_extending_anchors.append(tile)
-            elif tile.horo_parent == None:
+            elif tile.horo_parent is None:
                 if (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
                     strand_extending_anchors.append(tile)
 
@@ -153,7 +156,7 @@ class NewStrandingPlayer(Player):
         for anchor in anchors:
             pair_list = self.all_words.find_two_letters(anchor.char, self.hand)
 
-            if anchor.vert_parent == None:
+            if anchor.vert_parent is None:
                 parent = anchor.horo_parent
             else:
                 parent = anchor.vert_parent
@@ -189,17 +192,25 @@ class NewStrandingPlayer(Player):
         for suffix in suffix_anchors.keys():
             ease_of_stranding_score += is_suffix_of[suffix]
 
+        start_time = time.time()
+
         if ease_of_stranding_score > THRESHOLD_DIFFERENT_STRANDING_METHODS * DICT_SIZE:
             all_words = self.all_words.all_subwords(self.hand)
-            all_words.sort(key=lambda word: word.len(), reversed=True)
+            all_words.sort(key=lambda word: word.len(), reverse=True)
+
             best_words = all_words[:min(
                 HOW_UNGREEDY_IS_STRAND, len(all_words))]
+            if len(best_words) == 0:
+                self.strand_metric.append(
+                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                return False
             # do all_word search
+            longest_length = best_words[0].len()
             best_words.sort(key=lambda word: score_word_simple_stranding(
-                word.string, best_words[0].len()))
+                word.string, longest_length))
             word_found = False
             i = 0
-            while word_found == False:
+            while word_found is False:
                 word_str = best_words[i].string
                 if word_str[0] in prefix_anchors.keys():
                     key_info = prefix_anchors[word_str[0]]
@@ -211,6 +222,9 @@ class NewStrandingPlayer(Player):
                     word_found = True
                 i += 1
                 if i >= len(best_words):
+                    self.strand_metric.append(
+                        (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+
                     return False
 
             first_anchor = key_info[0]
@@ -218,8 +232,11 @@ class NewStrandingPlayer(Player):
             first_anchor_index = key_info[2]
             second_anchor = self.play_word(
                 two_letter_word, first_anchor, first_anchor_index)[0]
-            self.play_word(best_word.string, second_anchor,
+            self.play_word(word_str, second_anchor,
                            second_anchor_index)
+            self.strand_metric.append(
+                (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+
             return True
 
 #  if all_words[best_word] == "prefix":
@@ -252,8 +269,14 @@ class NewStrandingPlayer(Player):
                     all_words[local_best] = "suffix"
             best_word = long_with_best_rank(list(all_words.keys()))
             if best_word == None:
+                self.strand_metric.append(
+                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+
                 return False
             if len(best_word.string) < 3:
+                self.strand_metric.append(
+                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+
                 return False
             # print(f"best: {best_word.string}")
             if all_words[best_word] == "prefix":
@@ -269,12 +292,15 @@ class NewStrandingPlayer(Player):
                 two_letter_word, first_anchor, first_anchor_index)[0]
             self.play_word(best_word.string, second_anchor,
                            second_anchor_index)
+            self.strand_metric.append(
+                (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+
             return True
 
     def play_right_angle_word(self):
         '''Looks for words where either the first or last letter is already on the board'''
         '''TODO: use actual anchors, rather than the whole board'''
-
+        start_time = time.time()
         # print("looking for right angle word")
         prefix_anchors = dict()
         suffix_anchors = dict()
@@ -309,8 +335,10 @@ class NewStrandingPlayer(Player):
             # all_words = all_words | set(words)
         best_word = long_with_best_rank(list(all_words.keys()))
         if best_word == None:
+            self.right_angle_metric.append((time.time() - start_time, 0))
             return False
         if len(best_word.string) < 3:
+            self.right_angle_metric.append((time.time() - start_time, 0))
             return False
         if all_words[best_word][1] == ANCHOR_IS_PREFIX:
 
@@ -318,6 +346,7 @@ class NewStrandingPlayer(Player):
         else:
             anchor_index = len(best_word.string) - 1
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
+        self.right_angle_metric.append((time.time() - start_time, 1))
         return True
 
         # print(f"best word: {best_word.string}, anchor: {all_words[best_word]}")
