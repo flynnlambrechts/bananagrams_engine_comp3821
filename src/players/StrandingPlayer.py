@@ -108,11 +108,13 @@ class StrandingPlayer(Player):
         for tile in self.board.tiles.values():
             if tile.has_parent(HORIZONTAL):
                 if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
+                    print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
             elif tile.has_parent(VERTICAL):
                 if (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
+                    print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
-
+        self.show_board()
         return strand_extending_anchors
 
     '''
@@ -190,8 +192,16 @@ class StrandingPlayer(Player):
         first_anchor = key_info[0]
         two_letter_word = key_info[1]
         first_anchor_index = key_info[2]
-        second_anchor = self.play_word(
-            two_letter_word, first_anchor, first_anchor_index)[0]
+        print("Playing 1", two_letter_word, first_anchor, first_anchor_index)
+        
+        two_tiles = self.play_word(
+            two_letter_word, first_anchor, first_anchor_index)
+        second_anchor = two_tiles[0]
+        
+        if second_anchor == first_anchor:
+            second_anchor = two_tiles[1]
+        
+        print("Playing 2", best_word.string, repr(second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
 
@@ -236,6 +246,7 @@ class StrandingPlayer(Player):
             anchor_index = 0
         else:
             anchor_index = len(best_word.string) - 1
+        print("Playing 3")
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
         return True
 
@@ -264,6 +275,7 @@ class StrandingPlayer(Player):
             while change_anchors == False and i < len(words):
                 placement = where_to_play_word(words[i].string, anchor)
                 if placement != NO_SPACE_FOR_WORD:
+                    print("Playing 4")
                     new_tiles = self.play_word(
                         words[i].string, anchor, anchor_index=placement[0], is_junk=True)
                     self.junk_tiles += new_tiles

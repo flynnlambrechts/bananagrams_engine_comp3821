@@ -1,6 +1,7 @@
 from board.board import Board
 from algorithms import where_to_play_word, get_dangling_tiles
 from utils import add_tuple_elems
+from pprint import pprint
 from board.tile import Tile
 from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
@@ -61,6 +62,7 @@ class Player:
         Updates its hand. 
         board.add_word updates the anchor list for it. 
         '''
+        self.speak("PLAYING", word_string)
         reverse = False
         if anchor is not None:
             word_placement = where_to_play_word(word_string, anchor)
@@ -92,10 +94,13 @@ class Player:
         # this also covers the case where the
         # the used anchor overlaps the new word's
         # start or end
+        # pprint(self.board.anchors)
         if anchor is not None:
             self.board.remove_anchor(anchor)
-
+        # pprint(self.board.anchors)
         return new_tiles
+    
+    
     def _update_hand(self, tiles_played):
         for tile in tiles_played:
             self.hand = self.hand.replace(tile.char, '', 1)
