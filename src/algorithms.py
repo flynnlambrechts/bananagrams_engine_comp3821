@@ -118,11 +118,6 @@ def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
 
 
-def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
-    tile_list = list(tiles.values())
-    return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
-
-
 def _eval_anchor_candidate(tile: Tile) -> int:
     '''
     Currently very simple way of giving a numeric score to a possible anchor.
@@ -197,9 +192,7 @@ def score_word_simple_stranding(word_str, min_length=0):
     else:
         middle_score = 0
 
-    edge_score = (is_prefix_of[word_str[0]] + is_suffix_of[word_str[0]] +
-                  is_prefix_of[word_str[-1]] + is_suffix_of[word_str[-1]] +
-                  (pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
+    edge_score = ((pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
                   pair_end_count[word_str[-1]] + pair_start_count[word_str[-1]]) * 1000)
 
     return edge_score - 1000 * middle_score
