@@ -4,14 +4,14 @@ from constants import *
 
 
 class Tile:
-    def __init__(self, board, row: int, col: int, char: str, parent_word: str = '', pos: int = 0, direction: int = 0, is_junk = False):
+    def __init__(self, board, row: int, col: int, char: str, parent_word: str = '', pos: int = 0, direction: int = 0, is_junk=False):
         self.coords = (row, col)
         self.char = char
         self.board = board
         self.lims = self._update_lims()
-        self.vert_parent: ParentWord|None = None
-        self.horo_parent: ParentWord|None = None
-        
+        self.vert_parent: ParentWord | None = None
+        self.horo_parent: ParentWord | None = None
+
         self.is_junk = is_junk
         if direction == VERTICAL and len(parent_word) > 0:
             self.vert_parent = ParentWord(parent_word, pos, direction)
@@ -41,10 +41,10 @@ class Tile:
             direction_for_sender = probe[1]
             direction_for_receiver = probe[2]
             dist = probe[3]
-            tile.lims.lims[direction_for_receiver] = min(tile.lims.lims[direction_for_receiver], dist)
+            tile.lims.lims[direction_for_receiver] = min(
+                tile.lims.lims[direction_for_receiver], dist)
             lims[direction_for_sender] = min(lims[direction_for_sender], dist)
         return Lims(lims)
-
 
     def _get_probe_diags(self, dir: tuple):
         x = dir[0]
@@ -94,7 +94,7 @@ class Tile:
                     if checked_tile in tiles:
                         hit = (checked_tile, i, i - 2, count)
                         probe_hits.append(hit)
-                        
+
                         if j == 1:
                             diags = self._get_probe_diags(dirs[i])
                             for diag in diags:

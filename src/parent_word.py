@@ -1,5 +1,6 @@
 from constants import HORIZONTAL
 
+
 class ParentWord:
     def __init__(self, word: str, pos: int, direction: int) -> None:
         self.word: str = word
