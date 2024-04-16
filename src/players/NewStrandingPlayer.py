@@ -19,7 +19,7 @@ pair_end_count = {'A': 15, 'B': 2, 'C': 0, 'D': 4, 'E': 15, 'F': 3, 'G': 2, 'H':
                   'M': 6, 'N': 5, 'O': 17, 'P': 2, 'Q': 0, 'R': 4, 'S': 5, 'T': 5, 'U': 6, 'V': 0, 'W': 3, 'X': 3, 'Y': 7, 'Z': 0}
 
 # todo: make it easy to have different values of threshold
-THRESHOLD_DIFFERENT_STRANDING_METHODS = 0.1
+THRESHOLD_DIFFERENT_STRANDING_METHODS = 0.2
 HOW_UNGREEDY_IS_STRAND = 30
 
 
@@ -30,7 +30,8 @@ class NewStrandingPlayer(Player):
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
         self.dump_count = 0
-
+        self.peels_since_restructure = 0
+        self.peels_since_dump = 0
         self.junk_tiles = []  # Which tiles on the board are junk
         self.strand_metric = []
         self.right_angle_metric = []
@@ -56,6 +57,8 @@ class NewStrandingPlayer(Player):
         # Peel if hand is empty
         if len(self.hand) == 0:
             self.peel()
+            self.peels_since_restructure += 1
+            self.peels_since_dump += 1
         if not self.game.game_is_active:
             return
 
@@ -101,10 +104,12 @@ class NewStrandingPlayer(Player):
         '''Current implementation removes all 'junk tiles' (stuff that isn't contributing to stranding)
         and dumps if it's stuck. Then play resumes.'''
         # print("attempted board restructure")
+
         self.remove_junk()
         old_hand = self.hand
         # print(self)
         if self.dump_on_failure:
+            dumped = True
             # this could be more sophisticated
             worst_letter_in_hand = min(
                 self.hand, key=lambda char: letter_count[char])
@@ -118,10 +123,13 @@ class NewStrandingPlayer(Player):
                 raise NotImplementedError("Choked at the end")
         else:
             print("restructured without dumping")
-
+            dumped = False
+        # self.play_right_angle_word()
+        self.peels_since_restructure = 0
+        if dumped:
+            self.peels_since_dump = 0
         self.dump_on_failure = True
 
-        self.play_right_angle_word()
         # TODO
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
@@ -192,7 +200,7 @@ class NewStrandingPlayer(Player):
         for suffix in suffix_anchors.keys():
             ease_of_stranding_score += is_suffix_of[suffix]
 
-        start_time = time.time()
+        start_time = time.process_time()
 
         if ease_of_stranding_score > THRESHOLD_DIFFERENT_STRANDING_METHODS * DICT_SIZE:
             all_words = self.all_words.all_subwords(self.hand)
@@ -202,7 +210,7 @@ class NewStrandingPlayer(Player):
                 HOW_UNGREEDY_IS_STRAND, len(all_words))]
             if len(best_words) == 0:
                 self.strand_metric.append(
-                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                    (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
                 return False
             # do all_word search
             longest_length = best_words[0].len()
@@ -223,7 +231,7 @@ class NewStrandingPlayer(Player):
                 i += 1
                 if i >= len(best_words):
                     self.strand_metric.append(
-                        (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                        (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
 
                     return False
 
@@ -235,7 +243,7 @@ class NewStrandingPlayer(Player):
             self.play_word(word_str, second_anchor,
                            second_anchor_index)
             self.strand_metric.append(
-                (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
 
             return True
 
@@ -270,12 +278,12 @@ class NewStrandingPlayer(Player):
             best_word = long_with_best_rank(list(all_words.keys()))
             if best_word == None:
                 self.strand_metric.append(
-                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                    (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
 
                 return False
             if len(best_word.string) < 3:
                 self.strand_metric.append(
-                    (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                    (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
 
                 return False
             # print(f"best: {best_word.string}")
@@ -293,14 +301,15 @@ class NewStrandingPlayer(Player):
             self.play_word(best_word.string, second_anchor,
                            second_anchor_index)
             self.strand_metric.append(
-                (ease_of_stranding_score/DICT_SIZE, time.time()-start_time))
+                (ease_of_stranding_score/DICT_SIZE, time.process_time()-start_time))
 
             return True
 
     def play_right_angle_word(self):
         '''Looks for words where either the first or last letter is already on the board'''
         '''TODO: use actual anchors, rather than the whole board'''
-        start_time = time.time()
+        hand_before = self.hand
+        start_time = time.process_time()
         # print("looking for right angle word")
         prefix_anchors = dict()
         suffix_anchors = dict()
@@ -320,6 +329,9 @@ class NewStrandingPlayer(Player):
         # print(prefix_anchors)
         # print("suffix anchors")
         # print(suffix_anchors)
+        print(f"found {len(suffix_anchors) + len(prefix_anchors)
+                       } anchors. time: {time.process_time() - start_time}")
+
         all_words = dict()
         for prefix in prefix_anchors.keys():
             words = self.forward_words.all_subwords(
@@ -333,12 +345,20 @@ class NewStrandingPlayer(Player):
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
             # all_words = all_words | set(words)
+        print(f"found all words. time: {time.process_time() - start_time}")
+        print(f"length of all_words: {len(all_words)}")
         best_word = long_with_best_rank(list(all_words.keys()))
         if best_word == None:
-            self.right_angle_metric.append((time.time() - start_time, 0))
+            self.right_angle_metric.append(
+                (time.process_time() - start_time, 0, hand_before, self.peels_since_restructure, self.peels_since_dump, len(hand_before)))
+            print(f"play right angle took {
+                  self.right_angle_metric[-1][0]} seconds")
             return False
         if len(best_word.string) < 3:
-            self.right_angle_metric.append((time.time() - start_time, 0))
+            self.right_angle_metric.append(
+                (time.process_time() - start_time, 0, hand_before, self.peels_since_restructure, self.peels_since_dump, len(hand_before)))
+            print(f"play right angle took {
+                  self.right_angle_metric[-1][0]} seconds")
             return False
         if all_words[best_word][1] == ANCHOR_IS_PREFIX:
 
@@ -346,7 +366,13 @@ class NewStrandingPlayer(Player):
         else:
             anchor_index = len(best_word.string) - 1
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
-        self.right_angle_metric.append((time.time() - start_time, 1))
+        print(f"about to play word. time: {time.process_time() - start_time}")
+        self.right_angle_metric.append(
+            (time.process_time() - start_time, 1, hand_before, self.peels_since_restructure, self.peels_since_dump, len(hand_before)))
+        print(f"play right angle took {
+              self.right_angle_metric[-1][0]} seconds")
+        print(f"played word. time: {time.process_time() - start_time}")
+
         return True
 
         # print(f"best word: {best_word.string}, anchor: {all_words[best_word]}")
