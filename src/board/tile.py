@@ -145,6 +145,12 @@ class Tile:
     def get_parent(self, direction: int):
         return self.parents[direction]
         
+    def get_only_parent(self):
+        vert = self.get_parent(VERTICAL)
+        if vert == None:
+            return self.get_parent(HORIZONTAL)
+        return vert
+    
     def has_parent(self, direction) -> bool:
         return self.get_parent(direction) != None
     

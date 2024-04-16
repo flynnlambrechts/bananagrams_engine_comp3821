@@ -42,10 +42,10 @@ def benchmark_game(args):
 if __name__ == '__main__':
     iterations = 20
     targets = [
-        'pps',
-        'ppd',
-        # 'ppr',
-        # 'ppt',
+        # 'pps',
+        # 'ppd',
+        'ppr',
+        'ppt',
     ]
 
     manager = Manager()

@@ -137,7 +137,7 @@ class Board:
                 pos = len(word) - i - 1
             new_tile = self.add_tile(c, row + i * dr, col + i * dc, pos)
             if new_tile is not None:
-                word.add_tile(new_tile)
+                word.add_tile(new_tile, pos)
 
         self.anchors.extend(word.get_tiles())
         return word.get_tiles()
@@ -151,51 +151,53 @@ class Board:
         return self.tiles[(row, col)]
 
     def remove_word(self, tile_in_word: Tile, direction: int) -> list[Tile]:
-        removed_tiles = []
-        coord_to_move_along = 0
-        if direction == VERTICAL:
-            if not tile_in_word.has_parent(VERTICAL):
-                # print(f"tile: {tile_in_word}")
-                raise ValueError("No vertical word to remove")
-            parent_word = tile_in_word.get_parent(VERTICAL)
-
+        if parent := tile_in_word.get_parent(direction):
+            self.words.remove(parent)
+            return parent.remove_from_board()
         else:
-            if not tile_in_word.has_parent(HORIZONTAL):
-                # print(f"tile: {tile_in_word}")
-                raise ValueError("No horizontal word to remove")
-            parent_word = tile_in_word.get_parent(HORIZONTAL)
-            coord_to_move_along = 1
+            raise ValueError(f"No {direction} word to remove")
+            
+        # removed_tiles = []
+        # coord_to_move_along = 0
+        # if direction == VERTICAL:
+        #     if not tile_in_word.has_parent(VERTICAL):
+        #         # print(f"tile: {tile_in_word}")
+        #     parent_word = tile_in_word.get_parent(VERTICAL)
 
-        coords_list = [tile_in_word.coords]
-        for i in range(parent_word.num_before):
-            if coord_to_move_along == 0:
-                coords_list.append(
-                    (tile_in_word.coords[0] - i - 1, tile_in_word.coords[1]))
-            else:
-                coords_list.append(
-                    (tile_in_word.coords[0], tile_in_word.coords[1] - i - 1))
-        for i in range(parent_word.num_after):
-            if coord_to_move_along == 0:
-                coords_list.append(
-                    (tile_in_word.coords[0] + i + 1, tile_in_word.coords[1]))
-            else:
-                coords_list.append(
-                    (tile_in_word.coords[0], tile_in_word.coords[1] + i + 1))
+        # else:
+        #     if not tile_in_word.has_parent(HORIZONTAL):
+        #         # print(f"tile: {tile_in_word}")
+        #         raise ValueError("No horizontal word to remove")
+        #     parent_word = tile_in_word.get_parent(HORIZONTAL)
+        #     coord_to_move_along = 1
 
-        for coords in coords_list:
-            tile_to_remove = self.tiles[coords]
-            if tile_to_remove.remove_from_board():
-                removed_tiles.append(tile_to_remove)
+        # coords_list = [tile_in_word.coords]
+        # for i in range(parent_word.num_before):
+        #     if coord_to_move_along == 0:
+        #         coords_list.append(
+        #             (tile_in_word.coords[0] - i - 1, tile_in_word.coords[1]))
+        #     else:
+        #         coords_list.append(
+        #             (tile_in_word.coords[0], tile_in_word.coords[1] - i - 1))
+        # for i in range(parent_word.num_after):
+        #     if coord_to_move_along == 0:
+        #         coords_list.append(
+        #             (tile_in_word.coords[0] + i + 1, tile_in_word.coords[1]))
+        #     else:
+        #         coords_list.append(
+        #             (tile_in_word.coords[0], tile_in_word.coords[1] + i + 1))
 
-        return removed_tiles
+        # for coords in coords_list:
+        #     tile_to_remove = self.tiles[coords]
+        #     if tile_to_remove.remove_from_board():
+        #         removed_tiles.append(tile_to_remove)
+
+        # return removed_tiles
 
     def remove_junk_tiles(self, tiles: list[Tile]) -> list[Tile]:
         removed_tiles = []
         for tile in tiles:
-            if tile.vert_parent == None:
-                direction = HORIZONTAL 
-            else:
-                direction = VERTICAL
+            direction = HORIZONTAL if tile.has_parent(HORIZONTAL) else VERTICAL
 
             if tile not in removed_tiles:
                 removed_tiles.extend(self.remove_word(tile, direction))
