@@ -33,7 +33,7 @@ class TwoLetterJunkStrandingPlayer(Player):
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_best_rank(all_words_trie.all_subwords(self.hand),
+        start_word: Word = long_with_best_rank(all_words_trie.all_subwords(self.hand), self.hand,
                                                rank_strategy="strand",
                                                closeness_to_longest=2)
 
@@ -172,15 +172,15 @@ class TwoLetterJunkStrandingPlayer(Player):
             words = forward_trie.all_subwords(
                 self.hand.replace(prefix, '', 1), prefix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words)
+                local_best = long_with_best_rank(words, self.hand)
                 all_words[local_best] = "prefix"
         for suffix in suffix_anchors.keys():
             words = reverse_trie.all_subwords(
                 self.hand.replace(suffix, '', 1), suffix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words)
+                local_best = long_with_best_rank(words, self.hand)
                 all_words[local_best] = "suffix"
-        best_word = long_with_best_rank(list(all_words.keys()))
+        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
         if best_word == None:
             return False
         if len(best_word.string) < 3:
@@ -233,7 +233,7 @@ class TwoLetterJunkStrandingPlayer(Player):
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
             # all_words = all_words | set(words)
-        best_word = long_with_best_rank(list(all_words.keys()))
+        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
         if best_word == None:
             return False
         if len(best_word.string) < 3:

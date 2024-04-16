@@ -2,6 +2,7 @@ from multiprocessing import Manager, Pool
 import time
 import statistics
 
+from players.player import Player
 import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
@@ -25,13 +26,16 @@ def format_time(seconds: float):
     return f'{in_ms:.5f} ms'
 
 
+manager = Manager()
+
+
 def benchmark_game(args):
     i, players, results = args
     '''
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players)
+    game = Game(players, seed=1)
     start_cpu_time = time.process_time()
     game.start()
     end_cpu_time = time.process_time()
@@ -39,14 +43,13 @@ def benchmark_game(args):
 
 
 if __name__ == '__main__':
-    iterations = 20
+    iterations = 5
     targets = [
         'pps',
         'ppr',
         'ppt',
     ]
 
-    manager = Manager()
     results = manager.list([manager.list() for _ in targets])
 
     with Pool(processes=1) as pool:

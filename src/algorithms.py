@@ -47,7 +47,9 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     return NO_SPACE_FOR_WORD
 
 
-def long_with_best_rank(words: list[Word], rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
+def long_with_best_rank(
+        words: list[Word], hand_str='',
+        rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
     (Means that it uses letters that appear less in the dictionary),
@@ -70,7 +72,7 @@ def long_with_best_rank(words: list[Word], rank_strategy="strand", anchor: Tile 
     if len(long_words) == 0:
         return None
     if rank_strategy == "strand":
-        return max(long_words, key=lambda word: score_word_simple_stranding(word.string))
+        return max(long_words, key=lambda word: score_word_hand(word.string, hand_str=hand_str))
     else:
         return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
 
@@ -136,6 +138,19 @@ def _eval_anchor_candidate(tile: Tile) -> int:
     return score
 
 # def best_next_strand(words, )
+
+
+def score_word_hand(word_str, hand_str='', min_length=0):
+    '''Could incorporate the hand_str into the scoring depending on the hand aswell'''
+    result = 0
+    for char in word_str:
+        result += 10000000 - (pair_end_count[char] + pair_start_count[char])
+
+    if ('V' in word_str):
+        return 100000000
+    if ('Q' in word_str):
+        return 100000000
+    return result
 
 
 '''so much room for more interesting stuff, but it's a start'''
