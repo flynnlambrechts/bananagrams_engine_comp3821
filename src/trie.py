@@ -1,17 +1,13 @@
 from board.lims import Lims
 from word import Word
-
-letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,
-                'G': 71315, 'H': 63613, 'I': 229895, 'J': 4240, 'K': 23873, 'L': 133085,
-                'M': 73708, 'N': 170300, 'O': 168711, 'P': 76371, 'Q': 4301, 'R': 177701,
-                'S': 245015, 'T': 165990, 'U': 84212, 'V': 23418, 'W': 19567, 'X': 7216,
-                'Y': 41123, 'Z': 12279}
+from constants import letter_count
 
 
 class TrieNode:
     def __init__(self):
         self.children = {}
         self.anagrams = []
+        self.is_end = False
 
 
 class Trie:
@@ -35,22 +31,19 @@ class Trie:
             if char not in node.children:
                 node.children[char] = TrieNode()
             node = node.children[char]
+        node.is_end = True
         word.letter_ranking = word_val
         node.anagrams.append(word)
 
-    def search(self, word_str):
-        '''
-        Returns true if a given word is in the Trie
-        '''
+    def is_word(self, word_str):
         s_word = self._order_word(word_str)
 
-        # this is unused but looks broken
         node = self._root
         for char in s_word:
             if char not in node.children:
                 return False
             node = node.children[char]
-        return node.anagrams
+        return node.is_end
 
     def parse_dictionary(self, dictionary_path: str):
         '''

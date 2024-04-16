@@ -1,12 +1,6 @@
 import random
 import time
-from collections import Counter
-
-
-starting_letters = {"A": 13, "B": 3, "C": 3, "D": 6, "E": 18, "F": 3, "G": 4,
-                    "H": 3, "I": 12, "J": 2, "K": 2, "L": 5, "M": 3, "N": 8,
-                    "O": 11, "P": 3, "Q": 2, "R": 9, "S": 6, "T": 9, "U": 6,
-                    "V": 3, "W": 3, "X": 2, "Y": 3, "Z": 2}
+from constants import letter_distribution
 
 
 class Pouch:
@@ -17,7 +11,7 @@ class Pouch:
     not enough tiles left Everything for single player.
     '''
 
-    def __init__(self, seed = None):
+    def __init__(self, seed=None):
         '''
         Uses starting_letters dict to make the list of letters in pouch
         '''
@@ -27,18 +21,15 @@ class Pouch:
         if self.seed == None:
             self.seed = int(time.time())
         random.seed(self.seed)
-        
+
     def n_remaining(self):
         return len(self.remaining)
-    
+
     def get_starting_tiles(self, n=21) -> list[str]:
         '''
         Returns array of n letters
         '''
-        starting_chars = []
-        for i in range(n):
-            starting_chars.append(self.peel())
-        return starting_chars
+        return [self.peel() for _ in range(n)]
 
     def peel(self) -> str | int:
         '''
@@ -47,23 +38,15 @@ class Pouch:
         if len(self.remaining) > 0:
             return self.remaining.pop(random.randint(0, len(self.remaining) - 1))
         raise ValueError("Not Enough tiles for peel")
-    
+
     def reset(self):
-        self.remaining = []
-        for char in starting_letters.keys():
-            for i in range(starting_letters[char]):
-                self.remaining.append(char)
+        self.remaining = [char for char, count in letter_distribution.items()
+                          for _ in range(count)]
 
     def dump(self, char: str) -> str:
         if len(char) != 1:
             raise ValueError("Expected one char, got 0 or multiple")
-        
+
         self.remaining.append(char)
-        newtiles = []
-        for i in range(3):
-            if len(self.remaining) > 0:
-                newtiles.append(self.peel())
+        newtiles = [self.peel() for _ in range(3) if len(self.remaining) > 0]
         return newtiles
-    
-    def __str__(self):
-        return str(Counter(self.remaining))

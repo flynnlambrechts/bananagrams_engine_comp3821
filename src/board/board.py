@@ -8,6 +8,7 @@ class Board:
         self.tiles: dict[tuple[int, int], Tile] = {}
         self.anchors: list[Tile] = []
         self.junk_on_board = False
+        self.words = []
 
     def min_row(self) -> int:
         if len(self.tiles) == 0:
@@ -33,6 +34,9 @@ class Board:
         """
         This allows us to use print(board)
         """
+        # for word in self.words:
+        #     print(str(word))
+        
         if not self.tiles:
             return ""
 
@@ -63,31 +67,17 @@ class Board:
             while cur_col < col:
                 cur_col += 1
                 skipped += 1
-            tile_text = tile.char
-            if tile.is_junction():
-                tile_text = bcolors.WARNING + tile_text + bcolors.ENDC
+            tile_text = str(tile)
             s += 2 * max(0, skipped) * col_delim + tile_text + col_delim
 
             cur_col += 1
 
         return s
 
-    # def __repr__(self):
-    #     print(self.tiles)
-
-    def add_tile(
-        self,
-        tile: str,
-        row: int,
-        col: int,
-        parent_word: str = "",
-        pos: int = 0,
-        direction: int = 0,
-        is_junk=False,
-    ) -> Tile:
-        """
+    def add_tile(self, tile: str, row: int, col: int, is_junk=False) -> Tile:
+        '''
         Returns the Tile played as a Tile Object
-        """
+        '''
         if is_junk:
             self.junk_on_board = True
 
@@ -98,28 +88,13 @@ class Board:
             raise ValueError(
                 f"There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}"
             )
-        elif (row, col) in self.tiles:
-            if direction == VERTICAL:
-                self.tiles[(row, col)].vert_parent = ParentWord(
-                    parent_word, pos, direction
-                )
-            else:
-                self.tiles[(row, col)].horo_parent = ParentWord(
-                    parent_word, pos, direction
-                )
-        else:
-            tile = Tile(
-                board=self,
-                row=row,
-                col=col,
-                char=tile,
-                parent_word=parent_word,
-                pos=pos,
-                direction=direction,
-                is_junk=is_junk,
-            )
+        elif not (row, col) in self.tiles:
+            tile = Tile(board=self, row=row, col=col, char=tile, is_junk=is_junk)
             self.tiles[(row, col)] = tile
             return tile
+        else:
+            # Return existing tile
+            return self.get_tile(row, col)
 
 
     def remove_tile(self, row: int, col: int) -> Tile:
@@ -137,21 +112,14 @@ class Board:
     def remove_anchor(self, anchor: Tile):
         self.anchors = list(filter(lambda a: a != anchor, self.anchors))
 
-    def add_word(
-        self,
-        word: str,
-        row: int,
-        col: int,
-        direction: int,
-        reverse=False,
-        is_junk=False,
-    ) -> list[Tile]:
-        """
+    def add_word(self, word: str, row: int, col: int, direction: int, reverse=False, is_junk=False) -> list[Tile]:
+        '''
         Potentially should take in a Word object rather than a string for word
         and also store the Word in each tile that composes the words so it is
         accessable later.
-        Returns the last tile played [EDIT] Now Returns a list of all the tiles played
-        """
+        Returns a list of all the tiles played
+        '''
+
         dr = int(direction == VERTICAL)
         dc = int(direction == HORIZONTAL)
         tile_str = word
@@ -160,18 +128,19 @@ class Board:
             dc *= -1
             tile_str = word[::-1]
 
-        tiles = []
+        word = ParentWord(tile_str, direction)
+        self.words.append(word)
+        # tiles = []
         for i, c in enumerate(tile_str):
             pos = i
             if reverse:
                 pos = len(word) - i - 1
-            new_tile = self.add_tile(
-                c, row + i * dr, col + i * dc, word, pos, direction, is_junk
-            )
+            new_tile = self.add_tile(c, row + i * dr, col + i * dc, pos)
             if new_tile is not None:
-                tiles.append(new_tile)
-        self.anchors.extend(tiles)
-        return tiles
+                word.add_tile(new_tile)
+
+        self.anchors.extend(word.get_tiles())
+        return word.get_tiles()
 
     def has_tile(self, row: int, col: int) -> bool:
         return (row, col) in self.tiles
@@ -185,59 +154,62 @@ class Board:
         removed_tiles = []
         coord_to_move_along = 0
         if direction == VERTICAL:
-            if tile_in_word.vert_parent == None:
+            if not tile_in_word.has_parent(VERTICAL):
                 # print(f"tile: {tile_in_word}")
                 raise ValueError("No vertical word to remove")
-            parent_word = tile_in_word.vert_parent
+            parent_word = tile_in_word.get_parent(VERTICAL)
 
         else:
-            if tile_in_word.horo_parent == None:
+            if not tile_in_word.has_parent(HORIZONTAL):
                 # print(f"tile: {tile_in_word}")
                 raise ValueError("No horizontal word to remove")
-            parent_word = tile_in_word.horo_parent
+            parent_word = tile_in_word.get_parent(HORIZONTAL)
             coord_to_move_along = 1
 
         coords_list = [tile_in_word.coords]
         for i in range(parent_word.num_before):
             if coord_to_move_along == 0:
                 coords_list.append(
-                    (tile_in_word.coords[0] - i - 1, tile_in_word.coords[1])
-                )
+                    (tile_in_word.coords[0] - i - 1, tile_in_word.coords[1]))
             else:
                 coords_list.append(
-                    (tile_in_word.coords[0], tile_in_word.coords[1] - i - 1)
-                )
+                    (tile_in_word.coords[0], tile_in_word.coords[1] - i - 1))
         for i in range(parent_word.num_after):
             if coord_to_move_along == 0:
                 coords_list.append(
-                    (tile_in_word.coords[0] + i + 1, tile_in_word.coords[1])
-                )
+                    (tile_in_word.coords[0] + i + 1, tile_in_word.coords[1]))
             else:
                 coords_list.append(
-                    (tile_in_word.coords[0], tile_in_word.coords[1] + i + 1)
-                )
+                    (tile_in_word.coords[0], tile_in_word.coords[1] + i + 1))
 
         for coords in coords_list:
             tile_to_remove = self.tiles[coords]
-            if tile_to_remove.horo_parent == None or tile_to_remove.vert_parent == None:
-                removed_tiles.append(self.remove_tile(coords[0], coords[1]))
-            else:
-                if direction == VERTICAL:
-                    tile_to_remove.vert_parent = None
-                else:
-                    tile_to_remove.horo_parent = None
+            if tile_to_remove.remove_from_board():
+                removed_tiles.append(tile_to_remove)
+
         return removed_tiles
 
     def remove_junk_tiles(self, tiles: list[Tile]) -> list[Tile]:
         removed_tiles = []
         for tile in tiles:
             if tile.vert_parent == None:
-                direction = HORIZONTAL
+                direction = HORIZONTAL 
             else:
                 direction = VERTICAL
 
             if tile not in removed_tiles:
                 removed_tiles.extend(self.remove_word(tile, direction))
-        # print("removed tiles:")
-        # print(removed_tiles)
+
         return removed_tiles
+    
+    def remove_dangling(self) -> list[Tile]:
+        dangling_words = []
+        for word in self.words:
+            if word.is_dangling():
+                dangling_words.append(word)
+        self.words = list(filter(lambda word: not word.is_dangling(), self.words))
+        dangling = []
+        for word in dangling_words:
+            dangling.extend(word.remove_from_board())
+        self.anchors = list(filter(lambda tile: tile not in dangling, self.anchors))
+        return dangling
