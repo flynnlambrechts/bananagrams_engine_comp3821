@@ -11,6 +11,10 @@ from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
+from players.NewStrandingPlayer import NewStrandingPlayer
+from ScoreWordStrategies.score_word_hand_balance import ScoreWordHandBalance
+from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
+from ScoreWordStrategies.score_word_two_letter import ScoreWordTwoLetter
 
 
 TIMEOUT_DURATION = 5
@@ -22,8 +26,18 @@ def parse_players(players: str):
         'r': StrandingPlayer,
         'p': PseudoPlayer,
         't': TwoLetterJunkStrandingPlayer,
+        'n': NewStrandingPlayer
     }
     return [player_map[p] for p in players]
+
+
+def parse_word_scorer(word_scorers: str):
+    word_scorer_map = {
+        'r': ScoreWordSimpleStranding,
+        'l': ScoreWordTwoLetter,
+        'h': ScoreWordHandBalance
+    }
+    return [word_scorer_map[s] for s in word_scorers]
 
 
 def format_time(seconds: float):
@@ -58,12 +72,12 @@ def timeout_handler(signum, frame):
 
 
 def benchmark_game(args):
-    i, players, times, winners, fail_counts = args
+    i, players, times, winners, fail_counts, word_scorers = args
     '''
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, seed=1)
+    game = Game(players, seed=1, word_scorers=word_scorers)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -90,6 +104,12 @@ if __name__ == '__main__':
         'ppt',
     ]
 
+    scorers = [
+        'rrr',
+        'rrr',
+        'rrr'
+    ]
+
     manager = Manager()
     times = manager.list([manager.list() for _ in targets])
     winners = manager.list([manager.list() for _ in targets])
@@ -98,22 +118,25 @@ if __name__ == '__main__':
     with Pool(processes=1) as pool:
         tasks = []
         for i, target in enumerate(targets):
-            players = parse_players(target)
-            tasks += [(i, players, times, winners, fail_counts)
-                      for _ in range(iterations)]
+            for _ in range(iterations):
+                players = parse_players(target)
+                word_scorers = parse_word_scorer(scorers[i])
+                tasks += [(i, players, times, winners, fail_counts, word_scorers)
+                          for _ in range(iterations)]
 
-        pool.map(benchmark_game, tasks)
+            pool.map(benchmark_game, tasks)
 
     print('--- Stats ---')
-    for target, times, winners, fail_count in zip(targets, times, winners, fail_counts):
-        print(f'Target {target}')
+for target, scorer, times, winners, fail_count in zip(
+        targets, scorers, times, winners, fail_counts):
+    print(f'Target {target}, Scorer {scorer}')
 
-        print(f'- Mean: {format_time(statistics.mean(times))}')
-        print(f'- Median: {format_time(statistics.median(times))}')
-        print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
+    print(f'- Mean: {format_time(statistics.mean(times))}')
+    print(f'- Median: {format_time(statistics.median(times))}')
+    print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
 
-        print(f'- Fail count: {fail_count}')
-        print('- Top winners:')
-        freqs = winner_frequencies(winners)
-        for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
-            print(f'  {i+1}. {k}: {format(v, ".0%")}')
+    print(f'- Fail count: {fail_count}')
+    print('- Top winners:')
+    freqs = winner_frequencies(winners)
+    for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
+        print(f'  {i+1}. {k}: {format(v, ".0%")}')

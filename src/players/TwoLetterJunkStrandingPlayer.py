@@ -3,7 +3,7 @@ from pathlib import Path
 from players import StrandingPlayer
 from two_letter_junk import best_anchor_candidates
 from trie import Trie, letter_count
-from algorithms import long_with_best_rank, where_to_play_word, score_word_simple_stranding
+from algorithms import where_to_play_word
 from word import Word
 from board.tile import Tile
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR_IS_PREFIX, ANCHOR_IS_SUFFIX, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count
@@ -18,8 +18,8 @@ class TwoLetterJunkStrandingPlayer(Player):
     Everything is the same except for play_junk
     '''
 
-    def __init__(self, game, id: int) -> None:
-        super().__init__(game, id)
+    def __init__(self, game, id: int, word_scorer) -> None:
+        super().__init__(game, id, word_scorer=word_scorer)
         self.dump_on_failure: bool = True
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
@@ -33,9 +33,9 @@ class TwoLetterJunkStrandingPlayer(Player):
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_best_rank(all_words_trie.all_subwords(self.hand), self.hand,
-                                               rank_strategy="strand",
-                                               closeness_to_longest=2)
+        start_word: Word = self.long_with_best_rank(all_words_trie.all_subwords(self.hand),
+                                                    rank_strategy="strand",
+                                                    closeness_to_longest=2)
 
         self.play_word(str(start_word))
         self.show_board()
@@ -105,7 +105,7 @@ class TwoLetterJunkStrandingPlayer(Player):
 
     def find_strand_extending_anchors(self):
         '''
-        used for the below find_strand_extension function. 
+        used for the below find_strand_extension function.
         returns tiles that have infinite space in 1 direction and some space at 90 degrees
         '''
         strand_extending_anchors = []
@@ -172,15 +172,16 @@ class TwoLetterJunkStrandingPlayer(Player):
             words = forward_trie.all_subwords(
                 self.hand.replace(prefix, '', 1), prefix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words, self.hand)
+
+                local_best = self.long_with_best_rank(words)
                 all_words[local_best] = "prefix"
         for suffix in suffix_anchors.keys():
             words = reverse_trie.all_subwords(
                 self.hand.replace(suffix, '', 1), suffix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words, self.hand)
+                local_best = self.long_with_best_rank(words)
                 all_words[local_best] = "suffix"
-        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
+        best_word = self.long_with_best_rank(list(all_words.keys()))
         if best_word == None:
             return False
         if len(best_word.string) < 3:
@@ -233,7 +234,7 @@ class TwoLetterJunkStrandingPlayer(Player):
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
             # all_words = all_words | set(words)
-        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
+        best_word = self.long_with_best_rank(list(all_words.keys()))
         if best_word == None:
             return False
         if len(best_word.string) < 3:

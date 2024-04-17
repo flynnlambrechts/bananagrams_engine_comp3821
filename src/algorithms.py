@@ -1,6 +1,7 @@
 from word import Word
 from board.tile import Tile
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count
+from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count, TOTAL_TILE_COUNT
+from pouch import letter_distribution
 
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
@@ -45,36 +46,6 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
             if lims.left >= tiles_before and anchor.horo_parent == None:
                 return (anchor_index, HORIZONTAL)
     return NO_SPACE_FOR_WORD
-
-
-def long_with_best_rank(
-        words: list[Word], hand_str='',
-        rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
-    '''
-    Finds a long subword with the lowest letter_ranking
-    (Means that it uses letters that appear less in the dictionary),
-    The heuristic can be changed to:
-    use many letters that start/appear in short words or
-    use many letters that cannot easily make short words
-
-    closeness_to_longest determines the length of words relative to the longest word that can be considered
-    '''
-
-    words = [word for word in words if where_to_play_word(
-        word.string, anchor) != NO_SPACE_FOR_WORD]
-
-    if len(words) == 0:
-        return None
-    longest: Word = max(words, key=lambda word: len(word.string))
-
-    long_words = [word for word in words if len(
-        word.string) >= len(longest.string) - closeness_to_longest]
-    if len(long_words) == 0:
-        return None
-    if rank_strategy == "strand":
-        return max(long_words, key=lambda word: score_word_hand(word.string, hand_str=hand_str))
-    else:
-        return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
 
 
 def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
@@ -154,27 +125,6 @@ def score_word_hand(word_str, hand_str='', min_length=0):
 
 
 '''so much room for more interesting stuff, but it's a start'''
-
-
-def score_word_simple_stranding(word_str, min_length=0):
-    if word_str == None:
-        return -1000000
-    if len(word_str) < min_length:
-        return -1000000
-    # all_other_letters = self._all_other_letters(word_str)
-    if len(word_str) > 2:
-        word_middle = word_str[1:-1]
-        middle_score = sum(pair_end_count[char] + pair_start_count[char]
-                           for char in word_middle) / (len(word_str) - 2)
-    else:
-        middle_score = 0
-
-    edge_score = (is_prefix_of[word_str[0]] + is_suffix_of[word_str[0]] +
-                  is_prefix_of[word_str[-1]] + is_suffix_of[word_str[-1]] +
-                  (pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
-                  pair_end_count[word_str[-1]] + pair_start_count[word_str[-1]]) * 1000)
-
-    return edge_score - 1000 * middle_score
 
 
 def _all_other_letters(self, word_str):
