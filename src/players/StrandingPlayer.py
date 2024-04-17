@@ -132,11 +132,11 @@ class StrandingPlayer(Player):
 
         for anchor in anchors:
             pair_list = all_words_trie.find_two_letters(anchor.char, self.hand)
-            
+
             parent = anchor.get_only_parent()
-            
+
             if parent.pos(anchor) == 0:
-            # if parent.num_before == 0:
+                # if parent.num_before == 0:
                 # the anchor is the first letter of a word
                 # so the letter will be an anchor for a suffix word
                 dict_to_add_to = suffix_anchors
@@ -202,14 +202,14 @@ class StrandingPlayer(Player):
         print("Playing 1", two_letter_word, repr(first_anchor), first_anchor_index)
         print("Anchors: ")
         pprint(self.board.anchors)
-        
+
         two_tiles = self.play_word(
             two_letter_word, first_anchor, first_anchor_index)
-        
+
         second_anchor = two_tiles[0]
         if second_anchor == first_anchor:
             second_anchor = two_tiles[1]
-        
+
         print("Playing 2", best_word.string, repr(second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
