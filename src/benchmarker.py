@@ -1,11 +1,9 @@
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager
 import time
 import statistics
 import signal
 
 # Custom imports
-from players.player import Player
-import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
@@ -16,6 +14,7 @@ from ScoreWordStrategies.score_word_hand_balance import ScoreWordHandBalance
 from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
 from ScoreWordStrategies.score_word_two_letter import ScoreWordTwoLetter
 
+from players.StandardPlayerDangling import StandardPlayerDangling
 
 TIMEOUT_DURATION = 5
 
@@ -25,6 +24,7 @@ def parse_players(players: str):
         's': StandardPlayer,
         'r': StrandingPlayer,
         'p': PseudoPlayer,
+        'd': StandardPlayerDangling,
         't': TwoLetterJunkStrandingPlayer,
         'n': NewStrandingPlayer
     }
@@ -98,11 +98,11 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 if __name__ == '__main__':
     iterations = 200
     targets = [
-        'ppr',
+        'ppr'
     ]
 
     scorers = [
-        'rrr',
+        'rrr'
     ]
 
     manager = Manager()

@@ -1,19 +1,14 @@
-from board.board import Board
-from pathlib import Path
-from players import StrandingPlayer
+from players.StrandingPlayer import StrandingPlayer
 from two_letter_junk import best_anchor_candidates
 from trie import Trie, letter_count
 from algorithms import where_to_play_word
 from word import Word
 from board.tile import Tile
-from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR_IS_PREFIX, ANCHOR_IS_SUFFIX, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count
-from lims_algos import send_probes
-from board.lims import Lims
-from players.player import Player
-from trie_service import all_words_trie, forward_trie, reverse_trie
+from constants import ANCHOR_IS_PREFIX, ANCHOR_IS_SUFFIX, MAX_LIMIT, NO_SPACE_FOR_WORD, pair_start_count, pair_end_count
+from trie_service import forward_trie, reverse_trie
 
 
-class TwoLetterJunkStrandingPlayer(Player):
+class TwoLetterJunkStrandingPlayer(StrandingPlayer):
     '''
     Everything is the same except for play_junk
     '''
@@ -291,66 +286,3 @@ class TwoLetterJunkStrandingPlayer(Player):
 
         if _verbose:
             print('[!] After Junk Hand:', self.hand)
-
-    def remove_junk(self):
-        '''
-        Removes every tile where is_junk == True. 
-        equivalent to removing every tile that was placed during play_junk.
-        '''
-        self.speak("STRANDING", "removing junk...")
-
-        removed_tiles = self.board.remove_junk_tiles(self.junk_tiles)
-        self.junk_tiles = []
-
-        for tile in removed_tiles:
-            # note that we are not using self.give_tiles. This is important, as self.give_tiles is only for new tiles.
-            self.hand += tile.char
-
-        self.speak("STRANDING", "board after removing junk:")
-        self.show_board()
-        self.board.junk_on_board = False
-
-    def hypothetical_lims(self, probe_coords):
-        '''Finds the lims for any place on the board without modifying the lims of other tiles'''
-        lims = [MAX_LIMIT] * 4
-        probe_hits = send_probes(probe_coords, self.board)
-        for probe in probe_hits:
-            direction_for_sender = probe[1]
-            dist = probe[3]
-
-            lims[direction_for_sender] = min(lims[direction_for_sender], dist)
-        return Lims(lims)
-
-    def first_anchor_can_be_nth_char(self, anchor, parent, n):
-        if parent.num_before == 0:
-            is_suffix = 1  # the new char will be the suffix of the new word
-        else:
-            is_suffix = 0  # the new char will be the prefix of the new word
-        if parent.direction == VERTICAL:
-            # the strand will go down if prefix, up if suffix
-            hypothetical_lim_index = 0 + 2 * is_suffix
-            if n == 0:
-                anchor_lim_index = 1  # right lim, as the new char will be to the right
-                # the new letter will be played to the right of the anchor
-                hypothetical_lim_offset = (0, 1)
-            else:
-                anchor_lim_index = 3  # left lim, as the new char will be to the left
-                # the new letter will be played to the left of the anchor
-                hypothetical_lim_offset = (0, -1)
-
-        if parent.direction == HORIZONTAL:
-            # the strand will go to the right if prefix, left if suffix
-            hypothetical_lim_index = 1 + 2 * is_suffix
-            if n == 0:
-                anchor_lim_index = 0  # down lim
-                # the new letter will be played below the anchor
-                hypothetical_lim_offset = (1, 0)
-            else:
-                anchor_lim_index = 2  # up lim
-                # the new letter will be played above the anchor
-                hypothetical_lim_offset = (-1, 0)
-        hypothetical_coords = (
-            anchor.coords[0] + hypothetical_lim_offset[0],
-            anchor.coords[1] + hypothetical_lim_offset[1])
-
-        return anchor.lims.lims[anchor_lim_index] > 0 and self.hypothetical_lims(hypothetical_coords).lims[hypothetical_lim_index] == MAX_LIMIT

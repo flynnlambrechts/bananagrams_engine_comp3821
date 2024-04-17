@@ -1,15 +1,19 @@
 from word import Word
 from board.tile import Tile
+<<<<<<< HEAD
 from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count, TOTAL_TILE_COUNT
 from pouch import letter_distribution
+=======
+from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, DIRECTIONS, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count
+>>>>>>> main
 
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
-    '''
-    Given an anchor and a word, determines if there's space to play it. 
+    """
+    Given an anchor and a word, determines if there's space to play it.
     If there is space to play it, it returns the index of the character in the word and direction as (index, direction),
-    Returning NO_SPACE_FOR_WORD (-1,-1) if there is no space to play it on the given anchor. 
-    '''
+    Returning NO_SPACE_FOR_WORD (-1,-1) if there is no space to play it on the given anchor.
+    """
     if anchor is None:
         return (0, HORIZONTAL)
 
@@ -30,20 +34,30 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     for anchor_index in anchor_indexes:
         tiles_before = anchor_index
         tiles_after = len(word_str) - anchor_index - 1
-        if lims.left and lims.right and lims.left >= tiles_before and lims.right >= tiles_after:
+        if (
+            lims.left
+            and lims.right
+            and lims.left >= tiles_before
+            and lims.right >= tiles_after
+        ):
             return (anchor_index, HORIZONTAL)
-        if lims.up and lims.down and lims.up >= tiles_before and lims.down >= tiles_after:
+        if (
+            lims.up
+            and lims.down
+            and lims.up >= tiles_before
+            and lims.down >= tiles_after
+        ):
             return (anchor_index, VERTICAL)
 
         if tiles_before == 0:
-            if lims.down >= tiles_after and anchor.vert_parent == None:
+            if lims.down >= tiles_after and not anchor.has_parent(VERTICAL):
                 return (anchor_index, VERTICAL)
-            if lims.right >= tiles_after and anchor.horo_parent == None:
+            if lims.right >= tiles_after and not anchor.has_parent(HORIZONTAL):
                 return (anchor_index, HORIZONTAL)
         if tiles_after == 0:
-            if lims.up >= tiles_before and anchor.vert_parent == None:
+            if lims.up >= tiles_before and not anchor.has_parent(VERTICAL):
                 return (anchor_index, VERTICAL)
-            if lims.left >= tiles_before and anchor.horo_parent == None:
+            if lims.left >= tiles_before and not anchor.has_parent(HORIZONTAL):
                 return (anchor_index, HORIZONTAL)
     return NO_SPACE_FOR_WORD
 
@@ -59,8 +73,11 @@ def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0,
     closeness_to_longest determines the length of words relative to the longest word that can be considered
     '''
 
-    words = [word for word in subwords if where_to_play_word(
-        word.string, anchor) != NO_SPACE_FOR_WORD]
+    words = [
+        word
+        for word in subwords
+        if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD
+    ]
 
     if len(words) == 0:
         return None
@@ -92,23 +109,25 @@ def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
 
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:
     tile_list = list(tiles.values())
-    return sorted(tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True)
+    return sorted(
+        tile_list, key=lambda tile: _eval_anchor_candidate(tile), reverse=True
+    )
 
 
 def _eval_anchor_candidate(tile: Tile) -> int:
-    '''
+    """
     Currently very simple way of giving a numeric score to a possible anchor.
     Total of the limits in every direction plus a bonus if there's space on opposite sides
     (e.g. you can add, not just extend words)
-    '''
+    """
     score = 0
     score += sum(tile.lims.lims)
     if (tile.lims.left() > 8 and tile.lims.right() > 8) or (
-            tile.lims.up() > 8 and tile.lims.down() > 8):
+        tile.lims.up() > 8 and tile.lims.down() > 8
+    ):
         score += 100
     return score
 
-# def best_next_strand(words, )
 
 
 def score_word_hand(word_str, hand_str='', min_length=0):

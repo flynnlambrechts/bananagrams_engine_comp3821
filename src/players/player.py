@@ -1,11 +1,8 @@
 from board.board import Board
 from algorithms import where_to_play_word
 from board.tile import Tile
-from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
-import multiprocessing
 from word import Word
-from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
 from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
 
 
@@ -42,7 +39,7 @@ class Player:
         if len(self.hand) == 0:
             self.speak("Peel")
             if not self.game.peel():
-                self.speak("WINNER", "I Won Here's My Board")
+                self.speak("Bananas", "I Won Here's My Board")
                 self.show_board()
 
         self.game.lock.release()
@@ -63,13 +60,14 @@ class Player:
         Updates its hand. 
         board.add_word updates the anchor list for it. 
         '''
+        self.speak("PLAYING", word_string)
         reverse = False
         if anchor is not None:
             word_placement = where_to_play_word(word_string, anchor)
 
             if word_placement == NO_SPACE_FOR_WORD:
                 print(self)
-                print(f"want to play {word_string} at {anchor}")
+                print(f"want to play {word_string} at {repr(anchor)}")
                 print(anchor.lims)
                 raise Exception("No valid direction to play word")
 
@@ -85,44 +83,50 @@ class Player:
             row = 0
             col = 0
 
-        self._update_hand(word_string, row, col, direction)
+        # self._update_hand(word_string, row, col, direction)
         new_tiles = self.board.add_word(
             word_string, row, col, direction, reverse, is_junk)
+        self._update_hand(new_tiles)
 
         # Update anchors
         # remove the used anchor
         # this also covers the case where the
         # the used anchor overlaps the new word's
         # start or end
+        # pprint(self.board.anchors)
         if anchor is not None:
             self.board.remove_anchor(anchor)
-
+        # pprint(self.board.anchors)
         return new_tiles
 
-    def _update_hand(self, word_string, start_row, start_col, direction):
-        # Take a snapshot of our hand in case we need to revert it
-        original_hand = self.hand
-        # print(f"updating hand... word: {word_string} hand: {self.hand}")
-        # Calculate change in row and col based on `direction`
-        d_row = int(direction == VERTICAL)
-        d_col = int(direction == HORIZONTAL)
+    def _update_hand(self, tiles_played):
+        for tile in tiles_played:
+            self.hand = self.hand.replace(tile.char, '', 1)
 
-        char_index = 0
-        for char in word_string:
-            tile_coords = (start_row + d_row * char_index,
-                           start_col + d_col * char_index)
+    # def _update_hand(self, word_string, start_row, start_col, direction):
+    #     # Take a snapshot of our hand in case we need to revert it
+    #     original_hand = self.hand
+    #     # print(f"updating hand... word: {word_string} hand: {self.hand}")
+    #     # Calculate change in row and col based on `direction`
+    #     d_row = int(direction == VERTICAL)
+    #     d_col = int(direction == HORIZONTAL)
 
-            # If a character isn't in our hand and isn't
-            # on the board
-            if char not in self.hand and tile_coords not in self.board.tiles:
-                # Restore our hand and raise an Error
-                self.hand = original_hand
-                raise ValueError(f'Tried to remove \"{word_string}\" from ' +
-                                 'hand, but ran out of characters.')
-            char_index += 1
-            # Remove the char from our hand if it wasn't on the board
-            if tile_coords not in self.board.tiles:
-                self.hand = self.hand.replace(char, '', 1)
+    #     char_index = 0
+    #     for char in word_string:
+    #         tile_coords = (start_row + d_row * char_index,
+    #                        start_col + d_col * char_index)
+
+    #         # If a character isn't in our hand and isn't
+    #         # on the board
+    #         if char not in self.hand and tile_coords not in self.board.tiles:
+    #             # Restore our hand and raise an Error
+    #             self.hand = original_hand
+    #             raise ValueError(f'Tried to remove \"{word_string}\" from ' +
+    #                              f'hand, but ran out of characters. {tile_coords} not on board')
+    #         char_index += 1
+    #         # Remove the char from our hand if it wasn't on the board
+    #         if tile_coords not in self.board.tiles:
+    #             self.hand = self.hand.replace(char, '', 1)
 
     def long_with_best_rank(
             self, words: list[Word],
