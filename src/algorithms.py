@@ -1,11 +1,7 @@
 from word import Word
 from board.tile import Tile
-<<<<<<< HEAD
 from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count, TOTAL_TILE_COUNT
 from pouch import letter_distribution
-=======
-from constants import NO_SPACE_FOR_WORD, HORIZONTAL, VERTICAL, DIRECTIONS, is_prefix_of, is_suffix_of, pair_start_count, pair_end_count
->>>>>>> main
 
 
 def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
@@ -127,7 +123,6 @@ def _eval_anchor_candidate(tile: Tile) -> int:
     ):
         score += 100
     return score
-
 
 
 def score_word_hand(word_str, hand_str='', min_length=0):

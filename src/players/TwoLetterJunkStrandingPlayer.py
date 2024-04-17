@@ -5,7 +5,7 @@ from algorithms import where_to_play_word
 from word import Word
 from board.tile import Tile
 from constants import ANCHOR_IS_PREFIX, ANCHOR_IS_SUFFIX, MAX_LIMIT, NO_SPACE_FOR_WORD, pair_start_count, pair_end_count
-from trie_service import forward_trie, reverse_trie
+from trie_service import forward_trie, reverse_trie, all_words_trie
 
 
 class TwoLetterJunkStrandingPlayer(StrandingPlayer):
