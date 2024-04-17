@@ -42,6 +42,10 @@ class Tile:
             result = bcolors.OKGREEN + result + bcolors.ENDC
         elif is_junction:
             result = bcolors.FAIL + result + bcolors.ENDC
+        
+        if self.is_junk:
+            result = bcolors.UNDERLINE + result + bcolors.ENDC
+            
         return result
             
 

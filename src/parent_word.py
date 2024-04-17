@@ -16,6 +16,9 @@ class ParentWord:
         
     def get_tiles(self):
         return self.tiles
+    
+    def get_direction(self):
+        return self.direction
 
     def __str__(self) -> str:
         return f"String: {self.word}, Length: {len(self.tiles)}, Direction: {self.direction}, Junctions {self.count_junctions()}, Tiles {self.tiles}"

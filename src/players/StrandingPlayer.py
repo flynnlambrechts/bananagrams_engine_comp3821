@@ -1,6 +1,7 @@
 from algorithms import long_with_best_rank, where_to_play_word
 from word import Word
 from board.tile import Tile
+from pprint import pprint
 from constants import (
     VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR_IS_PREFIX,
     ANCHOR_IS_SUFFIX, pair_start_count, pair_end_count, letter_count
@@ -106,11 +107,11 @@ class StrandingPlayer(Player):
         '''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
-            if tile.has_parent(HORIZONTAL):
+            if not tile.has_parent(VERTICAL):
                 if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
                     print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
-            elif tile.has_parent(VERTICAL):
+            elif not tile.has_parent(HORIZONTAL):
                 if (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
                     print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
@@ -162,6 +163,8 @@ class StrandingPlayer(Player):
                         dict_to_add_to[pair.string[0]] = (
                             anchor, pair.string, 1)
 
+        pprint(prefix_anchors)
+        pprint(suffix_anchors)
         all_words = dict()
 
         for prefix in prefix_anchors.keys():
@@ -184,15 +187,19 @@ class StrandingPlayer(Player):
 
         if all_words[best_word] == "prefix":
             key_info = prefix_anchors[best_word.string[0]]
+            pprint(key_info)
             second_anchor_index = 0
         else:
             key_info = suffix_anchors[best_word.string[-1]]
+            pprint(key_info)
             second_anchor_index = len(best_word.string) - 1
 
         first_anchor = key_info[0]
         two_letter_word = key_info[1]
         first_anchor_index = key_info[2]
-        print("Playing 1", two_letter_word, first_anchor, first_anchor_index)
+        print("Playing 1", two_letter_word, repr(first_anchor), first_anchor_index)
+        print("Anchors: ")
+        pprint(self.board.anchors)
         
         two_tiles = self.play_word(
             two_letter_word, first_anchor, first_anchor_index)

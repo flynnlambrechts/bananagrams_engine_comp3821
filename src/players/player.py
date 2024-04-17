@@ -89,6 +89,7 @@ class Player:
         new_tiles = self.board.add_word(
             word_string, row, col, direction, reverse, is_junk)
         self._update_hand(new_tiles)
+        
         # Update anchors
         # remove the used anchor
         # this also covers the case where the

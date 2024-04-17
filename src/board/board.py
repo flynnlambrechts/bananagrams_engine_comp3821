@@ -136,7 +136,7 @@ class Board:
             pos = i
             if reverse:
                 pos = len(word) - i - 1
-            new_tile = self.add_tile(c, row + i * dr, col + i * dc, pos)
+            new_tile = self.add_tile(c, row + i * dr, col + i * dc, is_junk=is_junk)
             if new_tile is not None:
                 word.add_tile(new_tile, pos)
 
@@ -197,13 +197,22 @@ class Board:
         # return removed_tiles
 
     def remove_junk_tiles(self, tiles: list[Tile]) -> list[Tile]:
+        junk_words = []
+        for tile in self.tiles.values():
+            if tile.is_junk and not tile.is_junction():
+            # direction = HORIZONTAL if tile.has_parent(HORIZONTAL) else VERTICAL
+                if not tile.has_parent(VERTICAL):
+                    direction = HORIZONTAL
+                else:
+                    direction = VERTICAL
+                parent = tile.get_parent(direction)
+                if parent not in junk_words:
+                    junk_words.append(parent)
+                    # removed_tiles.extend(self.remove_word(tile, direction))
         removed_tiles = []
-        for tile in tiles:
-            direction = HORIZONTAL if tile.has_parent(HORIZONTAL) else VERTICAL
-
-            if tile not in removed_tiles:
-                removed_tiles.extend(self.remove_word(tile, direction))
-
+        for word in junk_words:
+            removed_tiles.extend(word.remove_from_board())
+        
         return removed_tiles
     
     def remove_dangling(self) -> list[Tile]:
@@ -215,4 +224,5 @@ class Board:
         dangling = []
         for word in dangling_words:
             dangling.extend(word.remove_from_board())
+            
         return dangling
