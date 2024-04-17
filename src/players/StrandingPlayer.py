@@ -196,8 +196,8 @@ class StrandingPlayer(Player):
         
         two_tiles = self.play_word(
             two_letter_word, first_anchor, first_anchor_index)
-        second_anchor = two_tiles[0]
         
+        second_anchor = two_tiles[0]
         if second_anchor == first_anchor:
             second_anchor = two_tiles[1]
         

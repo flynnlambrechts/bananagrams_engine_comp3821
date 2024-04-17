@@ -32,7 +32,7 @@ def benchmark_game(args):
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players)
+    game = Game(players, 2)
     start_cpu_time = time.process_time()
     game.start()
     end_cpu_time = time.process_time()
@@ -44,8 +44,8 @@ if __name__ == '__main__':
     targets = [
         # 'pps',
         # 'ppd',
-        # 'ppr',
-        'ppt',
+        'ppr',
+        # 'ppt',
     ]
 
     manager = Manager()

@@ -35,7 +35,6 @@ class ParentWord:
         for tile in self.tiles:
             if tile.remove_from_board(self.direction):
                 tiles.append(tile)
-                
         return tiles
 
     def pos(self, tile):
