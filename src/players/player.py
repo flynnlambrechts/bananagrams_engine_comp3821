@@ -4,6 +4,9 @@ from board.tile import Tile
 from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
 import multiprocessing
+from word import Word
+from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
+from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
 
 
 class Player:
@@ -11,12 +14,13 @@ class Player:
     Player class manages a board and a hand
     '''
 
-    def __init__(self, game, id: int) -> None:
+    def __init__(self, game, id: int, word_scorer=ScoreWordSimpleStranding()) -> None:
         self.name = f'{type(self).__name__} {id}'
         self.playing = False
         self.game = game
         self.board_attempt = 0
         self.board = Board()
+        self.word_scorer = word_scorer
 
         # Player waits until game gives them their hand
         self.hand: str = ''
@@ -31,7 +35,7 @@ class Player:
         self.speak(f"Got", f"{tiles}, new hand: {self.hand}")
 
     def speak(self, subject, information=''):
-        print(f"{self.name}: [{subject.upper()}] {information}")
+        print(f"{self.name} {self.word_scorer.name}: [{subject.upper()}] {information}")
 
     def peel(self):
         self.game.lock.acquire()
@@ -119,6 +123,37 @@ class Player:
             # Remove the char from our hand if it wasn't on the board
             if tile_coords not in self.board.tiles:
                 self.hand = self.hand.replace(char, '', 1)
+
+    def long_with_best_rank(
+            self, words: list[Word],
+            rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
+        '''
+        Finds a long subword with the lowest letter_ranking
+        (Means that it uses letters that appear less in the dictionary),
+        The heuristic can be changed to:
+        use many letters that start/appear in short words or
+        use many letters that cannot easily make short words
+
+        closeness_to_longest determines the length of words relative to the longest word that can be considered
+        '''
+
+        words = [word for word in words if where_to_play_word(
+            word.string, anchor) != NO_SPACE_FOR_WORD]
+
+        if len(words) == 0:
+            return None
+        longest: Word = max(words, key=lambda word: len(word.string))
+
+        long_words = [word for word in words if len(
+            word.string) >= len(longest.string) - closeness_to_longest]
+        if len(long_words) == 0:
+            return None
+        # rank_strategy string tracking strand should have deferred responsibility to word_scorer (make a new word scorer object)
+        if rank_strategy == "strand":
+            return max(long_words, key=lambda word: self.word_scorer.score_word(
+                word.string, '', '' if anchor is None else anchor.char))
+        else:
+            return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
 
     def __str__(self):
         player_str = f' - Hand: {self.hand}'

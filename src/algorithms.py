@@ -48,34 +48,6 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     return NO_SPACE_FOR_WORD
 
 
-def long_with_best_rank(words: list[Word], rank_strategy="strand", anchor: Tile = None, closeness_to_longest=0) -> Word:
-    '''
-    Finds a long subword with the lowest letter_ranking
-    (Means that it uses letters that appear less in the dictionary),
-    The heuristic can be changed to:
-    use many letters that start/appear in short words or
-    use many letters that cannot easily make short words
-
-    closeness_to_longest determines the length of words relative to the longest word that can be considered
-    '''
-
-    words = [word for word in words if where_to_play_word(
-        word.string, anchor) != NO_SPACE_FOR_WORD]
-
-    if len(words) == 0:
-        return None
-    longest: Word = max(words, key=lambda word: len(word.string))
-
-    long_words = [word for word in words if len(
-        word.string) >= len(longest.string) - closeness_to_longest]
-    if len(long_words) == 0:
-        return None
-    if rank_strategy == "strand":
-        return max(long_words, key=lambda word: score_word_simple_stranding(word.string))
-    else:
-        return min(long_words, key=lambda word: word.letter_ranking / len(word.string))
-
-
 def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
     '''
     Finds a long subword with the lowest letter_ranking
@@ -139,70 +111,7 @@ def _eval_anchor_candidate(tile: Tile) -> int:
 # def best_next_strand(words, )
 
 
-def score_word_hand(word_str, hand_str='', min_length=0):
-    '''Could incorporate the hand_str into the scoring depending on the hand aswell'''
-    result = 0
-    for char in word_str:
-        result += 10000000 - (pair_end_count[char] + pair_start_count[char])
-
-    if ('V' in word_str):
-        return 100000000
-    if ('Q' in word_str):
-        return 100000000
-    return result
-
-
-def score_word_hand_balance(word_str: str, hand: str, anchor: str, min_length: int = 0):
-    '''Basic concept: function that (almost) always gives positive points for playing tiles, but gives more points if you play letters that are more overrepresented. 
-
-    Define error as |proportion of letter in hand - proportion of letter in game|.
-
-    Score is the change in the sum of error for every letter'''
-
-    '''Notes to consider: if hand is close to perfectly balanced, nothing will look very good, and rare letters will be the last to be played. So maybe this algorithm should only run if the hand is at a particular level of unbalance. Or, use this algo to pick between the top words selected through some other means'''
-    if len(word_str) < min_length:
-        return 0
-    hand_after_playing = hand
-    played_tiles = word_str.replace(anchor, '', 1)
-    for char in played_tiles:
-        hand_after_playing.replace(char, '', 1)
-
-    hand_len = len(hand)
-    hand_after_playing_len = len(hand_after_playing)
-    initial_unbalance = 0
-    for char in set(hand):
-        initial_unbalance += abs(hand.count(char) /
-                                 hand_len - letter_distribution[char]/144)
-    post_unbalance = 0
-    for char in set(hand):
-        post_unbalance += abs(hand_after_playing.count(char) /
-                              hand_after_playing_len - letter_distribution[char]/144)
-
-    return initial_unbalance - post_unbalance
-
-
 '''so much room for more interesting stuff, but it's a start'''
-
-
-def score_word_simple_stranding(word_str, min_length=0):
-    if word_str == None:
-        return -1000000
-    if len(word_str) < min_length:
-        return -1000000
-    # all_other_letters = self._all_other_letters(word_str)
-    if len(word_str) > 2:
-        word_middle = word_str[1:-1]
-        middle_score = sum(pair_end_count[char] + pair_start_count[char]
-                           for char in word_middle) / (len(word_str) - 2)
-    else:
-        middle_score = 0
-
-    edge_score = (is_prefix_of[word_str[0]] + is_suffix_of[word_str[0]] +
-                  is_prefix_of[word_str[-1]] + is_suffix_of[word_str[-1]] +
-                  (pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
-                  pair_end_count[word_str[-1]] + pair_start_count[word_str[-1]]) * 1000)
-
-    return edge_score - 1000 * middle_score
 
 
 def _all_other_letters(self, word_str):
