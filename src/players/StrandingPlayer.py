@@ -90,7 +90,7 @@ class StrandingPlayer(Player):
 
             if len(old_hand) == len(self.hand):
                 self.speak("ERROR", "tried to dump at the end and choked")
-                return "Error"
+                exit(1)
         else:
             print("restructured without dumping")
 

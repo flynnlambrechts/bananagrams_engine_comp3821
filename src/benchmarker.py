@@ -71,13 +71,12 @@ def timeout_handler(signum, frame):
                        f'{TIMEOUT_DURATION} seconds')
 
 
-def benchmark_game(args):
-    i, players, times, winners, fail_counts, word_scorers = args
+def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
     '''
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, seed=1, word_scorers=word_scorers)
+    game = Game(players, seed=j, word_scorers=word_scorers)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -97,17 +96,13 @@ def benchmark_game(args):
 
 
 if __name__ == '__main__':
-    iterations = 5
+    iterations = 200
     targets = [
-        'pps',
         'ppr',
-        'ppt',
     ]
 
     scorers = [
         'rrr',
-        'rrr',
-        'rrr'
     ]
 
     manager = Manager()
@@ -115,16 +110,17 @@ if __name__ == '__main__':
     winners = manager.list([manager.list() for _ in targets])
     fail_counts = manager.list([0 for _ in targets])
 
-    with Pool(processes=1) as pool:
-        tasks = []
-        for i, target in enumerate(targets):
-            for _ in range(iterations):
-                players = parse_players(target)
-                word_scorers = parse_word_scorer(scorers[i])
-                tasks += [(i, players, times, winners, fail_counts, word_scorers)
-                          for _ in range(iterations)]
+    # with Pool(processes=1) as pool:
+    tasks = []
+    for i, target in enumerate(targets):
+        for j in range(iterations):
+            players = parse_players(target)
+            word_scorers = parse_word_scorer(scorers[i])
+            benchmark_game(i, j, players, times, winners, fail_counts, word_scorers)
+            # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
+            #   for _ in range(iterations)]
 
-            pool.map(benchmark_game, tasks)
+            # pool.map(benchmark_game, tasks)
 
     print('--- Stats ---')
 for target, scorer, times, winners, fail_count in zip(
