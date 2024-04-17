@@ -9,7 +9,6 @@ class TwoLetterJunkStrandingPlayer(StrandingPlayer):
     '''
     Everything is the same except for play_junk
     '''
-
     def play_junk(self, anchors: list[Tile]):
         '''
         Go through the anchors, play as much as possible each time
