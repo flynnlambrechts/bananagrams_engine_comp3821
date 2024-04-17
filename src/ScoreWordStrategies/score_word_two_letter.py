@@ -10,9 +10,10 @@ class ScoreWordTwoLetter(ScoreWordStrategy):
         '''Could incorporate the hand_str into the scoring depending on the hand aswell'''
         result = 0
         for char in word_str:
-            result += 10000000 - (pair_end_count[char] + pair_start_count[char])
-        if ('V' in word_str):
-            return 100000000
-        if ('Q' in word_str):
-            return 100000000
+            result += pow(10, 3) - \
+                (pair_end_count[char] + pair_start_count[char])
+            if char == 'V' or char == 'Q':
+                result += pow(10, 4)
+            if char == 'J' or char == 'X' or char == 'Z':
+                result += 5 * pow(10, 3)
         return result

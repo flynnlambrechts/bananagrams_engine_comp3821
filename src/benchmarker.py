@@ -78,7 +78,7 @@ def benchmark_game(args):
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, seed=1)
+    game = Game(players, seed=i)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -98,18 +98,17 @@ def benchmark_game(args):
 
 
 if __name__ == '__main__':
-    iterations = 5
+    iterations = 20
     targets = [
-        # 'pps',
-        # 'ppd',
         'ppr',
-        # 'ppt',
+        'ppr',
+        'ppr',
     ]
 
     scorers = [
         'rrr',
-        'rrr',
-        'rrr'
+        'rrl',
+        'rrh'
     ]
 
     manager = Manager()
@@ -117,15 +116,14 @@ if __name__ == '__main__':
     winners = manager.list([manager.list() for _ in targets])
     fail_counts = manager.list([0 for _ in targets])
 
-    # with Pool(processes=20) as pool:
-    tasks = []
-    for i, target in enumerate(targets):
-        for _ in range(iterations):
+    with Pool(processes=1) as pool:
+        tasks = []
+        for i, target in enumerate(targets):
             players = parse_players(target)
             tasks += [(i, players, times, winners, fail_counts)
                       for _ in range(iterations)]
 
-        # pool.map(benchmark_game, tasks)
+        pool.map(benchmark_game, tasks)
 
     print('--- Stats ---')
     for target, times, winners, fail_count in zip(targets, times, winners, fail_counts):
