@@ -109,6 +109,9 @@ class Game:
         for player in self.players:
             if len(player.hand) == 0:
                 winners.append(player.name)
+
+        self.winners = winners
+
         print("GAME OVER")
         print("Winners: ")
         if winners:

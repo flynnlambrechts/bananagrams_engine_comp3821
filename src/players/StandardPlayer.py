@@ -16,8 +16,10 @@ class StandardPlayer(Player):
             start_word = long_with_lowest_rank(all_words_trie.all_subwords(
                 self.hand), closeness_to_longest=3, attempt=self.board_attempt)
         if start_word == None:
-            self.board_attempt = 21  # give up
-            return self.restructure_board()
+            # give up
+            self.game_running = False
+            self.speak("GIVE UP", "Could not find starting word")
+            
         self.speak("Playing", start_word)
         self.play_word(str(start_word))
 
@@ -51,7 +53,7 @@ class StandardPlayer(Player):
 
         self.speak("Found", f"{len(word_candidates)} word candidates")
         if len(word_candidates) == 0:
-            self.speak("ERROR", "Could not find next word")
+            self.speak("Problem", "Could not find next word")
             return self.restructure_board()
 
         # Very weird way of calculating the best next word and its
@@ -69,6 +71,8 @@ class StandardPlayer(Player):
         play a word again
         '''
         if self.board_attempt > 20:
+            self.speak("Error", "Too Many Rebuild Attempts")
+            self.show_board()
             return "Error"
 
         self.board_attempt += 1
@@ -79,6 +83,3 @@ class StandardPlayer(Player):
         self.speak("Rebuild Attempt",
                    f"attempt {self.board_attempt - 1} failed")
         self.play_turn()
-        # TODO
-        # return "Error"
-        # raise NotImplementedError("Board restructuring not implemented yet")
