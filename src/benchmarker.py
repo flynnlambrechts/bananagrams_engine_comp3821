@@ -11,7 +11,7 @@ from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
-
+from players.StandardPlayerDangling import StandardPlayerDangling
 
 TIMEOUT_DURATION = 5
 
@@ -21,6 +21,7 @@ def parse_players(players: str):
         's': StandardPlayer,
         'r': StrandingPlayer,
         'p': PseudoPlayer,
+        'd': StandardPlayerDangling,
         't': TwoLetterJunkStrandingPlayer,
     }
     return [player_map[p] for p in players]
@@ -85,9 +86,10 @@ def benchmark_game(args):
 if __name__ == '__main__':
     iterations = 5
     targets = [
-        'pps',
+        # 'pps',
+        # 'ppd',
         'ppr',
-        'ppt',
+        # 'ppt',
     ]
 
     manager = Manager()

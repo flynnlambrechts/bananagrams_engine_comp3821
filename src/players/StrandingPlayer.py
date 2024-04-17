@@ -1,6 +1,7 @@
 from algorithms import long_with_best_rank, where_to_play_word
 from word import Word
 from board.tile import Tile
+from pprint import pprint
 from constants import (
     VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD, MAX_LIMIT, ANCHOR_IS_PREFIX,
     ANCHOR_IS_SUFFIX, pair_start_count, pair_end_count, letter_count
@@ -106,13 +107,15 @@ class StrandingPlayer(Player):
         '''
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
-            if tile.vert_parent == None:
+            if not tile.has_parent(VERTICAL):
                 if (tile.lims.left == MAX_LIMIT or tile.lims.right == MAX_LIMIT) and (tile.lims.up > 0 or tile.lims.down > 0):
+                    print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
-            elif tile.horo_parent == None:
+            elif not tile.has_parent(HORIZONTAL):
                 if (tile.lims.up == MAX_LIMIT or tile.lims.down == MAX_LIMIT) and (tile.lims.left > 0 or tile.lims.right > 0):
+                    print(repr(tile), "Is strand extending")
                     strand_extending_anchors.append(tile)
-
+        self.show_board()
         return strand_extending_anchors
 
     '''
@@ -129,12 +132,11 @@ class StrandingPlayer(Player):
 
         for anchor in anchors:
             pair_list = all_words_trie.find_two_letters(anchor.char, self.hand)
-
-            if anchor.vert_parent == None:
-                parent = anchor.horo_parent
-            else:
-                parent = anchor.vert_parent
-            if parent.num_before == 0:
+            
+            parent = anchor.get_only_parent()
+            
+            if parent.pos(anchor) == 0:
+            # if parent.num_before == 0:
                 # the anchor is the first letter of a word
                 # so the letter will be an anchor for a suffix word
                 dict_to_add_to = suffix_anchors
@@ -161,6 +163,8 @@ class StrandingPlayer(Player):
                         dict_to_add_to[pair.string[0]] = (
                             anchor, pair.string, 1)
 
+        pprint(prefix_anchors)
+        pprint(suffix_anchors)
         all_words = dict()
 
         for prefix in prefix_anchors.keys():
@@ -183,16 +187,28 @@ class StrandingPlayer(Player):
 
         if all_words[best_word] == "prefix":
             key_info = prefix_anchors[best_word.string[0]]
+            pprint(key_info)
             second_anchor_index = 0
         else:
             key_info = suffix_anchors[best_word.string[-1]]
+            pprint(key_info)
             second_anchor_index = len(best_word.string) - 1
 
         first_anchor = key_info[0]
         two_letter_word = key_info[1]
         first_anchor_index = key_info[2]
-        second_anchor = self.play_word(
-            two_letter_word, first_anchor, first_anchor_index)[0]
+        print("Playing 1", two_letter_word, repr(first_anchor), first_anchor_index)
+        print("Anchors: ")
+        pprint(self.board.anchors)
+        
+        two_tiles = self.play_word(
+            two_letter_word, first_anchor, first_anchor_index)
+        
+        second_anchor = two_tiles[0]
+        if second_anchor == first_anchor:
+            second_anchor = two_tiles[1]
+        
+        print("Playing 2", best_word.string, repr(second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
 
@@ -204,12 +220,12 @@ class StrandingPlayer(Player):
         suffix_anchors = dict()
         for anchor in self.board.tiles.values():
             if any(lim == MAX_LIMIT for lim in anchor.lims.lims):
-                if anchor.horo_parent == None:
+                if not anchor.has_parent(HORIZONTAL):
                     if anchor.lims.left == MAX_LIMIT:
                         suffix_anchors[anchor.char] = anchor
                     if anchor.lims.right == MAX_LIMIT:
                         prefix_anchors[anchor.char] = anchor
-                elif anchor.vert_parent == None:
+                elif not anchor.has_parent(VERTICAL):
                     if anchor.lims.up == MAX_LIMIT:
                         suffix_anchors[anchor.char] = anchor
                     if anchor.lims.down == MAX_LIMIT:
@@ -237,6 +253,7 @@ class StrandingPlayer(Player):
             anchor_index = 0
         else:
             anchor_index = len(best_word.string) - 1
+        print("Playing 3")
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
         return True
 
@@ -265,6 +282,7 @@ class StrandingPlayer(Player):
             while change_anchors == False and i < len(words):
                 placement = where_to_play_word(words[i].string, anchor)
                 if placement != NO_SPACE_FOR_WORD:
+                    print("Playing 4")
                     new_tiles = self.play_word(
                         words[i].string, anchor, anchor_index=placement[0], is_junk=True)
                     self.junk_tiles += new_tiles
@@ -307,7 +325,7 @@ class StrandingPlayer(Player):
         return Lims(lims)
 
     def first_anchor_can_be_nth_char(self, anchor, parent, n):
-        if parent.num_before == 0:
+        if parent.pos(anchor) == 0:
             is_suffix = 1  # the new char will be the suffix of the new word
         else:
             is_suffix = 0  # the new char will be the prefix of the new word

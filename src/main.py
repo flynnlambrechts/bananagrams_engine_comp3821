@@ -8,14 +8,16 @@ if len(argv) == 1:
 import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
+from players.StandardPlayerDangling import StandardPlayerDangling
 from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
 
-
+ 
 def parse_players(players: str):
     player_map = {
         's': StandardPlayer,
+        'd': StandardPlayerDangling,
         'r': StrandingPlayer,
         'p': PseudoPlayer,
         't': TwoLetterJunkStrandingPlayer,
