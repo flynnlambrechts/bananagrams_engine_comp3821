@@ -141,7 +141,6 @@ class Board:
                 word.add_tile(new_tile, pos)
 
         self.anchors.extend(word.get_tiles())
-        print("Played", word.get_tiles())
         return word.get_tiles()
 
     def has_tile(self, row: int, col: int) -> bool:

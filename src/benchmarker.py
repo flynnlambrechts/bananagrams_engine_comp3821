@@ -84,11 +84,11 @@ def benchmark_game(args):
 
 
 if __name__ == '__main__':
-    iterations = 5
+    iterations = 25
     targets = [
-        # 'pps',
-        # 'ppd',
-        'ppr',
+        'pps',
+        'ppd',
+        'psd',
         # 'ppt',
     ]
 

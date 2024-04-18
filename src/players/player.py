@@ -1,5 +1,5 @@
 from board.board import Board
-from algorithms import where_to_play_word, get_dangling_tiles
+from algorithms import where_to_play_word
 from utils import add_tuple_elems
 from pprint import pprint
 from board.tile import Tile
