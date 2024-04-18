@@ -10,6 +10,7 @@ from word import Word
 from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
 from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
 import pickle
+from pprint import pprint
 
 
 class Player:
@@ -60,14 +61,13 @@ class Player:
         self.speak("Finishing", f"Remaining tiles {self.hand}")
 
     def play_word(self, word_string, anchor: Tile = None, anchor_index=None, is_junk=False):
-        # print("playing", word_string, "anchor:", anchor)
         '''
         Given a word string and an anchor tile, plays the word in the position as
         Determined by where_to_play_word. 
         Updates its hand. 
         board.add_word updates the anchor list for it. 
         '''
-        self.speak("PLAYING", word_string)
+        # self.speak("PLAYING", word_string)
         reverse = False
         if anchor is not None:
             word_placement = where_to_play_word(word_string, anchor)
@@ -93,6 +93,8 @@ class Player:
         # self._update_hand(word_string, row, col, direction)
         new_tiles = self.board.add_word(
             word_string, row, col, direction, reverse, is_junk)
+        print("new tiles:")
+        pprint(new_tiles)
         self._update_hand(new_tiles)
 
         # Update anchors

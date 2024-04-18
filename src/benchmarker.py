@@ -72,13 +72,12 @@ def timeout_handler(signum, frame):
                        f'{TIMEOUT_DURATION} seconds')
 
 
-def benchmark_game(args):
-    i, players, times, winners, fail_counts = args
+def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
     '''
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, seed=i)
+    game = Game(players, word_scorers, seed=j)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -100,9 +99,9 @@ def benchmark_game(args):
 if __name__ == '__main__':
     iterations = 20
     targets = [
-        'ppr',
-        'ppr',
-        'ppr',
+        'ppn',
+        'ppn',
+        'ppn',
     ]
 
     scorers = [
@@ -116,17 +115,17 @@ if __name__ == '__main__':
     winners = manager.list([manager.list() for _ in targets])
     fail_counts = manager.list([0 for _ in targets])
 
-    with Pool(processes=1) as pool:
-        tasks = []
-        for i, target in enumerate(targets):
+    # with Pool(processes=1) as pool:
+    tasks = []
+    for i, target in enumerate(targets):
+        for j in range(iterations):
             players = parse_players(target)
-            tasks += [(i, players, times, winners, fail_counts)
-                      for _ in range(iterations)]
-
-        pool.map(benchmark_game, tasks)
+            word_scorers = parse_word_scorer(scorers[i])
+            benchmark_game(i, j, players, times, winners,
+                           fail_counts, word_scorers)
 
     print('--- Stats ---')
-    for target, times, winners, fail_count in zip(targets, times, winners, fail_counts):
+    for target, times, winners, fail_count in zip(targets, times, winners, fail_counts,):
         print(f'Target {target}')
 
         print(f'- Mean: {format_time(statistics.mean(times))}')

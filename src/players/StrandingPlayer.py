@@ -197,7 +197,7 @@ class StrandingPlayer(Player):
         first_anchor = key_info[0]
         two_letter_word = key_info[1]
         first_anchor_index = key_info[2]
-        print("Playing 1", two_letter_word, repr(
+        print("Playing p1", two_letter_word, repr(
             first_anchor), first_anchor_index)
         print("Anchors: ")
         pprint(self.board.anchors)
@@ -209,7 +209,7 @@ class StrandingPlayer(Player):
         if second_anchor == first_anchor:
             second_anchor = two_tiles[1]
 
-        print("Playing 2", best_word.string, repr(
+        print("Playing p2", best_word.string, repr(
             second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
