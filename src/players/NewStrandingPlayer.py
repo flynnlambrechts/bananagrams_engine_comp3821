@@ -46,7 +46,8 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
     #     self.show_board()
 
     def play_turn(self):
-        self.speak("turn", f"game no {self.game.pouch.seed}. player played {len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
+        self.speak("turn", f"game no {self.game.pouch.seed}. player played {
+                   len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
         if len(self.hand) == 0:
             # Peel if hand is empty
             self.peel()
@@ -261,15 +262,13 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
 
             print("Playing p1", two_letter_word, repr(
                 first_anchor), first_anchor_index)
-            print("Anchors: ")
-            pprint(self.board.anchors)
-            two_tiles = self.play_word(
+            second_anchor = self.play_word(
                 two_letter_word, first_anchor, first_anchor_index)[0]
-            print("two_tiles:")
-            pprint(two_tiles)
-            second_anchor = two_tiles[0]
-            if second_anchor == first_anchor:
-                second_anchor = two_tiles[1]
+            # print("two_tiles:")
+            # pprint(two_tiles)
+            # second_anchor = two_tiles[0]
+            # if second_anchor == first_anchor:
+            #     second_anchor = two_tiles[1]
 
             self.play_word(best_word.string, second_anchor,
                            second_anchor_index)
