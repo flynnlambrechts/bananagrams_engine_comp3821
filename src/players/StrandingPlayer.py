@@ -93,7 +93,7 @@ class StrandingPlayer(Player):
 
             if len(old_hand) == len(self.hand):
                 self.speak("ERROR", "tried to dump at the end and choked")
-                return "Error"
+                exit(1)
         else:
             print("restructured without dumping")
 
@@ -119,7 +119,7 @@ class StrandingPlayer(Player):
 
     def find_strand_extending_anchors(self):
         '''
-        used for the below find_strand_extension function. 
+        used for the below find_strand_extension function.
         returns tiles that have infinite space in 1 direction and some space at 90 degrees
         '''
         strand_extending_anchors = []
@@ -226,8 +226,7 @@ class StrandingPlayer(Player):
         if second_anchor == first_anchor:
             second_anchor = two_tiles[1]
 
-        print("Playing p2", best_word.string, repr(
-            second_anchor), second_anchor_index)
+        print("Playing 2", best_word.string, repr(second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
 
@@ -262,6 +261,7 @@ class StrandingPlayer(Player):
                 self.hand.replace(suffix, '', 1), suffix)
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
+
             # all_words = all_words | set(words)
         best_word = self.long_with_best_rank(list(all_words.keys()))
 

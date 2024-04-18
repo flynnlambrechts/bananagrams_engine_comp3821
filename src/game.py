@@ -20,6 +20,7 @@ class Game:
             player(self, i, word_scorer=word_scorers[i]()) for i, player in enumerate(players)]
         self.player_threads = []
         self.game_is_active = False
+        self.winners = []
 
     @DeprecationWarning
     def add_player(self, player: Player):

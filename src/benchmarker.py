@@ -1,11 +1,9 @@
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager
 import time
 import statistics
 import signal
 
 # Custom imports
-from players.player import Player
-import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
@@ -121,19 +119,23 @@ if __name__ == '__main__':
         for j in range(iterations):
             players = parse_players(target)
             word_scorers = parse_word_scorer(scorers[i])
-            benchmark_game(i, j, players, times, winners,
-                           fail_counts, word_scorers)
+            benchmark_game(i, j, players, times, winners, fail_counts, word_scorers)
+            # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
+            #   for _ in range(iterations)]
+
+            # pool.map(benchmark_game, tasks)
 
     print('--- Stats ---')
-    for target, times, winners, fail_count in zip(targets, times, winners, fail_counts,):
-        print(f'Target {target}')
+for target, scorer, times, winners, fail_count in zip(
+        targets, scorers, times, winners, fail_counts):
+    print(f'Target {target}, Scorer {scorer}')
 
-        print(f'- Mean: {format_time(statistics.mean(times))}')
-        print(f'- Median: {format_time(statistics.median(times))}')
-        print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
+    print(f'- Mean: {format_time(statistics.mean(times))}')
+    print(f'- Median: {format_time(statistics.median(times))}')
+    print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
 
-        print(f'- Fail count: {fail_count}')
-        print('- Top winners:')
-        freqs = winner_frequencies(winners)
-        for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
-            print(f'  {i+1}. {k}: {format(v, ".0%")}')
+    print(f'- Fail count: {fail_count}')
+    print('- Top winners:')
+    freqs = winner_frequencies(winners)
+    for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
+        print(f'  {i+1}. {k}: {format(v, ".0%")}')

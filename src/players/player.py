@@ -1,16 +1,10 @@
+from pprint import pprint
 from board.board import Board
 from algorithms import where_to_play_word
-from utils import add_tuple_elems
-from pprint import pprint
 from board.tile import Tile
-from pathlib import Path
 from constants import VERTICAL, HORIZONTAL, NO_SPACE_FOR_WORD
-import multiprocessing
 from word import Word
-from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
 from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
-import pickle
-from pprint import pprint
 
 
 class Player:
@@ -110,7 +104,6 @@ class Player:
     def _update_hand(self, tiles_played):
         for tile in tiles_played:
             self.hand = self.hand.replace(tile.char, '', 1)
-
 
     def long_with_best_rank(
             self, words: list[Word],

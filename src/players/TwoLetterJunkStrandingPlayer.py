@@ -1,8 +1,6 @@
 from players.StrandingPlayer import StrandingPlayer
 from two_letter_junk import best_anchor_candidates
-from trie import Trie, letter_count
 from algorithms import where_to_play_word
-from word import Word
 from board.tile import Tile
 from constants import NO_SPACE_FOR_WORD, pair_start_count, pair_end_count
 from trie_service import forward_trie
