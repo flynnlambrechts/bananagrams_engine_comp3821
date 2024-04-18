@@ -46,8 +46,9 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
     #     self.show_board()
 
     def play_turn(self):
-        self.speak("turn", f"game no {self.game.pouch.seed}. player played {
-                   len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
+        self.speak(
+            "turn",
+            f"game no {self.game.pouch.seed}. player played {len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
         if len(self.hand) == 0:
             # Peel if hand is empty
             self.peel()

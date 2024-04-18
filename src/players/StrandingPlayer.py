@@ -38,8 +38,9 @@ class StrandingPlayer(Player):
         # self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
 
     def play_turn(self):
-        self.speak("turn", f"game no {self.game.pouch.seed}. player played {
-                   len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
+        self.speak(
+            "turn",
+            f"game no {self.game.pouch.seed}. player played {len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
         if len(self.hand) == 0:
             # Peel if hand is empty
             self.peel()
@@ -113,8 +114,9 @@ class StrandingPlayer(Player):
             for tile in dangling_tiles:
                 self.hand += tile.char
 
-            self.speak("DANGLING", f"Found {len(dangling_tiles)} dangling tiles, old_hand={
-                       old_hand}, new_hand={self.hand}")
+            self.speak(
+                "DANGLING",
+                f"Found {len(dangling_tiles)} dangling tiles, old_hand={old_hand}, new_hand={self.hand}")
             self.play_turn()
 
     def find_strand_extending_anchors(self):
