@@ -97,17 +97,17 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 20
+    iterations = 1
     targets = [
-        'ppn',
-        'ppn',
-        'ppn',
+        'ppd',
+        # 'ppn',
+        # 'ppn',
     ]
 
     scorers = [
         'rrr',
-        'rrl',
-        'rrh'
+        # 'rrl',
+        # 'rrh'
     ]
 
     manager = Manager()

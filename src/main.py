@@ -14,7 +14,6 @@ from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
 from players.NewStrandingPlayer import NewStrandingPlayer
 from pouch import letter_distribution
-from src.players.NewStrandingPlayer import NewStrandingPlayer
 
  
 def parse_players(players: str):

@@ -39,8 +39,7 @@ class Player:
         self.speak(f"Got", f"{tiles}, new hand: {self.hand}")
 
     def speak(self, subject, information=''):
-        print(f"{self.name} {self.word_scorer.name}: [{
-              subject.upper()}] {information}")
+        print(f"{self.name} {self.word_scorer.name}: [{subject.upper()}] {information}")
 
     def peel(self):
         self.game.lock.acquire()
@@ -112,30 +111,6 @@ class Player:
         for tile in tiles_played:
             self.hand = self.hand.replace(tile.char, '', 1)
 
-    # def _update_hand(self, word_string, start_row, start_col, direction):
-    #     # Take a snapshot of our hand in case we need to revert it
-    #     original_hand = self.hand
-    #     # print(f"updating hand... word: {word_string} hand: {self.hand}")
-    #     # Calculate change in row and col based on `direction`
-    #     d_row = int(direction == VERTICAL)
-    #     d_col = int(direction == HORIZONTAL)
-
-    #     char_index = 0
-    #     for char in word_string:
-    #         tile_coords = (start_row + d_row * char_index,
-    #                        start_col + d_col * char_index)
-
-    #         # If a character isn't in our hand and isn't
-    #         # on the board
-    #         if char not in self.hand and tile_coords not in self.board.tiles:
-    #             # Restore our hand and raise an Error
-    #             self.hand = original_hand
-    #             raise ValueError(f'Tried to remove \"{word_string}\" from ' +
-    #                              f'hand, but ran out of characters. {tile_coords} not on board')
-    #         char_index += 1
-    #         # Remove the char from our hand if it wasn't on the board
-    #         if tile_coords not in self.board.tiles:
-    #             self.hand = self.hand.replace(char, '', 1)
 
     def long_with_best_rank(
             self, words: list[Word],

@@ -1,9 +1,9 @@
 from players.StandardPlayer import StandardPlayer
 
 class StandardPlayerDangling(StandardPlayer):
-    # def play_turn(self):
-    #     self.show_board()
-    #     return super().play_turn()
+    def play_turn(self):
+        self.show_board()
+        return super().play_turn()
     
     def restructure_board(self):
         self.show_board()
