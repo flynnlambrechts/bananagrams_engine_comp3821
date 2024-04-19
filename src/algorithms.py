@@ -58,39 +58,39 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
     return NO_SPACE_FOR_WORD
 
 
-def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
-    '''
-    Finds a long subword with the lowest letter_ranking
-    (Means that it uses letters that appear less in the dictionary),
-    The heuristic can be changed to:
-    use many letters that start/appear in short words or
-    use many letters that cannot easily make short words
+# def long_with_lowest_rank(subwords, anchor: Tile = None, closeness_to_longest=0, attempt=0) -> Word:
+#     '''
+#     Finds a long subword with the lowest letter_ranking
+#     (Means that it uses letters that appear less in the dictionary),
+#     The heuristic can be changed to:
+#     use many letters that start/appear in short words or
+#     use many letters that cannot easily make short words
 
-    closeness_to_longest determines the length of words relative to the longest word that can be considered
-    '''
+#     closeness_to_longest determines the length of words relative to the longest word that can be considered
+#     '''
 
-    words = [
-        word
-        for word in subwords
-        if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD
-    ]
+#     words = [
+#         word
+#         for word in subwords
+#         if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD
+#     ]
 
-    if len(words) == 0:
-        return None
-    longest: Word = max(words, key=lambda word: len(word.string))
+#     if len(words) == 0:
+#         return None
+#     longest: Word = max(words, key=lambda word: len(word.string))
 
-    long_words = [word for word in words if len(
-        word.string) >= len(longest.string) - closeness_to_longest]
-    if len(long_words) == 0:
-        return None
+#     long_words = [word for word in words if len(
+#         word.string) >= len(longest.string) - closeness_to_longest]
+#     if len(long_words) == 0:
+#         return None
 
-    long_words.sort(key=lambda word: word.letter_ranking / len(word.string))
+#     long_words.sort(key=lambda word: word.letter_ranking / len(word.string))
 
-    if attempt >= len(long_words):
-        print(f"attempt: {attempt}, len(long_words): {len(long_words)}")
-        return None
+#     if attempt >= len(long_words):
+#         print(f"attempt: {attempt}, len(long_words): {len(long_words)}")
+#         return None
 
-    return long_words[attempt]
+#     return long_words[attempt]
 
 
 def anchor_ranking(tiles: dict[tuple[int, int]]) -> list:

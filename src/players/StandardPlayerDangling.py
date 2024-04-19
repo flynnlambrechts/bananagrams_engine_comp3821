@@ -9,6 +9,7 @@ class StandardPlayerDangling(StandardPlayer):
         self.show_board()
         dangling_tiles = self.board.remove_dangling()
         if len(dangling_tiles) == 0:
+            exit(1)
             return super().restructure_board()
             
         else:

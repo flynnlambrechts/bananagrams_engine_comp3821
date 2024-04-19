@@ -79,7 +79,7 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, word_scorers, seed=j)
+    game = Game(players, word_scorers, seed=j+42)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -99,31 +99,29 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 100
+    iterations = 2
     targets = [
+        # 'ppn',
+        # 'ppn',
+        # 'ppn',
         # 'ppr',
         # 'ppr',
-        'ppt',
-        'ppt',
-        'ppt',
-        'ppr',
-        'ppr',
-        'ppr',
-        'ppn',
-        'ppn',
-        'ppn',
+        # 'ppr',
+        # 'ppt',
+        # 'ppt',
+        'pd'
     ]
 
     scorers = [
-        'rrl',
-        'rrH',
-        'rrR',
-        'rrl',
-        'rrH',
-        'rrR',
-        'rrl',
-        'rrH',
-        'rrR'
+        # 'rrl',
+        # 'rrH',
+        # 'rrR',
+        # 'rrl',
+        # 'rrH',
+        # 'rrR',
+        # 'rrl',
+        # 'rrH',
+        'rl'
     ]
 
     manager = Manager()
@@ -139,8 +137,6 @@ if __name__ == '__main__':
             for j in range(iterations):
                 players = parse_players(target)
                 word_scorers = parse_word_scorer(scorers[i])
-                print(f"Players: {players}")
-                print(f"word scorers: {word_scorers}")
                 benchmark_game(i, j, players, times, winners,
                             fail_counts, word_scorers)
                 # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)

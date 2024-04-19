@@ -175,4 +175,6 @@ class Tile:
             return True
         else:
             self.add_parent(None, parent_direction)
+            self.board.anchors.append(self)
+            '''If it has two parents, remove one parent and add the tile back as an anchor'''
             return False

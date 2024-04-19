@@ -192,7 +192,7 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
             # do all_word search
             # longest_length = best_words[0].len()
             best_words.sort(key=lambda word: self.word_scorer.score_word(
-                word.string, min_length=0))
+                word.string, hand = self.hand))
             word_found = False
             i = 0
             while word_found is False:
@@ -230,7 +230,7 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
                 words = forward_trie.all_subwords(
                     self.hand.replace(prefix, '', 1), prefix)
                 if len(words) > 0:
-                    local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string))
+                    local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand))
                     # self.long_with_best_rank(words)
                     all_words[local_best] = "prefix"
 
@@ -238,10 +238,10 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
                 words = reverse_trie.all_subwords(
                     self.hand.replace(suffix, '', 1), suffix)
                 if len(words) > 0:
-                    local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string)) #= self.long_with_best_rank(words)
+                    local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #= self.long_with_best_rank(words)
                     all_words[local_best] = "suffix"
             if len(all_words.keys()) > 0:
-                best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string)) #self.long_with_best_rank(list(all_words.keys()))
+                best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(list(all_words.keys()))
             else:
                 return False
 
@@ -261,7 +261,6 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
             two_letter_word = key_info[1]
             first_anchor_index = key_info[2]
 
-            
             second_anchor = self.play_word(
                 two_letter_word, first_anchor, first_anchor_index)[0]
             # print("two_tiles:")

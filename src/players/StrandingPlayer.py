@@ -201,18 +201,18 @@ class StrandingPlayer(Player):
             words = forward_trie.all_subwords(
                 self.hand.replace(prefix, '', 1), prefix)
             if len(words) > 0:
-                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string)) #self.long_with_best_rank(words)
+                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(words)
                 all_words[local_best] = "prefix"
 
         for suffix in suffix_anchors.keys():
             words = reverse_trie.all_subwords(
                 self.hand.replace(suffix, '', 1), suffix)
             if len(words) > 0:
-                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string)) #self.long_with_best_rank(words)
+                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(words)
                 all_words[local_best] = "suffix"
         if len(all_words.keys()) > 0:
 
-            best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string)) #self.long_with_best_rank(list(all_words.keys()))
+            best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(list(all_words.keys()))
             # print(f"found best word [{best_word.string}]")
         else:
             # print("no words found stranding")
@@ -288,7 +288,7 @@ class StrandingPlayer(Player):
             # all_words = all_words | set(words)
         if len(all_words.keys()) == 0:
             return False
-        best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string))#self.long_with_best_rank(list(all_words.keys()))
+        best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand))#self.long_with_best_rank(list(all_words.keys()))
 
         if best_word == None or len(best_word.string) < 3:
             return False
