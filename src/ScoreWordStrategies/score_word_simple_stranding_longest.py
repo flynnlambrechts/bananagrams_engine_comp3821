@@ -2,9 +2,9 @@ from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
 from constants import pair_end_count, pair_start_count, is_prefix_of, is_suffix_of
 
 
-class ScoreWordSimpleStranding(ScoreWordStrategy):
+class ScoreWordSimpleStrandingLongest(ScoreWordStrategy):
     def __init__(self) -> None:
-        self.name = 'ScoreWordSimpleStranding'
+        self.name = 'ScoreWordSimpleStrandingLongest'
 
     def score_word(self, word_str: str, hand: str = '', anchor: str = '', min_length: int = 0):
         if word_str is None:
@@ -22,4 +22,4 @@ class ScoreWordSimpleStranding(ScoreWordStrategy):
         edge_score = ((pair_end_count[word_str[0]] + pair_start_count[word_str[0]] +
                        pair_end_count[word_str[-1]] + pair_start_count[word_str[-1]]) * 1000)
 
-        return edge_score - 1000 * middle_score
+        return edge_score - 1000 * middle_score + len(word_str) * pow(10, 6)

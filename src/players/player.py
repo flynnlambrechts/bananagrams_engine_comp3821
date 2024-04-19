@@ -19,7 +19,7 @@ class Player:
         self.board_attempt = 0
         self.board = Board()
         self.word_scorer = word_scorer
-
+        self.tile_count = 0
         # Player waits until game gives them their hand
         self.hand: str = ''
 
@@ -31,9 +31,10 @@ class Player:
         tiles = ''.join(tiles)
         self.hand += ''.join(tiles)
         self.speak(f"Got", f"{tiles}, new hand: {self.hand}")
+        self.tile_count += len(tiles)
 
     def speak(self, subject, information=''):
-        print(f"{self.name} {self.word_scorer.name}: [{subject.upper()}] {information}")
+        print(f"{self.name} {self.word_scorer.name} {self.game.pouch.seed}: [{subject.upper()}] {information}")
 
     def peel(self):
         self.game.lock.acquire()
@@ -42,6 +43,7 @@ class Player:
             if not self.game.peel():
                 self.speak("Bananas", "I Won Here's My Board")
                 self.show_board()
+                self.speak("Bananas", f"Board has {len(self.board.tiles)} tiles, expected {self.tile_count}|{144/3}")
 
         self.game.lock.release()
 
@@ -86,8 +88,8 @@ class Player:
         # self._update_hand(word_string, row, col, direction)
         new_tiles = self.board.add_word(
             word_string, row, col, direction, reverse, is_junk)
-        print("new tiles:")
-        pprint(new_tiles)
+        # print("new tiles:")
+        # pprint(new_tiles)
         self._update_hand(new_tiles)
 
         # Update anchors

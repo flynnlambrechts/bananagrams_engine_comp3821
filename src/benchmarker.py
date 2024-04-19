@@ -13,8 +13,10 @@ from players.NewStrandingPlayer import NewStrandingPlayer
 from ScoreWordStrategies.score_word_hand_balance import ScoreWordHandBalance
 from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
 from ScoreWordStrategies.score_word_two_letter import ScoreWordTwoLetter
+from ScoreWordStrategies.score_word_hand_balance_longest import ScoreWordHandBalanceLongest
 from players.StandardPlayerDangling import StandardPlayerDangling
-
+from ScoreWordStrategies.score_word_simple_stranding_longest import ScoreWordSimpleStrandingLongest
+from constants import THRESHOLD_DIFFERENT_STRANDING_METHODS, HOW_UNGREEDY_IS_STRAND
 TIMEOUT_DURATION = 5
 
 
@@ -33,8 +35,10 @@ def parse_players(players: str):
 def parse_word_scorer(word_scorers: str):
     word_scorer_map = {
         'r': ScoreWordSimpleStranding,
+        'R': ScoreWordSimpleStrandingLongest,
         'l': ScoreWordTwoLetter,
-        'h': ScoreWordHandBalance
+        'h': ScoreWordHandBalance,
+        'H': ScoreWordHandBalanceLongest
     }
     return [word_scorer_map[s] for s in word_scorers]
 
@@ -95,19 +99,31 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 40
+    iterations = 100
     targets = [
+        # 'ppr',
+        # 'ppr',
+        'ppt',
+        'ppt',
+        'ppt',
+        'ppr',
+        'ppr',
         'ppr',
         'ppn',
-        'ppd',
-        'ppt'
+        'ppn',
+        'ppn',
     ]
 
     scorers = [
-        'rrr',
-        'rrr',
-        'rrr',
-        'rrr'
+        'rrl',
+        'rrH',
+        'rrR',
+        'rrl',
+        'rrH',
+        'rrR',
+        'rrl',
+        'rrH',
+        'rrR'
     ]
 
     manager = Manager()
@@ -117,27 +133,37 @@ if __name__ == '__main__':
 
     # with Pool(processes=1) as pool:
     tasks = []
-    for i, target in enumerate(targets):
-        for j in range(iterations):
-            players = parse_players(target)
-            word_scorers = parse_word_scorer(scorers[i])
-            benchmark_game(i, j, players, times, winners, fail_counts, word_scorers)
-            # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
-            #   for _ in range(iterations)]
+    if len(targets) == len(scorers):
 
-            # pool.map(benchmark_game, tasks)
+        for i, target in enumerate(targets):
+            for j in range(iterations):
+                players = parse_players(target)
+                word_scorers = parse_word_scorer(scorers[i])
+                print(f"Players: {players}")
+                print(f"word scorers: {word_scorers}")
+                benchmark_game(i, j, players, times, winners,
+                            fail_counts, word_scorers)
+                # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
+                #   for _ in range(iterations)]
+
+                # pool.map(benchmark_game, tasks)
+    else:
+        print("Error, mismatched length of scorers and players")
+
 
     print('--- Stats ---')
-for target, scorer, times, winners, fail_count in zip(
-        targets, scorers, times, winners, fail_counts):
-    print(f'Target {target}, Scorer {scorer}')
+    print(f"how ungreedy: {HOW_UNGREEDY_IS_STRAND}, threshold: {THRESHOLD_DIFFERENT_STRANDING_METHODS}")
+    print(f"Iterations: {iterations}")
+    for target, scorer, times, winners, fail_count in zip(
+            targets, scorers, times, winners, fail_counts):
+        print(f'Target {target}, Scorer {scorer}')
 
-    print(f'- Mean: {format_time(statistics.mean(times))}')
-    print(f'- Median: {format_time(statistics.median(times))}')
-    print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
+        print(f'- Mean: {format_time(statistics.mean(times))}')
+        print(f'- Median: {format_time(statistics.median(times))}')
+        print(f'- Standard Deviation: {format_time(statistics.stdev(times))}')
 
-    print(f'- Fail count: {fail_count}')
-    print('- Top winners:')
-    freqs = winner_frequencies(winners)
-    for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
-        print(f'  {i+1}. {k}: {format(v, ".0%")}')
+        print(f'- Fail count: {fail_count}')
+        print('- Top winners:')
+        freqs = winner_frequencies(winners)
+        for i, (k, v) in enumerate(sorted(freqs.items(), key=lambda t: -t[1])):
+            print(f'  {i+1}. {k}: {format(v, ".0%")}')

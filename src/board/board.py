@@ -3,6 +3,7 @@ from parent_word import ParentWord
 from constants import VERTICAL, HORIZONTAL, bcolors
 from pprint import pprint
 
+
 class Board:
     def __init__(self) -> None:
         self.tiles: dict[tuple[int, int], Tile] = {}
@@ -36,7 +37,7 @@ class Board:
         """
         # for word in self.words:
         #     print(str(word))
-        
+
         if not self.tiles:
             return ""
 
@@ -46,7 +47,8 @@ class Board:
             4 * " "
             + col_delim.join(
                 map(
-                    lambda x: x[-1], map(str, range(self.min_col(), self.max_col() + 1))
+                    lambda x: x[-1], map(str,
+                                         range(self.min_col(), self.max_col() + 1))
                 )
             )
             + "\n"
@@ -85,21 +87,22 @@ class Board:
         if len(tile) != 1:
             raise ValueError("Tile must be one character long")
         if (row, col) in self.tiles and self.tiles[(row, col)].char != tile:
-            raise ValueError(
-                f"There is already a tile at ({row}, {col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}"
-            )
+            error_str = f"There is already a tile at ({row}, "
+            error_str += "{col}) tried to add {tile}, the existing tile is {self.tiles[(row, col)]}"
+            raise ValueError(error_str)
         elif not (row, col) in self.tiles:
-            tile = Tile(board=self, row=row, col=col, char=tile, is_junk=is_junk)
+            tile = Tile(board=self, row=row, col=col,
+                        char=tile, is_junk=is_junk)
             self.tiles[(row, col)] = tile
             return tile
         else:
             return None
 
-
     def remove_tile(self, row: int, col: int) -> Tile:
         """Note that this won't change the ParentWord info of surrounding tiles"""
         if (row, col) not in self.tiles:
-            raise ValueError(f"There is no tile at ({row}, {col})\n{str(self)}")
+            raise ValueError(
+                f"There is no tile at ({row}, {col})\n{str(self)}")
 
         removed_tile = self.tiles.pop((row, col))
         self.remove_anchor(removed_tile)
@@ -135,15 +138,16 @@ class Board:
             pos = i
             if reverse:
                 pos = len(word) - i - 1
-            new_tile = self.add_tile(c, row + i * dr, col + i * dc, is_junk=is_junk)
+            new_tile = self.add_tile(
+                c, row + i * dr, col + i * dc, is_junk=is_junk)
             if new_tile is not None:
                 word.add_tile(new_tile, pos)
                 new_tiles.append(new_tile)
             else:
                 existing_tile = self.get_tile(row + i * dr, col + i * dc)
-                print(f"{existing_tile} already exists updated parents")
+                print(repr(existing_tile), "already exists updated parents")
+                print(existing_tile)
                 word.add_tile(existing_tile, pos)
-                pprint(existing_tile.parents)
 
         self.anchors.extend(word.get_tiles())
         print("Played", word.get_tiles())
@@ -159,19 +163,23 @@ class Board:
         return self.tiles[(row, col)]
 
     def remove_word(self, tile_in_word: Tile, direction: int) -> list[Tile]:
+        print("attempted remove")
         if parent := tile_in_word.get_parent(direction):
+            print(f"removing {parent}")
             self.words.remove(parent)
+            if parent in self.words:
+                print("parent still in words")
             return parent.remove_from_board()
         else:
             raise ValueError(f"No {direction} word to remove")
-            
 
     def remove_junk_tiles(self, tiles: list[Tile]) -> list[Tile]:
         junk_words = []
         for tile in self.tiles.values():
             if tile.is_junk and not tile.is_junction():
-            # direction = HORIZONTAL if tile.has_parent(HORIZONTAL) else VERTICAL
+                # direction = HORIZONTAL if tile.has_parent(HORIZONTAL) else VERTICAL
                 if not tile.has_parent(VERTICAL):
+                    
                     direction = HORIZONTAL
                 else:
                     direction = VERTICAL
@@ -182,17 +190,18 @@ class Board:
         removed_tiles = []
         for word in junk_words:
             removed_tiles.extend(word.remove_from_board())
-        
+            self.words.remove(word)
+
         return removed_tiles
-    
+
     def remove_dangling(self) -> list[Tile]:
         dangling_words = []
         for word in self.words:
             if word.is_dangling():
                 dangling_words.append(word)
-        self.words = list(filter(lambda word: not word.is_dangling(), self.words))
+        self.words = list(
+            filter(lambda word: not word.is_dangling(), self.words))
         dangling = []
         for word in dangling_words:
             dangling.extend(word.remove_from_board())
-            
         return dangling
