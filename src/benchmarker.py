@@ -16,6 +16,7 @@ from ScoreWordStrategies.score_word_two_letter import ScoreWordTwoLetter
 from ScoreWordStrategies.score_word_hand_balance_longest import ScoreWordHandBalanceLongest
 from players.StandardPlayerDangling import StandardPlayerDangling
 from ScoreWordStrategies.score_word_simple_stranding_longest import ScoreWordSimpleStrandingLongest
+from ScoreWordStrategies.score_word_letter_count_long import ScoreLetterCountLong
 from constants import THRESHOLD_DIFFERENT_STRANDING_METHODS, HOW_UNGREEDY_IS_STRAND
 TIMEOUT_DURATION = 5
 
@@ -38,7 +39,8 @@ def parse_word_scorer(word_scorers: str):
         'R': ScoreWordSimpleStrandingLongest,
         'l': ScoreWordTwoLetter,
         'h': ScoreWordHandBalance,
-        'H': ScoreWordHandBalanceLongest
+        'H': ScoreWordHandBalanceLongest,
+        'C': ScoreLetterCountLong
     }
     return [word_scorer_map[s] for s in word_scorers]
 
