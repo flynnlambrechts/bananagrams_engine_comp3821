@@ -13,7 +13,7 @@ class Player:
     '''
 
     def __init__(self, game, id: int, word_scorer=ScoreWordSimpleStranding()) -> None:
-        self.name = f'{type(self).__name__} {id}'
+        self.name = f'{type(self).__name__} {id} + {type(word_scorer).__name__}'
         self.playing = False
         self.game = game
         self.board_attempt = 0
@@ -34,7 +34,8 @@ class Player:
         self.tile_count += len(tiles)
 
     def speak(self, subject, information=''):
-        print(f"{self.name} {self.word_scorer.name} {self.game.pouch.seed}: [{subject.upper()}] {information}")
+        print(
+            f"{self.name} {self.word_scorer.name} {self.game.pouch.seed}: [{subject.upper()}] {information}")
 
     def peel(self):
         self.game.lock.acquire()
@@ -43,7 +44,9 @@ class Player:
             if not self.game.peel():
                 self.speak("Bananas", "I Won Here's My Board")
                 self.show_board()
-                self.speak("Bananas", f"Board has {len(self.board.tiles)} tiles, expected {self.tile_count}|{144/3}")
+                self.speak(
+                    "Bananas",
+                    f"Board has {len(self.board.tiles)} tiles, expected {self.tile_count}|{144/3}")
 
         self.game.lock.release()
 

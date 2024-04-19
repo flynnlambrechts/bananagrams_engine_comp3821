@@ -2,6 +2,7 @@ from multiprocessing import Manager
 import time
 import statistics
 import signal
+from sys import argv
 
 # Custom imports
 from game import Game
@@ -18,7 +19,7 @@ from players.StandardPlayerDangling import StandardPlayerDangling
 from ScoreWordStrategies.score_word_simple_stranding_longest import ScoreWordSimpleStrandingLongest
 from ScoreWordStrategies.score_word_letter_count_long import ScoreLetterCountLong
 from constants import THRESHOLD_DIFFERENT_STRANDING_METHODS, HOW_UNGREEDY_IS_STRAND
-TIMEOUT_DURATION = 5
+TIMEOUT_DURATION = 1
 
 
 def parse_players(players: str):
@@ -36,9 +37,10 @@ def parse_players(players: str):
 def parse_word_scorer(word_scorers: str):
     word_scorer_map = {
         'r': ScoreWordSimpleStranding,
-        'R': ScoreWordSimpleStrandingLongest,
-        'l': ScoreWordTwoLetter,
         'h': ScoreWordHandBalance,
+        # Works:
+        'l': ScoreWordTwoLetter,
+        'R': ScoreWordSimpleStrandingLongest,
         'H': ScoreWordHandBalanceLongest,
         'C': ScoreLetterCountLong
     }
@@ -57,7 +59,7 @@ def winner_frequencies(winners):
     for item in winners:
         # item is a list of winners, but there should only
         # be one winner so we take the first winner
-        parts = item[0].split()
+        parts = item[0].split('\n')
         word = parts[0]
 
         if word not in word_counts:
@@ -101,7 +103,7 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 2
+    iterations = 250
     targets = [
         # 'ppn',
         # 'ppn',
@@ -111,7 +113,7 @@ if __name__ == '__main__':
         # 'ppr',
         # 'ppt',
         # 'ppt',
-        'pd'
+        argv[1]
     ]
 
     scorers = [
@@ -123,7 +125,7 @@ if __name__ == '__main__':
         # 'rrR',
         # 'rrl',
         # 'rrH',
-        'rl'
+        argv[2]
     ]
 
     manager = Manager()
@@ -140,7 +142,7 @@ if __name__ == '__main__':
                 players = parse_players(target)
                 word_scorers = parse_word_scorer(scorers[i])
                 benchmark_game(i, j, players, times, winners,
-                            fail_counts, word_scorers)
+                               fail_counts, word_scorers)
                 # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
                 #   for _ in range(iterations)]
 
@@ -148,9 +150,9 @@ if __name__ == '__main__':
     else:
         print("Error, mismatched length of scorers and players")
 
-
     print('--- Stats ---')
-    print(f"how ungreedy: {HOW_UNGREEDY_IS_STRAND}, threshold: {THRESHOLD_DIFFERENT_STRANDING_METHODS}")
+    print(
+        f"how ungreedy: {HOW_UNGREEDY_IS_STRAND}, threshold: {THRESHOLD_DIFFERENT_STRANDING_METHODS}")
     print(f"Iterations: {iterations}")
     for target, scorer, times, winners, fail_count in zip(
             targets, scorers, times, winners, fail_counts):
