@@ -72,7 +72,7 @@ def where_to_play_word(word_str: str, anchor: Tile) -> tuple[int, int]:
 #     words = [
 #         word
 #         for word in subwords
-#         if where_to_play_word(word.string, anchor) != NO_SPACE_FOR_WORD
+#         if (word.string, anchor) != NO_SPACE_FOR_WORD
 #     ]
 
 #     if len(words) == 0:
