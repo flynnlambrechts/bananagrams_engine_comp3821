@@ -1,5 +1,7 @@
 from players.StandardPlayer import StandardPlayer
 from constants import letter_count
+
+
 class StandardPlayerDangling(StandardPlayer):
 
     def __init__(self, game, id: int, word_scorer) -> None:
@@ -19,7 +21,7 @@ class StandardPlayerDangling(StandardPlayer):
         old_hand = self.hand
         dangling_tiles = self.board.remove_dangling()
         for tile in dangling_tiles:
-                self.hand += tile.char
+            self.hand += tile.char
         post_removal_hand = sorted(self.hand)
         if any(prev_hand == post_removal_hand for prev_hand in self.previous_hands):
             self.speak("DANGLING", "Found a previous hand, now dumping")
@@ -35,5 +37,7 @@ class StandardPlayerDangling(StandardPlayer):
 
         else:
             self.previous_hands.append(sorted(self.hand))
-            self.speak("DANGLING", f"Found {len(dangling_tiles)} dangling tiles, old_hand={old_hand}, new_hand={self.hand}")
+            self.speak(
+                "DANGLING",
+                f"Found {len(dangling_tiles)} dangling tiles, old_hand={old_hand}, new_hand={self.hand}")
             self.play_turn()

@@ -11,16 +11,11 @@ class Tile:
         self.board = board
 
         self.lims = self._update_lims()
-        # self.vert_parent: ParentWord | None = None
-        # self.horo_parent: ParentWord | None = None
+
         self.parents = {HORIZONTAL: None, VERTICAL: None}
 
         self.is_junk = is_junk
-        # if len(parent_word) > 0:
-        #     if direction == VERTICAL:
-        #         self.vert_parent = ParentWord(parent_word, direction)
-        #     elif direction == HORIZONTAL:
-        #         self.horo_parent = ParentWord(parent_word, direction)
+
         '''
         dirs = [(1,0),(0,1),(-1,0),(0,-1)]
         e.g. the go anticlockwise from 6:00.
@@ -37,12 +32,7 @@ class Tile:
         is_junction = self.is_junction()
         is_dangling = self.is_dangling()
         if is_dangling and is_junction:
-            result = bcolors.OKCYAN + result + bcolors.ENDC
-        elif is_dangling:
-            result = bcolors.OKGREEN + result + bcolors.ENDC
-        elif is_junction:
             result = bcolors.FAIL + result + bcolors.ENDC
-
         if self.is_junk:
             result = bcolors.UNDERLINE + result + bcolors.ENDC
 
