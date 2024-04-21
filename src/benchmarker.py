@@ -83,7 +83,7 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, word_scorers, seed=j)
+    game = Game(players, word_scorers, seed=j+500)
     # game = Game(players, word_scorers)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
