@@ -3,7 +3,7 @@ An engine for solving the game bananagrams, a COMP3821 - Extended Algorithms Pro
 
 Requires a recent download of the python implementation pypy at https://www.pypy.org/download.html to run the benchmarker.py and main.py files
 
-To test an algorithm run:
+To test an algorithm make sure your current directory is /src and run:
 ```
 pypy3 benchmarker.py pletter1 pletter2
 ```
