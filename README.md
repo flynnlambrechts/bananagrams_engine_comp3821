@@ -22,3 +22,4 @@ and letter2 refers to a word scorer according to the following:
 'C': ScoreLetterCountLong
 
 Adjust the number of letters to add more algorithms to one game (up to 8).
+(Some sample runs in src/benchmark_runs
