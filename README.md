@@ -1,12 +1,13 @@
 # Bananagrams Engine - COMP3821 Project
 An engine for solving the game bananagrams, a COMP3821 - Extended Algorithms Project.
 
-Requires a recent download of the python implementation pypy at https://www.pypy.org/download.html to run the benchmarker.py and main.py files
+Requires a recent download of the python implementation pypy at https://www.pypy.org/download.html for testing with the benchmarker.py file for any large number of iterations.
 
 To test an algorithm make sure your current directory is /src and run:
 ```
 pypy3 benchmarker.py pletter1 letter2letter2
 ```
+
 where letter1 refers to a player type according to the following:\
 's': StandardPlayer,\
 'r': StrandingPlayer,\
