@@ -104,7 +104,7 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 250
+    iterations = 500
     targets = [
         # 'ppn',
         # 'ppn',
