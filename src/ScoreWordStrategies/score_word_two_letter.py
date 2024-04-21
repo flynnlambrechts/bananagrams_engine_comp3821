@@ -14,6 +14,6 @@ class ScoreWordTwoLetter(ScoreWordStrategy):
                 (pair_end_count[char] + pair_start_count[char])
             if char == 'V' or char == 'Q':
                 result += pow(10, 4)
-            if char == 'J' or char == 'X' or char == 'Z':
+            if char == 'J' or char == 'X' or char == 'Z' or char == 'C':
                 result += 5 * pow(10, 3)
         return result
