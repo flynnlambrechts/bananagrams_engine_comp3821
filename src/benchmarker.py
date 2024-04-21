@@ -1,19 +1,25 @@
-from multiprocessing import Manager, Pool
+from multiprocessing import Manager
 import time
 import statistics
 import signal
+from sys import argv
 
 # Custom imports
-from players.player import Player
-import trie_service  # Initialize trie service
 from game import Game
 from players.StandardPlayer import StandardPlayer
 from players.StrandingPlayer import StrandingPlayer
 from players.PseudoPlayer import PseudoPlayer
 from players.TwoLetterJunkStrandingPlayer import TwoLetterJunkStrandingPlayer
+from players.NewStrandingPlayer import NewStrandingPlayer
+from ScoreWordStrategies.score_word_hand_balance import ScoreWordHandBalance
+from ScoreWordStrategies.score_word_simple_stranding import ScoreWordSimpleStranding
+from ScoreWordStrategies.score_word_two_letter import ScoreWordTwoLetter
+from ScoreWordStrategies.score_word_hand_balance_longest import ScoreWordHandBalanceLongest
 from players.StandardPlayerDangling import StandardPlayerDangling
-
-TIMEOUT_DURATION = 5
+from ScoreWordStrategies.score_word_simple_stranding_longest import ScoreWordSimpleStrandingLongest
+from ScoreWordStrategies.score_word_letter_count_long import ScoreLetterCountLong
+from constants import THRESHOLD_DIFFERENT_STRANDING_METHODS, HOW_UNGREEDY_IS_STRAND
+TIMEOUT_DURATION = 1
 
 
 def parse_players(players: str):
@@ -23,8 +29,23 @@ def parse_players(players: str):
         'p': PseudoPlayer,
         'd': StandardPlayerDangling,
         't': TwoLetterJunkStrandingPlayer,
+        'n': NewStrandingPlayer
     }
     return [player_map[p] for p in players]
+
+
+def parse_word_scorer(word_scorers: str):
+    word_scorer_map = {
+        # 'r': ScoreWordSimpleStranding,
+        # 'h': ScoreWordHandBalance,
+        # The above weren't used as they didn't rank words based on length so the word lengths
+        # would need to be pre-filtered (which our algorithms don't currently do)
+        'l': ScoreWordTwoLetter,
+        'R': ScoreWordSimpleStrandingLongest,
+        'H': ScoreWordHandBalanceLongest,
+        'C': ScoreLetterCountLong
+    }
+    return [word_scorer_map[s] for s in word_scorers]
 
 
 def format_time(seconds: float):
@@ -39,7 +60,7 @@ def winner_frequencies(winners):
     for item in winners:
         # item is a list of winners, but there should only
         # be one winner so we take the first winner
-        parts = item[0].split()
+        parts = item[0].split('\n')
         word = parts[0]
 
         if word not in word_counts:
@@ -58,13 +79,13 @@ def timeout_handler(signum, frame):
                        f'{TIMEOUT_DURATION} seconds')
 
 
-def benchmark_game(args):
-    i, players, times, winners, fail_counts = args
+def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
     '''
     CPU time only counts when the CPU is executing this process
     NOTE: CPU time does NOT count count the time spent writing to `stdout` or any other I/O operation
     '''
-    game = Game(players, seed=1)
+    game = Game(players, word_scorers, seed=j)
+    # game = Game(players, word_scorers)
     # Setup and start timer
     signal.signal(signal.SIGALRM, timeout_handler)
     signal.alarm(TIMEOUT_DURATION)
@@ -84,12 +105,29 @@ def benchmark_game(args):
 
 
 if __name__ == '__main__':
-    iterations = 25
+    iterations = 100
     targets = [
-        'pps',
-        'ppd',
-        'psd',
+        # 'ppn',
+        # 'ppn',
+        # 'ppn',
+        # 'ppr',
+        # 'ppr',
+        # 'ppr',
         # 'ppt',
+        # 'ppt',
+        argv[1]
+    ]
+
+    scorers = [
+        # 'rrl',
+        # 'rrH',
+        # 'rrR',
+        # 'rrl',
+        # 'rrH',
+        # 'rrR',
+        # 'rrl',
+        # 'rrH',
+        argv[2]
     ]
 
     manager = Manager()
@@ -97,18 +135,30 @@ if __name__ == '__main__':
     winners = manager.list([manager.list() for _ in targets])
     fail_counts = manager.list([0 for _ in targets])
 
-    with Pool(processes=1) as pool:
-        tasks = []
-        for i, target in enumerate(targets):
-            players = parse_players(target)
-            tasks += [(i, players, times, winners, fail_counts)
-                      for _ in range(iterations)]
+    # with Pool(processes=1) as pool:
+    tasks = []
+    if len(targets) == len(scorers):
 
-        pool.map(benchmark_game, tasks)
+        for i, target in enumerate(targets):
+            for j in range(iterations):
+                players = parse_players(target)
+                word_scorers = parse_word_scorer(scorers[i])
+                benchmark_game(i, j, players, times, winners,
+                               fail_counts, word_scorers)
+                # tasks += [(i, j, players, times, winners, fail_counts, word_scorers)
+                #   for _ in range(iterations)]
+
+                # pool.map(benchmark_game, tasks)
+    else:
+        print("Error, mismatched length of scorers and players")
 
     print('--- Stats ---')
-    for target, times, winners, fail_count in zip(targets, times, winners, fail_counts):
-        print(f'Target {target}')
+    print(
+        f"how ungreedy: {HOW_UNGREEDY_IS_STRAND}, threshold: {THRESHOLD_DIFFERENT_STRANDING_METHODS}")
+    print(f"Iterations: {iterations}")
+    for target, scorer, times, winners, fail_count in zip(
+            targets, scorers, times, winners, fail_counts):
+        print(f'Target {target}, Scorer {scorer}')
 
         print(f'- Mean: {format_time(statistics.mean(times))}')
         print(f'- Median: {format_time(statistics.median(times))}')

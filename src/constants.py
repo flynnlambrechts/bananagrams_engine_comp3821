@@ -18,6 +18,11 @@ class bcolors:
 NO_SPACE_FOR_WORD = (-1, -1)
 ANCHOR_IS_PREFIX = 0
 ANCHOR_IS_SUFFIX = 1
+DICT_SIZE = 279496
+TOTAL_TILE_COUNT = 144
+
+THRESHOLD_DIFFERENT_STRANDING_METHODS = 0.35
+HOW_UNGREEDY_IS_STRAND = 50
 
 # Total letter count across the whole dictionary
 letter_count = {'A': 196745, 'B': 47310, 'C': 102008, 'D': 85376, 'E': 287058, 'F': 30331,

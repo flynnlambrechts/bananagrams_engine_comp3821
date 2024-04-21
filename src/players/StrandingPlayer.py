@@ -1,4 +1,4 @@
-from algorithms import long_with_best_rank, where_to_play_word
+from algorithms import where_to_play_word
 from word import Word
 from board.tile import Tile
 from pprint import pprint
@@ -13,14 +13,14 @@ from trie_service import all_words_trie, forward_trie, reverse_trie
 
 
 class StrandingPlayer(Player):
-    def __init__(self, game, id: int) -> None:
-        super().__init__(game, id)
+    def __init__(self, game, id: int, word_scorer) -> None:
+        super().__init__(game, id, word_scorer=word_scorer)
         self.dump_on_failure: bool = True
         # the property defines whether you should dump if you can't play everything vs restructure.
         # if you've received new tiles while junk was on the board, don't dump.
         self.dump_count = 0
         self.junk_tiles = []  # Which tiles on the board are junk
-
+        self.deconstruct_amount = 1
     def give_tiles(self, tiles: list[str]):
         self.dump_on_failure = False
         super().give_tiles(tiles)
@@ -28,9 +28,9 @@ class StrandingPlayer(Player):
     def play_first_turn(self):
         # Find the first word, play it, and add its first and last characters/tiles
         # to `anchors`
-        start_word: Word = long_with_best_rank(all_words_trie.all_subwords(self.hand), self.hand,
-                                               rank_strategy="strand",
-                                               closeness_to_longest=2)
+        start_word: Word = self.long_with_best_rank(all_words_trie.all_subwords(self.hand),
+                                                    rank_strategy="strand",
+                                                    closeness_to_longest=2)
 
         # self.speak("Playing", start_word)
         self.play_word(str(start_word))
@@ -38,6 +38,9 @@ class StrandingPlayer(Player):
         # self.anchors += [self.board.tiles[(0, 0)], self.board.tiles[(0, len(str(start_word)) - 1)]]
 
     def play_turn(self):
+        self.speak(
+            "turn",
+            f"game no {self.game.pouch.seed}. player played {len(self.board.tiles.keys())} tiles so far, {self.game.pouch.n_remaining()}")
         if len(self.hand) == 0:
             # Peel if hand is empty
             self.peel()
@@ -88,10 +91,16 @@ class StrandingPlayer(Player):
                 self.hand, key=lambda char: letter_count[char])
             self.game.dump(self, worst_letter_in_hand)
             self.dump_count += 1
-
+            self.tile_count -= 1
             if len(old_hand) == len(self.hand):
-                self.speak("ERROR", "tried to dump at the end and choked")
-                return "Error"
+                self.speak("ERROR", "tried to dump at the end and choked. Now removing hanging words")
+                print(f"deconstuct amount = {self.deconstruct_amount}")
+                if self.deconstruct_amount > 6:
+                    exit(1)
+                for _ in range(self.deconstruct_amount):
+                    self.last_resort_restructure()
+                self.deconstruct_amount += 1
+                
         else:
             print("restructured without dumping")
 
@@ -100,11 +109,31 @@ class StrandingPlayer(Player):
         # return "Error"
         # raise NotImplementedError("Board restructuring not implemented yet")
 
+    def last_resort_restructure(self):
+        # self.show_board()        
+        # for word in self.board.words:
+        #     print(word)
+
+        dangling_tiles = self.board.remove_dangling()
+        if len(dangling_tiles) == 0:
+            return super().restructure_board()
+
+        else:
+            old_hand = self.hand
+            for tile in dangling_tiles:
+                self.hand += tile.char
+
+            self.speak(
+                "DANGLING",
+                f"Found {len(dangling_tiles)} dangling tiles, old_hand={old_hand}, new_hand={self.hand}")
+            self.play_turn()
+
     def find_strand_extending_anchors(self):
         '''
-        used for the below find_strand_extension function. 
+        used for the below find_strand_extension function.
         returns tiles that have infinite space in 1 direction and some space at 90 degrees
         '''
+        print("finding strand extending anchors")
         strand_extending_anchors = []
         for tile in self.board.tiles.values():
             if not tile.has_parent(VERTICAL):
@@ -127,16 +156,17 @@ class StrandingPlayer(Player):
 
     def play_best_strand_extension(self, anchors: list[Tile]) -> Word | None:
         '''Finds the best and longest word that can be attached via a two letter word.'''
+        print(f"trying to play best strand extension, hand: {self.hand}")
         prefix_anchors = dict()  # prefix of the new word
         suffix_anchors = dict()  # suffix of the new word
 
         for anchor in anchors:
             pair_list = all_words_trie.find_two_letters(anchor.char, self.hand)
-            
+
             parent = anchor.get_only_parent()
-            
+
             if parent.pos(anchor) == 0:
-            # if parent.num_before == 0:
+                # if parent.num_before == 0:
                 # the anchor is the first letter of a word
                 # so the letter will be an anchor for a suffix word
                 dict_to_add_to = suffix_anchors
@@ -163,52 +193,63 @@ class StrandingPlayer(Player):
                         dict_to_add_to[pair.string[0]] = (
                             anchor, pair.string, 1)
 
-        pprint(prefix_anchors)
-        pprint(suffix_anchors)
+        # pprint(prefix_anchors)
+        # pprint(suffix_anchors)
         all_words = dict()
 
         for prefix in prefix_anchors.keys():
             words = forward_trie.all_subwords(
                 self.hand.replace(prefix, '', 1), prefix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words, self.hand)
+                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(words)
                 all_words[local_best] = "prefix"
 
         for suffix in suffix_anchors.keys():
             words = reverse_trie.all_subwords(
                 self.hand.replace(suffix, '', 1), suffix)
             if len(words) > 0:
-                local_best = long_with_best_rank(words, self.hand)
+                local_best = max(words, key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(words)
                 all_words[local_best] = "suffix"
+        if len(all_words.keys()) > 0:
 
-        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
+            best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand)) #self.long_with_best_rank(list(all_words.keys()))
+            # print(f"found best word [{best_word.string}]")
+        else:
+            # print("no words found stranding")
+            best_word = None
+
         if best_word == None or len(best_word.string) < 3:
+            # print("no good words")
             return False
 
         if all_words[best_word] == "prefix":
             key_info = prefix_anchors[best_word.string[0]]
-            pprint(key_info)
+            # pprint(key_info)
             second_anchor_index = 0
         else:
             key_info = suffix_anchors[best_word.string[-1]]
-            pprint(key_info)
+            # pprint(key_info)
             second_anchor_index = len(best_word.string) - 1
 
         first_anchor = key_info[0]
         two_letter_word = key_info[1]
         first_anchor_index = key_info[2]
-        print("Playing 1", two_letter_word, repr(first_anchor), first_anchor_index)
-        print("Anchors: ")
-        pprint(self.board.anchors)
-        
-        two_tiles = self.play_word(
-            two_letter_word, first_anchor, first_anchor_index)
-        
-        second_anchor = two_tiles[0]
-        if second_anchor == first_anchor:
-            second_anchor = two_tiles[1]
-        
-        print("Playing 2", best_word.string, repr(second_anchor), second_anchor_index)
+        # print("Playing p1", two_letter_word, repr(
+        #     first_anchor), first_anchor_index)
+        # print("Anchors: ")
+        # pprint(self.board.anchors)
+
+        # two_tiles = self.play_word(
+        #     two_letter_word, first_anchor, first_anchor_index)
+
+        # second_anchor = two_tiles[0]
+        # if second_anchor == first_anchor:
+        #     second_anchor = two_tiles[1]
+        second_anchor = self.play_word(
+                two_letter_word, first_anchor, first_anchor_index)[0]
+
+        # print("Playing 2", best_word.string, repr(
+        #     second_anchor), second_anchor_index)
         self.play_word(best_word.string, second_anchor, second_anchor_index)
         return True
 
@@ -243,8 +284,11 @@ class StrandingPlayer(Player):
                 self.hand.replace(suffix, '', 1), suffix)
             for word in words:
                 all_words[word] = (suffix_anchors[suffix], ANCHOR_IS_SUFFIX)
+
             # all_words = all_words | set(words)
-        best_word = long_with_best_rank(list(all_words.keys()), self.hand)
+        if len(all_words.keys()) == 0:
+            return False
+        best_word = max(list(all_words.keys()), key = lambda word: self.word_scorer.score_word(word.string, hand = self.hand))#self.long_with_best_rank(list(all_words.keys()))
 
         if best_word == None or len(best_word.string) < 3:
             return False
@@ -253,7 +297,7 @@ class StrandingPlayer(Player):
             anchor_index = 0
         else:
             anchor_index = len(best_word.string) - 1
-        print("Playing 3")
+        # print("Playing Right and")
         self.play_word(best_word.string, all_words[best_word][0], anchor_index)
         return True
 
@@ -282,7 +326,7 @@ class StrandingPlayer(Player):
             while change_anchors == False and i < len(words):
                 placement = where_to_play_word(words[i].string, anchor)
                 if placement != NO_SPACE_FOR_WORD:
-                    print("Playing 4")
+                    # print("Playing 4")
                     new_tiles = self.play_word(
                         words[i].string, anchor, anchor_index=placement[0], is_junk=True)
                     self.junk_tiles += new_tiles

@@ -2,13 +2,15 @@ from players.StrandingPlayer import StrandingPlayer
 from two_letter_junk import best_anchor_candidates
 from algorithms import where_to_play_word
 from board.tile import Tile
-from constants import  NO_SPACE_FOR_WORD, pair_start_count, pair_end_count
-from trie_service import  forward_trie
+from constants import NO_SPACE_FOR_WORD, pair_start_count, pair_end_count
+from trie_service import forward_trie
+
 
 class TwoLetterJunkStrandingPlayer(StrandingPlayer):
     '''
     Everything is the same except for play_junk
     '''
+
     def play_junk(self, anchors: list[Tile]):
         '''
         Go through the anchors, play as much as possible each time

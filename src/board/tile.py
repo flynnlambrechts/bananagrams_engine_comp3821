@@ -9,7 +9,7 @@ class Tile:
         self.coords = (row, col)
         self.char = char
         self.board = board
-        
+
         self.lims = self._update_lims()
 
         self.parents = {HORIZONTAL: None, VERTICAL: None}
@@ -33,16 +33,10 @@ class Tile:
         is_dangling = self.is_dangling()
         if is_dangling and is_junction:
             result = bcolors.FAIL + result + bcolors.ENDC
-        elif is_dangling:
-            result = bcolors.OKCYAN + result + bcolors.ENDC
-        elif is_junction:
-            result = bcolors.WARNING + result + bcolors.ENDC
-        
         if self.is_junk:
             result = bcolors.UNDERLINE + result + bcolors.ENDC
-            
+
         return result
-            
 
     def _update_lims(self) -> Lims:
         '''
@@ -86,7 +80,7 @@ class Tile:
 
     def send_probes(self, tiles):
         probe_hits = []
-        
+
         for i, dir in enumerate(DIRECTIONS):
             count = 0
             (row, col) = self.coords
@@ -119,50 +113,50 @@ class Tile:
                             probe_hits.append(hit)
                 count += 1
         return probe_hits
-    
+
     def get_adjacent(self, direction: tuple[int, int]):
         (row, col) = self.coords
         return self.board.get_tile(row + direction[0], col + direction[1])
-    
+
     def is_junction(self):
         # (row, col) = self.coords
         # has_horizontal = self.board.has_tile(row + 1, col) or self.board.has_tile(row - 1, col)
         # has_vertical = self.board.has_tile(row, col + 1) or self.board.has_tile(row, col - 1)
         # return has_horizontal and has_vertical
         return self.has_parent(HORIZONTAL) and self.has_parent(VERTICAL)
-        
+
     def is_dangling(self) -> bool:
         if not self.has_parent(VERTICAL) and self.has_parent(HORIZONTAL):
             return self.get_parent(HORIZONTAL).is_dangling()
         elif not self.has_parent(HORIZONTAL) and self.has_parent(VERTICAL):
             return self.get_parent(VERTICAL).is_dangling()
         return False
-        
+
     def add_parent(self, parent: ParentWord, direction: int):
         self.parents[direction] = parent
-            
+
     def get_parent(self, direction: int):
         return self.parents[direction]
-        
+
     def get_only_parent(self):
         vert = self.get_parent(VERTICAL)
         if vert == None:
             return self.get_parent(HORIZONTAL)
         return vert
-    
+
     def has_parent(self, direction) -> bool:
-        return self.get_parent(direction) != None
-    
+        return self.get_parent(direction) is not None
+
     def pos_in_parent(self, direction):
         return self.get_parent(direction).pos(self)
-    
+
     def num_before(self, direction):
         return self.pos_in_parent(self, direction)
-    
+
     def num_after(self, direction):
         return self.get_parent(direction).len() - self.pos_in_parent(direction) - 1
-    
-    def remove_from_board(self, parent_direction: int|None) -> bool:
+
+    def remove_from_board(self, parent_direction: int | None) -> bool:
         """Returns true if the tile was successfully removed, returns false
         if the tile still had another parent holding it on the board
         """
@@ -171,4 +165,6 @@ class Tile:
             return True
         else:
             self.add_parent(None, parent_direction)
+            self.board.anchors.append(self)
+            '''If it has two parents, remove one parent and add the tile back as an anchor'''
             return False
