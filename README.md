@@ -14,13 +14,13 @@ where letter1 refers to a player type according to the following:\
 'p': PseudoPlayer,\
 'd': StandardPlayerDangling,\
 't': TwoLetterJunkStrandingPlayer,\
-'n': NewStrandingPlayer\
+'n': NewStrandingPlayer
 
 and letter2 refers to a word scorer according to the following:\
 'l': ScoreWordTwoLetter,\
 'R': ScoreWordSimpleStrandingLongest,\
 'H': ScoreWordHandBalanceLongest,\
-'C': ScoreLetterCountLong\
+'C': ScoreLetterCountLong
 
 Adjust the number of letters to add more algorithms to one game (up to 8).
 
