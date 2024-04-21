@@ -245,7 +245,7 @@ class NewStrandingPlayer(TwoLetterJunkStrandingPlayer):
             else:
                 return False
 
-            if best_word is None or len(best_word.string) < 2:
+            if best_word is None or len(best_word.string) < 3:
                 return False
 
             if all_words[best_word] == "prefix":

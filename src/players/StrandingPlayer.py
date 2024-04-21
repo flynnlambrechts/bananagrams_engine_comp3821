@@ -218,7 +218,7 @@ class StrandingPlayer(Player):
             # print("no words found stranding")
             best_word = None
 
-        if best_word == None or len(best_word.string) < 2:
+        if best_word == None or len(best_word.string) < 3:
             # print("no good words")
             return False
 
