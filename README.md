@@ -5,7 +5,7 @@ Requires a recent download of the python implementation pypy at https://www.pypy
 
 To test an algorithm make sure your current directory is /src and run:
 ```
-pypy3 benchmarker.py pletter1 pletter2
+pypy3 benchmarker.py pletter1 letter2letter2
 ```
 where letter1 refers to a player type according to the following:
 's': StandardPlayer,
