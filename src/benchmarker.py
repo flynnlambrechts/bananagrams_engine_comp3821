@@ -36,9 +36,10 @@ def parse_players(players: str):
 
 def parse_word_scorer(word_scorers: str):
     word_scorer_map = {
-        'r': ScoreWordSimpleStranding,
-        'h': ScoreWordHandBalance,
-        # Works:
+        # 'r': ScoreWordSimpleStranding,
+        # 'h': ScoreWordHandBalance,
+        # The above weren't used as they didn't rank words based on length so the word lengths
+        # would need to be pre-filtered (which our algorithms don't currently do)
         'l': ScoreWordTwoLetter,
         'R': ScoreWordSimpleStrandingLongest,
         'H': ScoreWordHandBalanceLongest,
@@ -104,7 +105,7 @@ def benchmark_game(i, j, players, times, winners, fail_counts, word_scorers):
 
 
 if __name__ == '__main__':
-    iterations = 1000
+    iterations = 100
     targets = [
         # 'ppn',
         # 'ppn',
