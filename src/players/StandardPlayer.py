@@ -1,10 +1,10 @@
-from players.player import Player
-from algorithms import where_to_play_word
-from trie_service import all_words_trie
-from word import Word
-from board.tile import Tile
-from board.board import Board
-from constants import NO_SPACE_FOR_WORD
+from .player import Player
+from ..algorithms import where_to_play_word
+from ..trie_service import all_words_trie
+from ..word import Word
+from ..board.tile import Tile
+from ..board.board import Board
+from ..constants import NO_SPACE_FOR_WORD
 
 class StandardPlayer(Player):
     def play_first_turn(self):

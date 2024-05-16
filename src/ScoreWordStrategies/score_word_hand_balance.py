@@ -1,4 +1,4 @@
-from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
+from .score_word_strategy import ScoreWordStrategy
 from constants import letter_distribution
 
 

@@ -38,45 +38,45 @@ class Board:
         # for word in self.words:
         #     print(str(word))
 
-        return ""
+        # return ""
 
-        # if not self.tiles:
-        #     return ""
+        if not self.tiles:
+            return ""
 
-        # col_delim = " "
+        col_delim = " "
 
-        # header = (
-        #     4 * " "
-        #     + col_delim.join(
-        #         map(
-        #             lambda x: x[-1], map(str,
-        #                                  range(self.min_col(), self.max_col() + 1))
-        #         )
-        #     )
-        #     + "\n"
-        # )
+        header = (
+            4 * " "
+            + col_delim.join(
+                map(
+                    lambda x: x[-1], map(str,
+                                         range(self.min_col(), self.max_col() + 1))
+                )
+            )
+            + "\n"
+        )
 
-        # s = header + f"{self.min_row():>4}"
+        s = header + f"{self.min_row():>4}"
 
-        # cur_row = self.min_row()
-        # cur_col = self.min_col()
-        # for (row, col), tile in sorted(
-        #     self.tiles.items(), key=lambda item: (item[0][0], item[0][1])
-        # ):
-        #     while cur_row < row:
-        #         cur_row += 1
-        #         cur_col = self.min_col()
-        #         s += f"\n{cur_row:>4}"
-        #     skipped = 0
-        #     while cur_col < col:
-        #         cur_col += 1
-        #         skipped += 1
-        #     tile_text = str(tile)
-        #     s += 2 * max(0, skipped) * col_delim + tile_text + col_delim
+        cur_row = self.min_row()
+        cur_col = self.min_col()
+        for (row, col), tile in sorted(
+            self.tiles.items(), key=lambda item: (item[0][0], item[0][1])
+        ):
+            while cur_row < row:
+                cur_row += 1
+                cur_col = self.min_col()
+                s += f"\n{cur_row:>4}"
+            skipped = 0
+            while cur_col < col:
+                cur_col += 1
+                skipped += 1
+            tile_text = str(tile)
+            s += 2 * max(0, skipped) * col_delim + tile_text + col_delim
 
-        #     cur_col += 1
+            cur_col += 1
 
-        # return s
+        return s
 
     def add_tile(self, tile: str, row: int, col: int, is_junk=False) -> Tile:
         '''

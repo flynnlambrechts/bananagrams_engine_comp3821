@@ -1,10 +1,11 @@
-from pouch import Pouch
-from players.player import Player
+from .pouch import Pouch
+from .players.player import Player
 from typing import Type
 import threading
-
+import json
 
 class Game:
+
     '''
     Game class is responsible for managing the players and the pouch of letters
     '''
@@ -21,6 +22,8 @@ class Game:
         self.player_threads = []
         self.game_is_active = False
         self.winners = []
+        
+        self.states = []
 
     @DeprecationWarning
     def add_player(self, player: Player):
@@ -111,8 +114,12 @@ class Game:
             if len(player.hand) == 0:
                 winners.append(player.name)
 
+        with open("data.json", 'w') as file:
+            json.dump(self.states, file)
+    
+    
         self.winners = winners
-
+        
         print("GAME OVER")
         print("Winners: ")
         if winners:

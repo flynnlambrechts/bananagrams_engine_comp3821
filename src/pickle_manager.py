@@ -10,9 +10,9 @@ and then save them to a file so that main.py doesn't have to
 '''
 
 
-from pathlib import Path
 import pickle
-from trie import Trie
+from pathlib import Path
+from .trie import Trie
 
 _this_directory = Path(__file__).parent.resolve()
 _pickle_dir = _this_directory / 'pickles'

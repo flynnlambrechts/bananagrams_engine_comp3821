@@ -1,4 +1,4 @@
-from ScoreWordStrategies.score_word_strategy import ScoreWordStrategy
+from .score_word_strategy import ScoreWordStrategy
 from constants import pair_end_count, pair_start_count, is_prefix_of, is_suffix_of
 
 
